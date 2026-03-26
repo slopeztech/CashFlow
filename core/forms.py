@@ -131,11 +131,28 @@ class ProductForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['category'].queryset = Category.objects.order_by('name')
         self.fields['supplier'].queryset = Supplier.objects.order_by('name')
+        self.fields['sku'].required = False
         self.fields['category'].required = True
         self.fields['supplier'].required = False
         self.fields['min_stock'].required = False
         self.fields['purchase_options'].required = False
         self.fields['purchase_options'].initial = Product.PurchaseOptions.BOTH
+
+    def clean_sku(self):
+        sku = (self.cleaned_data.get('sku') or '').strip()
+        if sku:
+            return sku
+
+        # Keep existing SKU on updates if the field is submitted empty.
+        if self.instance and self.instance.pk and self.instance.sku:
+            return self.instance.sku
+
+        name = (self.cleaned_data.get('name') or '').strip()
+        base = re.sub(r'[^A-Z0-9]+', '-', name.upper()).strip('-')[:24] or 'SKU'
+        candidate = f'{base}-{secrets.token_hex(3).upper()}'
+        while Product.objects.filter(sku=candidate).exists():
+            candidate = f'{base}-{secrets.token_hex(3).upper()}'
+        return candidate
 
     def clean_min_stock(self):
         min_stock = self.cleaned_data.get('min_stock')

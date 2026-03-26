@@ -24,7 +24,12 @@
                     <div class="order-breakdown mb-2">
                       {% for item in order.items.all %}
                         <div class="order-breakdown-row">
-                          <span>{{ item.quantity }}x {{ item.product.name }}</span>
+                          <span>
+                            {{ item.quantity }}x {{ item.product.name }}
+                            <small class="text-muted">
+                              ({{ item.product.category.name|default:'-' }})
+                            </small>
+                          </span>
                           <strong>€ {{ item.subtotal|truncate_2 }}</strong>
                         </div>
                       {% endfor %}

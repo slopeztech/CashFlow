@@ -8,41 +8,205 @@
   <a class="btn btn-light" href="{% url 'admin_actions' %}">{% trans 'Back to actions' %}</a>
 {% endblock %}
 
+{% block extra_head %}
+  {{ block.super }}
+  <style>
+    .order-summary-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: .9rem;
+    }
+
+    .order-highlight-card {
+      border: 1px solid #dbe4ef;
+      border-radius: 14px;
+      background: linear-gradient(140deg, #ffffff 0%, #f7fbff 100%);
+      box-shadow: 0 12px 24px -24px rgba(15, 23, 42, 0.55);
+      padding: .95rem;
+      height: 100%;
+    }
+
+    .order-highlight-card--primary {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: .8rem;
+    }
+
+    .order-highlight-main {
+      display: grid;
+      gap: .35rem;
+    }
+
+    .order-total-emphasis {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-width: 150px;
+      border-left: 1px solid #dbe4ef;
+      padding-left: .8rem;
+    }
+
+    .order-total-value {
+      margin: 0;
+      font-size: 1.35rem;
+      line-height: 1.15;
+      font-weight: 800;
+      color: #1d4ed8;
+      word-break: break-word;
+    }
+
+    .order-highlight-card--balance {
+      border-color: #bfdbfe;
+      background: linear-gradient(130deg, #eff6ff 0%, #ffffff 100%);
+    }
+
+    .order-highlight-line {
+      margin: 0;
+      font-size: .9rem;
+      color: #334155;
+    }
+
+    .order-highlight-line--break {
+      display: grid;
+      grid-template-columns: 1fr;
+      row-gap: .1rem;
+    }
+
+    .order-highlight-amount {
+      display: block;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+
+    .order-highlight-line + .order-highlight-line {
+      margin-top: .42rem;
+    }
+
+    .order-highlight-line strong {
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    .order-balance-after {
+      color: #0f766e;
+      font-weight: 700;
+    }
+
+    .order-balance-after.is-negative {
+      color: #b91c1c;
+    }
+
+    .order-items-stack {
+      display: grid;
+      gap: .75rem;
+    }
+
+    .order-item-card {
+      border: 1px solid #dbe4ef;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: .8rem .9rem;
+    }
+
+    .order-item-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .65rem;
+      margin-bottom: .5rem;
+      flex-wrap: wrap;
+    }
+
+    .order-item-name {
+      margin: 0;
+      font-size: .98rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .order-item-category {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid #dbe4ef;
+      border-radius: 999px;
+      padding: .15rem .5rem;
+      font-size: .74rem;
+      font-weight: 700;
+      color: #334155;
+      background: #f8fafc;
+    }
+
+    .order-item-meta {
+      display: grid;
+      gap: .28rem;
+    }
+
+    .order-item-meta-line {
+      margin: 0;
+      font-size: .86rem;
+      color: #334155;
+    }
+
+    .order-item-meta-line strong {
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    @media (max-width: 767.98px) {
+      .order-highlight-card--primary {
+        grid-template-columns: 1fr;
+      }
+
+      .order-total-emphasis {
+        border-left: 0;
+        border-top: 1px solid #dbe4ef;
+        padding-left: 0;
+        padding-top: .65rem;
+        min-width: 0;
+      }
+    }
+
+  </style>
+{% endblock %}
+
 {% block content %}
-  <div class="card card-rounded mb-3">
-    <div class="card-body">
-      <div class="row g-3">
-        <div class="col-md-4"><strong>{% trans 'User:' %}</strong> {{ order.created_by.username }}</div>
-        <div class="col-md-4"><strong>{% trans 'Status:' %}</strong> {{ order.get_status_display }}</div>
-        <div class="col-md-4"><strong>{% trans 'Total:' %}</strong> € {{ order.total_amount|truncate_2 }}</div>
+  <div class="order-summary-grid mb-3">
+    <div class="order-highlight-card order-highlight-card--primary">
+      <div class="order-highlight-main">
+        <p class="order-highlight-line">{% trans 'User:' %} <strong>{{ order.created_by.username }}</strong></p>
+        <p class="order-highlight-line">{% trans 'Status:' %} <strong>{{ order.get_status_display }}</strong></p>
       </div>
+      <div class="order-total-emphasis" aria-label="{% trans 'Total:' %}">
+        <p class="order-total-value">€ {{ order.total_amount|truncate_2 }}</p>
+      </div>
+    </div>
+    <div class="order-highlight-card order-highlight-card--balance">
+      <p class="order-highlight-line order-highlight-line--break">{% trans 'Current balance' %}: <strong class="order-highlight-amount">€ {{ order_user_current_balance|truncate_2 }}</strong></p>
+      <p class="order-highlight-line order-highlight-line--break order-balance-after {% if order_user_balance_after_approval < 0 %}is-negative{% endif %}">
+        {% trans 'After' %}: <strong class="order-highlight-amount">€ {{ order_user_balance_after_approval|truncate_2 }}</strong>
+      </p>
     </div>
   </div>
 
   <div class="card card-rounded mb-3">
     <div class="card-body">
       <h5 class="mb-3">{% trans 'Order items' %}</h5>
-      <div class="table-responsive">
-        <table class="table select-table">
-          <thead>
-            <tr>
-              <th>{% trans 'Product' %}</th>
-              <th>{% trans 'Quantity' %}</th>
-              <th>{% trans 'Unit price' %}</th>
-              <th>{% trans 'Subtotal' %}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for item in order.items.all %}
-              <tr>
-                <td>{{ item.product.name }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>€ {{ item.unit_price|truncate_2 }}</td>
-                <td>€ {{ item.subtotal|truncate_2 }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+      <div class="order-items-stack">
+        {% for item in order.items.all %}
+          <div class="order-item-card">
+            <div class="order-item-head">
+              <h6 class="order-item-name">{{ item.product.name }}</h6>
+              <span class="order-item-category">{{ item.product.category.name|default:'-' }}</span>
+            </div>
+            <div class="order-item-meta">
+              <p class="order-item-meta-line">{% trans 'Quantity' %}: <strong>{{ item.quantity }}</strong></p>
+              <p class="order-item-meta-line">{% trans 'Unit price' %}: <strong>€ {{ item.unit_price|truncate_2 }}</strong></p>
+              <p class="order-item-meta-line">{% trans 'Subtotal' %}: <strong>€ {{ item.subtotal|truncate_2 }}</strong></p>
+            </div>
+          </div>
+        {% endfor %}
       </div>
     </div>
   </div>

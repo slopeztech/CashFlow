@@ -2047,10 +2047,21 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
 class AdminOrderApprovalView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMixin, View):
     template_name = 'admin/orders/approval.html'
 
+    @staticmethod
+    def _build_context(order, form):
+        profile, _created = StoreUserProfile.objects.get_or_create(user=order.created_by)
+        current_balance = profile.current_balance
+        return {
+            'order': order,
+            'form': form,
+            'order_user_current_balance': current_balance,
+            'order_user_balance_after_approval': current_balance - order.total_amount,
+        }
+
     def get(self, request, pk):
         order = get_object_or_404(Order, pk=pk)
         form = OrderRejectForm()
-        return render(request, self.get_template_names()[0], {'order': order, 'form': form})
+        return render(request, self.get_template_names()[0], self._build_context(order, form))
 
     def post(self, request, pk):
         order = get_object_or_404(Order, pk=pk)
@@ -2079,7 +2090,7 @@ class AdminOrderApprovalView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffR
                 except ValidationError as exc:
                     messages.error(request, exc.message)
 
-        return render(request, self.get_template_names()[0], {'order': order, 'form': form})
+        return render(request, self.get_template_names()[0], self._build_context(order, form))
 
 
 class AdminUserPurchaseHistoryView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMixin, TemplateView):

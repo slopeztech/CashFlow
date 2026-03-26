@@ -134,6 +134,8 @@ if debug_env is None:
 else:
     DEBUG = _env_bool('DEBUG', default=False)
 
+SERVE_MEDIA_WITH_DJANGO = _env_bool('SERVE_MEDIA_WITH_DJANGO', default=DEBUG)
+
 ALLOWED_HOSTS = _env_list(
     'ALLOWED_HOSTS',
     'cashflow,cashflow.local,127.0.0.1,192.168.1.129',

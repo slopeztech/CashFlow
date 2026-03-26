@@ -66,3 +66,53 @@ gunicorn CashFlow.asgi:application \
     --keyfile ~/certs/server.key
 
 (es normal que el explorador diga que el cert no es de confianza)
+
+
+.env prod caca pero prod                                                                            .env
+WHITENOISE_MANIFEST_STRICT=0
+WHITENOISE_USE_MANIFEST=0
+ENABLE_REALTIME=0
+
+en este puntoo deberia estar bien esto:
+gunicorn CashFlow.asgi:application --bind 0.0.0.0:8000 --certfile ~/certs/server.crt --keyfile ~/certs/server.key
+
+crear servicio:
+sudo nano /etc/systemd/system/cashflow.service
+
+ejemplo:
+
+[Unit]
+Description=Gunicorn ASGI server para CashFlow
+After=network.target
+
+[Service]
+User=orangepi
+Group=orangepi
+WorkingDirectory=/home/orangepi/CashFlow
+Environment="PATH=/home/orangepi/CashFlow/venv/bin"
+ExecStart=/home/orangepi/CashFlow/venv/bin/gunicorn \
+    CashFlow.asgi:application \
+    --bind 0.0.0.0:8000 \
+    --certfile /home/orangepi/certs/server.crt \
+    --keyfile /home/orangepi/certs/server.key \
+    --workers 3
+
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+---
+
+sudo systemctl daemon-reload
+sudo systemctl enable cashflow.service
+sudo systemctl start cashflow.service
+
+comprobar estado:
+sudo systemctl status cashflow.service
+
+logs tiempo real:
+journalctl -u cashflow.service -f
+
+reiniciar tras git pull:
+sudo systemctl restart cashflow.service

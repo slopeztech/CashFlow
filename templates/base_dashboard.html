@@ -786,6 +786,11 @@
     </script>
     <script>
       (function () {
+        const liveUpdatesEnabled = {{ live_updates_enabled|yesno:'true,false' }};
+        if (!liveUpdatesEnabled) {
+          return;
+        }
+
         const enabledPrefixes = [
           '/admin-panel/',
           '/admin-panel/dashboard/',

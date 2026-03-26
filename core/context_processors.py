@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db.models import Exists, OuterRef
 
 from customers.models import BalanceRequest
@@ -64,4 +65,7 @@ def current_user_profile(request):
 
 def ui_settings(request):
     settings_obj, _created = SystemSettings.objects.get_or_create(pk=1)
-    return {'ui_settings': settings_obj}
+    return {
+        'ui_settings': settings_obj,
+        'live_updates_enabled': bool(getattr(settings, 'REALTIME_ENABLED', False)),
+    }

@@ -292,8 +292,11 @@ STORAGES = {
 }
 WHITENOISE_MANIFEST_STRICT = _env_bool('WHITENOISE_MANIFEST_STRICT', default=False)
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = os.getenv('MEDIA_URL', '/media/').strip() or '/media/'
+if not MEDIA_URL.endswith('/'):
+    MEDIA_URL = f'{MEDIA_URL}/'
+
+MEDIA_ROOT = Path(os.getenv('MEDIA_ROOT', str(BASE_DIR / 'media'))).expanduser()
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'

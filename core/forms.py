@@ -1,6 +1,7 @@
 import secrets
 import string
 import re
+import logging
 from decimal import Decimal
 
 from PIL import Image, UnidentifiedImageError
@@ -27,6 +28,9 @@ from customers.models import BalanceRequest, MonthlyFeeSettings, StoreUserProfil
 from inventory.models import Category, Product, ProductReview, ProductSheetField, ProductSheetUrl, Supplier
 from sales.models import Order, OrderItem, Sale, SaleItem
 from core.image_processing import optimize_uploaded_image
+
+
+backendlog = logging.getLogger('backendlog')
 
 
 class MultipleFileInput(forms.ClearableFileInput):
@@ -298,7 +302,11 @@ class StoreUserProfileForm(forms.ModelForm):
 
             new_image = self.cleaned_data.get('profile_image')
             if new_image and previous_image_name and previous_image_name != profile.profile_image.name:
-                profile.profile_image.storage.delete(previous_image_name)
+                try:
+                    profile.profile_image.storage.delete(previous_image_name)
+                except (PermissionError, OSError) as exc:
+                    # On Windows the old file can remain locked briefly by another process.
+                    backendlog.warning('Could not delete previous profile image %s: %s', previous_image_name, exc)
 
         return profile
 

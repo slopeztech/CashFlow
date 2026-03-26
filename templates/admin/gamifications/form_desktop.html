@@ -1,0 +1,72 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% if mode == 'edit' %}{% trans 'Edit gamification' %}{% else %}{% trans 'New gamification' %}{% endif %} | CashFlow{% endblock %}
+{% block page_title %}{% if mode == 'edit' %}{% trans 'Edit gamification' %}{% else %}{% trans 'New gamification' %}{% endif %}{% endblock %}
+{% block page_subtitle %}{% trans 'Define requirements, dates and rewards for users' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'admin_gamifications' %}"><i class="icon-arrow-left"></i> {% trans 'Back to gamifications' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="card card-rounded">
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="row g-3">
+          <div class="col-md-8">
+            <label class="form-label" for="id_title">{% trans 'Title' %}</label>
+            {{ form.title }}
+            {% if form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors }}</div>{% endif %}
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label" for="id_target_value">{% trans 'Target value' %}</label>
+            {{ form.target_value }}
+            {% if form.target_value.errors %}<div class="text-danger small mt-1">{{ form.target_value.errors }}</div>{% endif %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="id_gamification_type">{% trans 'Gamification type' %}</label>
+            {{ form.gamification_type }}
+            {% if form.gamification_type.errors %}<div class="text-danger small mt-1">{{ form.gamification_type.errors }}</div>{% endif %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="id_reward">{% trans 'Reward' %}</label>
+            {{ form.reward }}
+            {% if form.reward.errors %}<div class="text-danger small mt-1">{{ form.reward.errors }}</div>{% endif %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="id_start_at">{% trans 'Start date' %}</label>
+            {{ form.start_at }}
+            {% if form.start_at.errors %}<div class="text-danger small mt-1">{{ form.start_at.errors }}</div>{% endif %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="id_end_at">{% trans 'End date' %}</label>
+            {{ form.end_at }}
+            {% if form.end_at.errors %}<div class="text-danger small mt-1">{{ form.end_at.errors }}</div>{% endif %}
+          </div>
+
+          <div class="col-12">
+            <label class="form-label" for="id_description">{% trans 'Description' %}</label>
+            {{ form.description }}
+            {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+          <button class="btn btn-primary text-white" type="submit">{% if mode == 'edit' %}{% trans 'Save changes' %}{% else %}{% trans 'Create gamification' %}{% endif %}</button>
+          <a class="btn btn-light" href="{% url 'admin_gamifications' %}">{% trans 'Cancel' %}</a>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

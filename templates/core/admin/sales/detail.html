@@ -1,0 +1,59 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Sale details' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Sale' %} #{{ object.id }}{% endblock %}
+{% block page_subtitle %}{% trans 'Review transaction and item details' %}{% endblock %}
+{% block page_actions %}
+  <div class="d-flex gap-2">
+    <a class="btn btn-light" href="{% url 'sale_list' %}"><i class="icon-arrow-left"></i> {% trans 'Back to sales' %}</a>
+    <a class="btn btn-primary text-white" href="{% url 'sale_update' object.pk %}"><i class="icon-note"></i> {% trans 'Edit' %}</a>
+    <a class="btn btn-danger text-white" href="{% url 'sale_delete' object.pk %}"><i class="icon-trash"></i> {% trans 'Delete' %}</a>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="card card-rounded mb-3">
+    <div class="card-body">
+      <h4 class="card-title card-title-dash mb-3">{% trans 'Sale summary' %}</h4>
+      <div class="row g-3">
+        <div class="col-md-3"><strong>{% trans 'Date:' %}</strong> {{ object.created_at }}</div>
+        <div class="col-md-3"><strong>{% trans 'Seller:' %}</strong> {{ object.seller.username }}</div>
+        <div class="col-md-3"><strong>{% trans 'Customer:' %}</strong> {% if object.customer %}{{ object.customer.username }}{% else %}{{ object.customer_name|default:'-' }}{% endif %}</div>
+        <div class="col-md-3"><strong>{% trans 'Total:' %}</strong> € {{ object.total_amount }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-rounded">
+    <div class="card-body">
+      <h4 class="card-title card-title-dash mb-3">{% trans 'Sale items' %}</h4>
+      <div class="table-responsive">
+        <table class="table select-table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>{% trans 'Product' %}</th>
+            <th>{% trans 'Quantity' %}</th>
+            <th>{% trans 'Unit price' %}</th>
+            <th>{% trans 'Subtotal' %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in object.items.all %}
+            <tr>
+              <td>{{ item.product.name }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>€ {{ item.unit_price }}</td>
+              <td>€ {{ item.subtotal }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="4" class="text-center text-muted py-3">{% trans 'No items found for this sale.' %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}

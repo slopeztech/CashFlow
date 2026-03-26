@@ -1,0 +1,90 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Monthly fee' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Monthly fee' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Configure monthly charge and monitor user payment status' %}{% endblock %}
+
+{% block content %}
+  <div class="row g-4 mb-4">
+    <div class="col-md-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <p class="statistics-title mb-0">{% trans 'Users paying monthly fee' %}</p>
+          <h3 class="rate-percentage mt-2 mb-0">{{ monthly_enabled_users }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <p class="statistics-title mb-0">{% trans 'Users not paying monthly fee' %}</p>
+          <h3 class="rate-percentage mt-2 mb-0">{{ monthly_disabled_users }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <p class="statistics-title mb-0">{% trans 'Late users' %}</p>
+          <h3 class="rate-percentage mt-2 mb-0">{{ monthly_late_users_count }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h4 class="card-title card-title-dash mb-3">{% trans 'Monthly fee settings' %}</h4>
+          <form method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+            <div class="mb-3">
+              <label class="form-label" for="id_monthly_amount">{% trans 'Monthly amount' %}</label>
+              {{ form.monthly_amount }}
+            </div>
+            <div class="form-check mb-3">
+              {{ form.is_active }}
+              <label class="form-check-label" for="id_is_active">{% trans 'Enable monthly fee processing' %}</label>
+            </div>
+            <button class="btn btn-primary text-white" type="submit">{% trans 'Save settings' %}</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h4 class="card-title card-title-dash mb-3">{% trans 'Late users details' %}</h4>
+          <div class="table-responsive">
+            <table class="table select-table">
+              <thead>
+                <tr>
+                  <th>{% trans 'User' %}</th>
+                  <th>{% trans 'Pending months' %}</th>
+                  <th>{% trans 'Current balance' %}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in monthly_late_users %}
+                  <tr>
+                    <td>{{ item.user.username }}</td>
+                    <td>{{ item.due_months }}</td>
+                    <td>€ {{ item.balance|truncate_2 }}</td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="3" class="text-center text-muted py-3">{% trans 'No late users.' %}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

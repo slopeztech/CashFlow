@@ -1,0 +1,81 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% if mode == 'edit' %}{% trans 'Edit User' %}{% else %}{% trans 'Add User' %}{% endif %} | CashFlow{% endblock %}
+{% block page_title %}{% if mode == 'edit' %}{% trans 'Edit user' %}{% else %}{% trans 'Add user' %}{% endif %}{% endblock %}
+{% block page_subtitle %}{% if mode == 'edit' %}{% trans 'Update user account information' %}{% else %}{% trans 'Create a new user account' %}{% endif %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'admin_user_list' %}"><i class="icon-arrow-left"></i> {% trans 'Back to users' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="card card-rounded">
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">{% trans 'Username' %}</label>
+            {{ form.username }}
+            {% if form.username.errors %}<div class="text-danger small mt-1">{{ form.username.errors }}</div>{% endif %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">{% trans 'Email' %}</label>
+            {{ form.email }}
+            {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors }}</div>{% endif %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">{% trans 'Language' %}</label>
+            {{ form.language }}
+            {% if form.language.errors %}<div class="text-danger small mt-1">{{ form.language.errors }}</div>{% endif %}
+          </div>
+
+          {% if mode == 'create' %}
+            <div class="col-md-6">
+              <label class="form-label">{% trans 'Password' %}</label>
+              {{ form.password1 }}
+              {% if form.password1.errors %}<div class="text-danger small mt-1">{{ form.password1.errors }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">{% trans 'Confirm password' %}</label>
+              {{ form.password2 }}
+              {% if form.password2.errors %}<div class="text-danger small mt-1">{{ form.password2.errors }}</div>{% endif %}
+            </div>
+          {% else %}
+            <div class="col-md-6">
+              <label class="form-label">{% trans 'Phone' %}</label>
+              {{ form.phone }}
+              {% if form.phone.errors %}<div class="text-danger small mt-1">{{ form.phone.errors }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">{% trans 'Address' %}</label>
+              {{ form.address }}
+              {% if form.address.errors %}<div class="text-danger small mt-1">{{ form.address.errors }}</div>{% endif %}
+            </div>
+          {% endif %}
+
+          <div class="col-md-12 d-flex align-items-end">
+            <div class="form-check mt-2">
+              {{ form.is_staff }}
+              <label class="form-check-label" for="id_is_staff">{% trans 'Grant admin access' %}</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+          <button class="btn btn-primary text-white" type="submit">{% if mode == 'edit' %}{% trans 'Save changes' %}{% else %}{% trans 'Create user' %}{% endif %}</button>
+          <a class="btn btn-light" href="{% url 'admin_user_list' %}">{% trans 'Cancel' %}</a>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

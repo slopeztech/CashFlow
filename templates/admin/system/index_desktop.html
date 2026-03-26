@@ -1,0 +1,381 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'System' %} | {{ platform_label }}{% endblock %}
+{% block page_title %}{% trans 'System' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Global system settings and maintenance tools' %}{% endblock %}
+
+{% block content %}
+  <div class="card card-rounded mb-3">
+    <div class="card-body">
+      <ul class="nav nav-tabs system-tabs mb-4" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link system-tab-link {% if selected_tab == 'summary' %}active{% endif %}" href="{% url 'admin_system' %}?tab=summary">{% trans 'Summary' %}</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link system-tab-link {% if selected_tab == 'environment' %}active{% endif %}" href="{% url 'admin_system' %}?tab=environment">{% trans 'Environment variables' %}</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link system-tab-link {% if selected_tab == 'backups' %}active{% endif %}" href="{% url 'admin_system' %}?tab=backups">{% trans 'Backups' %}</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link system-tab-link {% if selected_tab == 'backendlog' %}active{% endif %}" href="{% url 'admin_system' %}?tab=backendlog">{% trans 'BackendLog' %}</a>
+        </li>
+      </ul>
+
+      {% if selected_tab == 'summary' %}
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="card card-rounded h-100 border">
+              <div class="card-body">
+                <p class="text-muted mb-1">{% trans 'Platform name' %}</p>
+                <h4 class="mb-0">{{ system_settings.store_name }}</h4>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card card-rounded h-100 border">
+              <div class="card-body">
+                <p class="text-muted mb-1">{% trans 'Code version' %}</p>
+                <h4 class="mb-0">{{ code_version }}</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% elif selected_tab == 'environment' %}
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="save_environment">
+
+          <div class="row g-3 mb-3">
+            <div class="col-lg-6">
+              <div class="card card-rounded h-100 border">
+                <div class="card-body">
+                  <h5 class="card-title">{% trans 'Brand and texts' %}</h5>
+                  {% if system_form.non_field_errors %}
+                    <div class="alert alert-danger">{{ system_form.non_field_errors }}</div>
+                  {% endif %}
+                  <div class="mb-3">
+                    <label class="form-label" for="{{ system_form.store_name.id_for_label }}">{% trans 'Store name' %}</label>
+                    {{ system_form.store_name }}
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label" for="{{ system_form.brand_color_primary.id_for_label }}">{% trans 'Primary brand color (HEX)' %}</label>
+                    {{ system_form.brand_color_primary }}
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label" for="{{ system_form.brand_color_secondary.id_for_label }}">{% trans 'Secondary brand color (HEX)' %}</label>
+                    {{ system_form.brand_color_secondary }}
+                    <div class="form-text">{% trans 'Current CashFlow style example: #111827 and #5E8DF5' %}</div>
+                  </div>
+                  <div class="mb-0">
+                    <label class="form-label" for="{{ system_form.footer_signature.id_for_label }}">{% trans 'Footer text' %}</label>
+                    {{ system_form.footer_signature }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-6">
+              <div class="card card-rounded h-100 border">
+                <div class="card-body">
+                  <h5 class="card-title">{% trans 'Monthly fee settings' %}</h5>
+                  {% if monthly_form.non_field_errors %}
+                    <div class="alert alert-danger">{{ monthly_form.non_field_errors }}</div>
+                  {% endif %}
+                  <div class="mb-3">
+                    <label class="form-label" for="{{ monthly_form.monthly_amount.id_for_label }}">{% trans 'Monthly amount' %}</label>
+                    {{ monthly_form.monthly_amount }}
+                  </div>
+                  <div class="form-check mb-0">
+                    {{ monthly_form.is_active }}
+                    <label class="form-check-label" for="{{ monthly_form.is_active.id_for_label }}">{% trans 'Enable monthly fee processing' %}</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary text-white" type="submit">{% trans 'Save settings' %}</button>
+        </form>
+      {% elif selected_tab == 'backups' %}
+        <div class="card card-rounded border">
+          <div class="card-body">
+            <h5 class="card-title mb-1">{% trans 'Backups and exports' %}</h5>
+            <p class="text-muted mb-3">{% trans 'Download complete backups or operational snapshots.' %}</p>
+
+            <div class="row g-3">
+              <div class="col-lg-6">
+                <div class="backup-option-card h-100">
+                  <h6 class="mb-2">{% trans 'Full database backup' %}</h6>
+                  <p class="text-muted small mb-3">{% trans 'Generates a complete backup file of the current database.' %}</p>
+                  <a class="btn btn-primary text-white btn-sm" href="{% url 'admin_system' %}?tab=backups&download=db">{% trans 'Download backup' %}</a>
+                </div>
+              </div>
+
+              <div class="col-lg-6">
+                <div class="backup-option-card h-100">
+                  <h6 class="mb-2">{% trans 'Users and balances' %}</h6>
+                  <p class="text-muted small mb-3">{% trans 'Exports current users and their current balances in CSV format.' %}</p>
+                  <a class="btn btn-outline-primary btn-sm" href="{% url 'admin_system' %}?tab=backups&download=users_balances">{% trans 'Download CSV' %}</a>
+                </div>
+              </div>
+
+              <div class="col-lg-6">
+                <div class="backup-option-card h-100">
+                  <h6 class="mb-2">{% trans 'Current products' %}</h6>
+                  <p class="text-muted small mb-3">{% trans 'Exports products with category, supplier, prices, stock and status.' %}</p>
+                  <a class="btn btn-outline-primary btn-sm" href="{% url 'admin_system' %}?tab=backups&download=products">{% trans 'Download CSV' %}</a>
+                </div>
+              </div>
+
+              <div class="col-lg-6">
+                <div class="backup-option-card h-100">
+                  <h6 class="mb-2">{% trans 'Low stock products' %}</h6>
+                  <p class="text-muted small mb-3">{% trans 'Useful for operations: exports only active products below minimum stock.' %}</p>
+                  <a class="btn btn-outline-primary btn-sm" href="{% url 'admin_system' %}?tab=backups&download=low_stock_products">{% trans 'Download CSV' %}</a>
+                </div>
+              </div>
+
+              <div class="col-lg-6">
+                <div class="backup-option-card h-100">
+                  <h6 class="mb-2">{% trans 'Balance logs (last N days)' %}</h6>
+                  <p class="text-muted small mb-3">{% trans 'Exports balance movements from the last N days for auditing. The range is defined by admin input.' %}</p>
+                  <form method="get" class="row g-2 align-items-end">
+                    <input type="hidden" name="tab" value="backups">
+                    <input type="hidden" name="download" value="balance_logs_30d">
+                    <div class="col-6">
+                      <label class="form-label form-label-sm mb-1" for="balance-days-input">{% trans 'Days to export' %}</label>
+                      <input
+                        id="balance-days-input"
+                        name="balance_days"
+                        type="number"
+                        min="{{ balance_export_days_min }}"
+                        max="{{ balance_export_days_max }}"
+                        class="form-control form-control-sm"
+                        value="{{ balance_export_days }}"
+                      >
+                      <div class="form-text">{% blocktrans with min=balance_export_days_min max=balance_export_days_max %}Allowed range: {{ min }} to {{ max }} days.{% endblocktrans %}</div>
+                    </div>
+                    <div class="col-6 d-grid">
+                      <button type="submit" class="btn btn-outline-primary btn-sm">{% trans 'Download CSV' %}</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              <div class="col-lg-6">
+                <div class="backup-option-card h-100">
+                  <h6 class="mb-2">{% trans 'Orders (last N days)' %}</h6>
+                  <p class="text-muted small mb-3">{% trans 'Exports orders from the last N days. The range is defined by admin input.' %}</p>
+                  <form method="get" class="row g-2 align-items-end">
+                    <input type="hidden" name="tab" value="backups">
+                    <input type="hidden" name="download" value="orders_recent">
+                    <div class="col-6">
+                      <label class="form-label form-label-sm mb-1" for="orders-days-input">{% trans 'Days to export' %}</label>
+                      <input
+                        id="orders-days-input"
+                        name="orders_days"
+                        type="number"
+                        min="{{ orders_export_days_min }}"
+                        max="{{ orders_export_days_max }}"
+                        class="form-control form-control-sm"
+                        value="{{ orders_export_days }}"
+                      >
+                      <div class="form-text">{% blocktrans with min=orders_export_days_min max=orders_export_days_max %}Allowed range: {{ min }} to {{ max }} days.{% endblocktrans %}</div>
+                    </div>
+                    <div class="col-6 d-grid">
+                      <button type="submit" class="btn btn-outline-primary btn-sm">{% trans 'Download CSV' %}</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div class="card card-rounded border">
+          <div class="card-body">
+            <h5 class="card-title mb-1">{% trans 'BackendLog' %}</h5>
+            <p class="text-muted small mb-3">{% trans 'Log file path' %}: {{ backendlog.path }}</p>
+
+            <form id="backendlog-controls" method="get" class="row g-2 align-items-end mb-3">
+              <input type="hidden" name="tab" value="backendlog">
+              <div class="col-lg-5">
+                <label class="form-label" for="backendlog-filter">{% trans 'Filter text' %}</label>
+                <input id="backendlog-filter" name="log_filter" type="text" class="form-control" value="{{ backendlog_filter }}" placeholder="{% trans 'Type to filter log lines...' %}">
+              </div>
+              <div class="col-lg-3 col-md-5">
+                <label class="form-label" for="backendlog-auto-refresh">{% trans 'Auto refresh' %}</label>
+                <select id="backendlog-auto-refresh" name="log_auto_refresh" class="form-select">
+                  <option value="0" {% if backendlog_auto_refresh == 0 %}selected{% endif %}>{% trans 'Disabled' %}</option>
+                  <option value="5" {% if backendlog_auto_refresh == 5 %}selected{% endif %}>5s</option>
+                  <option value="10" {% if backendlog_auto_refresh == 10 %}selected{% endif %}>10s</option>
+                  <option value="30" {% if backendlog_auto_refresh == 30 %}selected{% endif %}>30s</option>
+                  <option value="60" {% if backendlog_auto_refresh == 60 %}selected{% endif %}>60s</option>
+                </select>
+              </div>
+              <div class="col-lg-4 col-md-7 d-flex justify-content-md-end gap-2">
+                <button type="submit" class="btn btn-outline-secondary">{% trans 'Apply' %}</button>
+                <button type="button" id="backendlog-refresh-btn" class="btn btn-primary text-white">{% trans 'Refresh log' %}</button>
+              </div>
+            </form>
+
+            {% if not backendlog.exists %}
+              <div class="alert alert-warning mb-0">{% trans 'Log file not found.' %}</div>
+            {% elif backendlog.is_empty %}
+              <div class="alert alert-info mb-0">{% trans 'Log file is empty.' %}</div>
+            {% else %}
+              {% if backendlog.truncated %}
+                <div class="alert alert-secondary py-2">{% blocktrans with count=backendlog.max_lines %}Showing last {{ count }} lines.{% endblocktrans %}</div>
+              {% endif %}
+              <div id="backendlog-empty-filter" class="alert alert-info d-none">{% trans 'No log lines match the filter.' %}</div>
+              <pre class="backendlog-viewer mb-0">{{ backendlog.content }}</pre>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <style>
+    .system-tabs {
+      border-bottom: 1px solid rgb(17 24 39 / 0.14);
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 0;
+      max-width: 100%;
+      overflow-x: auto;
+      padding: 0;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .system-tabs .nav-item {
+      margin-bottom: 0;
+    }
+
+    .system-tab-link {
+      border: 1px solid transparent !important;
+      border-bottom: 0 !important;
+      border-top-left-radius: 10px !important;
+      border-top-right-radius: 10px !important;
+      border-bottom-left-radius: 0 !important;
+      border-bottom-right-radius: 0 !important;
+      color: #4b5563 !important;
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.62rem 1.05rem !important;
+      white-space: nowrap;
+      margin-bottom: -1px;
+      transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .system-tab-link:hover {
+      background: rgb(94 141 245 / 0.08);
+      color: #2f2b8f !important;
+      border-color: rgb(94 141 245 / 0.35) !important;
+    }
+
+    .system-tab-link.active {
+      color: #2f2b8f !important;
+      background: #fff !important;
+      border-color: rgb(17 24 39 / 0.14) !important;
+      box-shadow: 0 -2px 10px -8px rgb(17 24 39 / 0.3);
+    }
+
+    .system-tabs::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .system-tabs::-webkit-scrollbar-thumb {
+      background: rgb(75 73 172 / 0.3);
+      border-radius: 999px;
+    }
+
+    .backendlog-viewer {
+      background: #0f172a;
+      color: #dbeafe;
+      border-radius: 10px;
+      border: 1px solid rgb(148 163 184 / 0.3);
+      padding: 0.9rem;
+      max-height: 60vh;
+      overflow: auto;
+      font-size: 0.78rem;
+      line-height: 1.35;
+      font-family: Consolas, 'Courier New', monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .backup-option-card {
+      border: 1px solid rgb(17 24 39 / 0.12);
+      border-radius: 12px;
+      background: #fff;
+      padding: 0.95rem;
+    }
+  </style>
+{% endblock %}
+
+{% block extra_js %}
+  {{ block.super }}
+  <script>
+    (function () {
+      var viewer = document.querySelector('.backendlog-viewer');
+      var filterInput = document.getElementById('backendlog-filter');
+      var emptyAlert = document.getElementById('backendlog-empty-filter');
+      var refreshBtn = document.getElementById('backendlog-refresh-btn');
+      var autoRefreshSelect = document.getElementById('backendlog-auto-refresh');
+
+      if (refreshBtn) {
+        refreshBtn.addEventListener('click', function () {
+          window.location.reload();
+        });
+      }
+
+      if (viewer && filterInput) {
+        var originalLines = (viewer.textContent || '').split('\n');
+
+        var applyFilter = function () {
+          var term = (filterInput.value || '').trim().toLowerCase();
+          if (!term) {
+            viewer.textContent = originalLines.join('\n');
+            if (emptyAlert) {
+              emptyAlert.classList.add('d-none');
+            }
+            return;
+          }
+
+          var filtered = originalLines.filter(function (line) {
+            return line.toLowerCase().indexOf(term) !== -1;
+          });
+
+          viewer.textContent = filtered.join('\n');
+          if (emptyAlert) {
+            emptyAlert.classList.toggle('d-none', filtered.length !== 0);
+          }
+        };
+
+        filterInput.addEventListener('input', applyFilter);
+      }
+
+      if (autoRefreshSelect) {
+        autoRefreshSelect.addEventListener('change', function () {
+          var controlsForm = document.getElementById('backendlog-controls');
+          if (controlsForm) {
+            controlsForm.submit();
+          }
+        });
+
+        var seconds = parseInt(autoRefreshSelect.value || '0', 10);
+        if (seconds > 0) {
+          window.setInterval(function () {
+            window.location.reload();
+          }, seconds * 1000);
+        }
+      }
+    })();
+  </script>
+{% endblock %}

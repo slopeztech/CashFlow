@@ -1,0 +1,3015 @@
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: CashFlow\n"
+"POT-Creation-Date: 2026-02-25 00:00+0000\n"
+"PO-Revision-Date: 2026-02-25 00:00+0000\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Username"
+msgstr "Usuario"
+
+msgid "Password"
+msgstr "Contraseña"
+
+msgid "Measure label is required when unit type is measure."
+msgstr ""
+"La etiqueta de medida es obligatoria cuando el tipo de unidad es medida."
+
+msgid "Unit price"
+msgstr "Precio unitario"
+
+msgid "A user with that username already exists."
+msgstr "Ya existe un usuario con ese nombre."
+
+msgid "Optional reason"
+msgstr "Motivo opcional"
+
+msgid "Amount must be greater than zero."
+msgstr "El importe debe ser mayor que cero."
+
+msgid "Use positive amount to add balance and negative amount to withdraw."
+msgstr "Usa un importe positivo para añadir saldo y negativo para retirar."
+
+msgid "Welcome,"
+msgstr "Bienvenido,"
+
+msgid "Store operations overview"
+msgstr "Resumen de operaciones de la tienda"
+
+msgid "No email"
+msgstr "Sin correo"
+
+msgid "Admin panel"
+msgstr "Panel de administración"
+
+msgid "My Profile"
+msgstr "Mi perfil"
+
+msgid "Sign Out"
+msgstr "Cerrar sesión"
+
+msgid "Admin dashboard"
+msgstr "Panel de administración"
+
+msgid "Stock & products"
+msgstr "Stock y productos"
+
+msgid "Sales"
+msgstr "Ventas"
+
+msgid "Charts"
+msgstr "Gráficos"
+
+msgid "Approve orders"
+msgstr "Aprobar pedidos"
+
+msgid "Manage users"
+msgstr "Gestionar usuarios"
+
+msgid "Moderate reviews"
+msgstr "Moderar valoraciones"
+
+msgid "Balance requests"
+msgstr "Solicitudes de saldo"
+
+msgid "Balance logs"
+msgstr "Registros de saldo"
+
+msgid "My dashboard"
+msgstr "Mi panel"
+
+msgid "My profile"
+msgstr "Mi perfil"
+
+msgid "My orders"
+msgstr "Mis pedidos"
+
+msgid "Purchase history"
+msgstr "Historial de compras"
+
+msgid "Available products"
+msgstr "Productos disponibles"
+
+msgid "My balance"
+msgstr "Mi saldo"
+
+msgid "Dashboard"
+msgstr "Panel"
+
+msgid "CashFlow backoffice"
+msgstr "Backoffice de CashFlow"
+
+msgid "StarAdmin2 integrated template"
+msgstr "Plantilla StarAdmin2 integrada"
+
+msgid "Sign in"
+msgstr "Iniciar sesión"
+
+msgid "Welcome back"
+msgstr "Bienvenido de nuevo"
+
+msgid "Sign in to continue."
+msgstr "Inicia sesión para continuar."
+
+msgid "SIGN IN"
+msgstr "INICIAR SESIÓN"
+
+msgid "Edit Profile"
+msgstr "Editar perfil"
+
+msgid "Edit profile"
+msgstr "Editar perfil"
+
+msgid "Update your account information"
+msgstr "Actualiza la información de tu cuenta"
+
+msgid "Email"
+msgstr "Correo"
+
+msgid "Phone"
+msgstr "Teléfono"
+
+msgid "Address"
+msgstr "Dirección"
+
+msgid "Language"
+msgstr "Idioma"
+
+msgid "Save changes"
+msgstr "Guardar cambios"
+
+msgid "Edit User"
+msgstr "Editar usuario"
+
+msgid "Add User"
+msgstr "Añadir usuario"
+
+msgid "Add user"
+msgstr "Añadir usuario"
+
+msgid "Update user account information"
+msgstr "Actualizar datos de la cuenta"
+
+msgid "Create a new user account"
+msgstr "Crear una nueva cuenta de usuario"
+
+msgid "Back to users"
+msgstr "Volver a usuarios"
+
+msgid "Confirm password"
+msgstr "Confirmar contraseña"
+
+msgid "Grant admin access"
+msgstr "Conceder acceso de administrador"
+
+msgid "Create user"
+msgstr "Crear usuario"
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgid "Visualize metrics by date range"
+msgstr "Visualiza métricas por rango de fechas"
+
+msgid "Configure chart"
+msgstr "Configurar gráfica"
+
+msgid "Metric"
+msgstr "Métrica"
+
+msgid "Start date"
+msgstr "Fecha de inicio"
+
+msgid "End date"
+msgstr "Fecha de fin"
+
+msgid "Apply"
+msgstr "Aplicar"
+
+msgid "Detailed records"
+msgstr "Registros detallados"
+
+msgid "rows"
+msgstr "filas"
+
+msgid "No records found for the selected date range and metric."
+msgstr ""
+"No se encontraron registros para el rango de fechas y métrica seleccionados."
+
+msgid "Sales (€)"
+msgstr "Ventas (€)"
+
+msgid "Orders"
+msgstr "Pedidos"
+
+msgid "Sales (amount)"
+msgstr "Ventas (importe)"
+
+msgid "Orders (count)"
+msgstr "Pedidos (cantidad)"
+
+msgid "Sales + Orders"
+msgstr "Ventas + Pedidos"
+
+msgid "Total cash (net movement)"
+msgstr "Caja total (movimiento neto)"
+
+msgid "Approved reviews (count)"
+msgstr "Valoraciones aprobadas (cantidad)"
+
+msgid "Sales total: € %(sales_total).2f | Orders total: %(orders_total)s"
+msgstr "Total ventas: € %(sales_total).2f | Total pedidos: %(orders_total)s"
+
+msgid "Range total: %(total)s"
+msgstr "Total del rango: %(total)s"
+
+msgid "Account details"
+msgstr "Detalles de cuenta"
+
+msgid "Account snapshot"
+msgstr "Resumen de cuenta"
+
+msgid "Action"
+msgstr "Acción"
+
+msgid "Actions"
+msgstr "Acciones"
+
+msgid "Active"
+msgstr "Activo"
+
+msgid "Active product"
+msgstr "Producto activo"
+
+msgid "Active products"
+msgstr "Productos activos"
+
+msgid "Add item"
+msgstr "Añadir item"
+
+msgid "Adjust balance"
+msgstr "Ajustar saldo"
+
+msgid "Admin"
+msgstr "Administrador"
+
+msgid "Admin Dashboard"
+msgstr "Panel de administración"
+
+msgid "Current password"
+msgstr "Contraseña actual"
+
+msgid "New password"
+msgstr "Nueva contraseña"
+
+msgid "Confirm new password"
+msgstr "Confirmar nueva contraseña"
+
+msgid "Password changed successfully."
+msgstr "Contraseña cambiada correctamente."
+
+msgid "Password settings"
+msgstr "Configuración de contraseña"
+
+msgid "Update password"
+msgstr "Actualizar contraseña"
+
+msgid "Security reminder"
+msgstr "Recordatorio de seguridad"
+
+msgid ""
+"For security reasons, please change your password before continuing to use "
+"your account."
+msgstr "Por seguridad, cambia tu contraseña antes de seguir usando tu cuenta."
+
+msgid "This message appears only until you update your password."
+msgstr "Este mensaje aparece solo hasta que actualices tu contraseña."
+
+msgid "Change password now"
+msgstr "Cambiar contraseña ahora"
+
+msgid "Temporary access code"
+msgstr "Codigo de acceso temporal"
+
+msgid "Generated automatically. Share this code securely with the user."
+msgstr ""
+"Se genera automaticamente. Comparte este codigo de forma segura con el "
+"usuario."
+
+msgid ""
+"Temporary access code must have 8 characters using lowercase letters and "
+"numbers."
+msgstr ""
+"El codigo temporal debe tener 8 caracteres usando letras minusculas y "
+"numeros."
+
+msgid "User created successfully. Temporary access code: %(code)s"
+msgstr "Usuario creado correctamente. Codigo temporal de acceso: %(code)s"
+
+msgid "After"
+msgstr "Después"
+
+msgid "All"
+msgstr "Todos"
+
+msgid "All categories"
+msgstr "Todas las categorías"
+
+msgid "All ratings"
+msgstr "Todas las valoraciones"
+
+msgid "All registered balance changes"
+msgstr "Todos los cambios de saldo registrados"
+
+msgid "All types"
+msgstr "Todos los tipos"
+
+msgid "Active sessions"
+msgstr "Sesiones activas"
+
+msgid "Users connected now or active in the last 2 hours"
+msgstr "Usuarios conectados ahora o con actividad en las últimas 2 horas"
+
+msgid "Active users"
+msgstr "Usuarios activos"
+
+msgid "Cash today"
+msgstr "Caja hoy"
+
+msgid "Cash current month"
+msgstr "Caja mes actual"
+
+msgid "Pending gamifications"
+msgstr "Gamificaciones pendientes"
+
+msgid "Sales + approved orders for today"
+msgstr "Ventas + pedidos aprobados de hoy"
+
+msgid "No users with recent activity."
+msgstr "No hay usuarios con actividad reciente."
+
+msgid "Last activity"
+msgstr "Última actividad"
+
+msgid "Filter users"
+msgstr "Filtrar usuarios"
+
+msgid "Type a username..."
+msgstr "Escribe un nombre de usuario..."
+
+msgid "System"
+msgstr "Sistema"
+
+msgid "Global system settings and maintenance tools"
+msgstr "Configuración global del sistema y herramientas de mantenimiento"
+
+msgid "Summary"
+msgstr "Resumen"
+
+msgid "Environment variables"
+msgstr "Variables de entorno"
+
+msgid "Backups"
+msgstr "Copias de seguridad"
+
+msgid "Platform name"
+msgstr "Nombre de la plataforma"
+
+msgid "Code version"
+msgstr "Versión del código"
+
+msgid "Brand and texts"
+msgstr "Marca y textos"
+
+msgid "Store name"
+msgstr "Nombre de la tienda"
+
+msgid "Primary brand color (HEX)"
+msgstr "Color principal de marca (HEX)"
+
+msgid "Secondary brand color (HEX)"
+msgstr "Color secundario de marca (HEX)"
+
+msgid "Current CashFlow style example: #111827 and #5E8DF5"
+msgstr "Ejemplo de estilo actual de CashFlow: #111827 y #5E8DF5"
+
+msgid "Footer text"
+msgstr "Texto del pie de página"
+
+msgid "Download full database backup"
+msgstr "Descargar copia completa de la base de datos"
+
+msgid "Generates a complete backup file of the current database."
+msgstr "Genera un archivo de copia completo de la base de datos actual."
+
+msgid "Download backup"
+msgstr "Descargar copia"
+
+msgid "Use a valid HEX color (example: #5E8DF5)."
+msgstr "Usa un color HEX válido (ejemplo: #5E8DF5)."
+
+msgid "Automatic backup download is only available for SQLite projects."
+msgstr ""
+"La descarga automática de copia solo está disponible para proyectos SQLite."
+
+msgid "Database file was not found."
+msgstr "No se encontró el archivo de base de datos."
+
+msgid "System settings updated successfully."
+msgstr "Configuración del sistema actualizada correctamente."
+
+msgid "BackendLog"
+msgstr "BackendLog"
+
+msgid "Log file path"
+msgstr "Ruta del archivo de log"
+
+msgid "Log file not found."
+msgstr "No se encontró el archivo de log."
+
+msgid "Log file is empty."
+msgstr "El archivo de log está vacío."
+
+msgid "Showing last %(count)s lines."
+msgstr "Mostrando las últimas %(count)s líneas."
+
+msgid "Filter text"
+msgstr "Filtrar texto"
+
+msgid "Type to filter log lines..."
+msgstr "Escribe para filtrar líneas del log..."
+
+msgid "Auto refresh"
+msgstr "Auto refresco"
+
+#, fuzzy
+msgid "Disabled"
+msgstr ""
+"#-#-#-#-#  django.po (CashFlow)  #-#-#-#-#\n"
+"Desactivado\n"
+"#-#-#-#-#  django.po (CashFlow)  #-#-#-#-#\n"
+"Desactivada"
+
+msgid "Refresh log"
+msgstr "Refrescar log"
+
+msgid "No log lines match the filter."
+msgstr "Ninguna línea del log coincide con el filtro."
+
+msgid "Backups and exports"
+msgstr "Copias y exportaciones"
+
+msgid "Download complete backups or operational snapshots."
+msgstr "Descarga copias completas o instantáneas operativas."
+
+msgid "Full database backup"
+msgstr "Copia completa de base de datos"
+
+msgid "Users and balances"
+msgstr "Usuarios y saldos"
+
+msgid "Exports current users and their current balances in CSV format."
+msgstr "Exporta usuarios actuales y sus saldos actuales en formato CSV."
+
+msgid "Current products"
+msgstr "Productos actuales"
+
+msgid "Exports products with category, supplier, prices, stock and status."
+msgstr "Exporta productos con categoría, proveedor, precios, stock y estado."
+
+msgid "Low stock products"
+msgstr "Productos con stock bajo"
+
+msgid ""
+"Useful for operations: exports only active products below minimum stock."
+msgstr ""
+"Útil para operaciones: exporta solo productos activos por debajo del stock "
+"mínimo."
+
+msgid "Download CSV"
+msgstr "Descargar CSV"
+
+msgid "Balance logs (last N days)"
+msgstr "Registros de saldo (últimos N días)"
+
+msgid ""
+"Exports balance movements from the last N days for auditing. The range is "
+"defined by admin input."
+msgstr ""
+"Exporta movimientos de saldo de los últimos N días para auditoría. El rango "
+"lo define el administrador con el input."
+
+msgid "Orders (last N days)"
+msgstr "Pedidos (últimos N días)"
+
+msgid ""
+"Exports orders from the last N days. The range is defined by admin input."
+msgstr ""
+"Exporta pedidos de los últimos N días. El rango lo define el administrador "
+"con el input."
+
+msgid "Days to export"
+msgstr "Días a exportar"
+
+msgid "Allowed range: %(min)s to %(max)s days."
+msgstr "Rango permitido: %(min)s a %(max)s días."
+
+msgid "Amount"
+msgstr "Importe"
+
+msgid "Approve"
+msgstr "Aprobar"
+
+msgid "Approve Orders"
+msgstr "Aprobar pedidos"
+
+msgid "Approve or hide user product reviews"
+msgstr "Aprobar u ocultar valoraciones de usuarios"
+
+msgid "Approve or reject user purchase request"
+msgstr "Aprobar o rechazar solicitud de compra del usuario"
+
+msgid "Approve or reject user top-up requests"
+msgstr "Aprobar o rechazar solicitudes de recarga de usuarios"
+
+msgid "Approve order"
+msgstr "Aprobar pedido"
+
+msgid "Approved"
+msgstr "Aprobado"
+
+msgid "Approved by"
+msgstr "Aprobado por"
+
+msgid "Approved by:"
+msgstr "Aprobado por:"
+
+msgid "Approved orders"
+msgstr "Pedidos aprobados"
+
+msgid "Approved orders and direct sales"
+msgstr "Pedidos aprobados y ventas directas"
+
+msgid "Approved review"
+msgstr "Valoración aprobada"
+
+msgid "Approved reviews"
+msgstr "Valoraciones aprobadas"
+
+msgid "Approved:"
+msgstr "Aprobados:"
+
+msgid "Are you sure you want to delete"
+msgstr "¿Seguro que quieres eliminar"
+
+msgid "Are you sure you want to delete sale"
+msgstr "¿Seguro que quieres eliminar la venta"
+
+msgid "Available Products"
+msgstr "Productos disponibles"
+
+msgid "Avg approved rating"
+msgstr "Promedio de valoración aprobada"
+
+msgid "Back to catalog"
+msgstr "Volver al catálogo"
+
+msgid "Back to dashboard"
+msgstr "Volver al panel"
+
+msgid "Back to details"
+msgstr "Volver al detalle"
+
+msgid "Back to orders"
+msgstr "Volver a pedidos"
+
+msgid "Back to products"
+msgstr "Volver a productos"
+
+msgid "Back to sales"
+msgstr "Volver a ventas"
+
+msgid "Balance"
+msgstr "Saldo"
+
+msgid "Balance Logs"
+msgstr "Registros de saldo"
+
+msgid "Balance Requests"
+msgstr "Solicitudes de saldo"
+
+msgid "Balance can be negative."
+msgstr "El saldo puede ser negativo."
+
+msgid "Balance request approval"
+msgstr "Aprobación de solicitud de saldo"
+
+msgid "Before"
+msgstr "Antes"
+
+msgid "By"
+msgstr "Por"
+
+msgid "Catalog"
+msgstr "Catálogo"
+
+msgid "Catalog size"
+msgstr "Tamaño del catálogo"
+
+msgid "Categories"
+msgstr "Categorías"
+
+msgid "Categories can only be deleted when no products are associated."
+msgstr ""
+"Las categorías solo se pueden eliminar cuando no tienen productos asociados."
+
+msgid "Category"
+msgstr "Categoría"
+
+msgid "Category:"
+msgstr "Categoría:"
+
+msgid "Configure sale items and customer"
+msgstr "Configurar items de venta y cliente"
+
+msgid "Create a purchase request for admin approval"
+msgstr "Crear una solicitud de compra para aprobación del administrador"
+
+msgid "Create and manage product categories"
+msgstr "Crear y gestionar categorías de producto"
+
+msgid "Create category"
+msgstr "Crear categoría"
+
+msgid "Create or update product catalog records"
+msgstr "Crear o actualizar registros del catálogo de productos"
+
+msgid "Create product"
+msgstr "Crear producto"
+
+msgid "Create sale"
+msgstr "Crear venta"
+
+msgid "Created"
+msgstr "Creado"
+
+msgid "Created:"
+msgstr "Creado:"
+
+msgid "Current balance"
+msgstr "Saldo actual"
+
+msgid "Current balance and top-up requests"
+msgstr "Saldo actual y solicitudes de recarga"
+
+msgid "Current balance:"
+msgstr "Saldo actual:"
+
+msgid "Current order total:"
+msgstr "Total actual del pedido:"
+
+msgid "Current sale total:"
+msgstr "Total actual de la venta:"
+
+msgid "Customer"
+msgstr "Cliente"
+
+msgid "Customer:"
+msgstr "Cliente:"
+
+msgid "Date"
+msgstr "Fecha"
+
+msgid "Date:"
+msgstr "Fecha:"
+
+msgid "Delete"
+msgstr "Eliminar"
+
+msgid "Delete product"
+msgstr "Eliminar producto"
+
+msgid "Delete sale"
+msgstr "Eliminar venta"
+
+msgid "Delta"
+msgstr "Variación"
+
+msgid "Description"
+msgstr "Descripción"
+
+msgid "Description:"
+msgstr "Descripción:"
+
+msgid "Direct sales"
+msgstr "Ventas directas"
+
+msgid "Edit"
+msgstr "Editar"
+
+msgid "Edit order"
+msgstr "Editar pedido"
+
+msgid "Edit product"
+msgstr "Editar producto"
+
+msgid "Edit sale"
+msgstr "Editar venta"
+
+msgid "Edit user"
+msgstr "Editar usuario"
+
+msgid "Filter"
+msgstr "Filtrar"
+
+msgid "History"
+msgstr "Historial"
+
+msgid "All customers"
+msgstr "Todos los clientes"
+
+msgid "Gross amount"
+msgstr "Importe bruto"
+
+msgid "Period: Current month"
+msgstr "Periodo: mes actual"
+
+msgid "Hide"
+msgstr "Ocultar"
+
+msgid "In stock"
+msgstr "En stock"
+
+msgid "Inactive"
+msgstr "Inactivo"
+
+msgid "Items"
+msgstr "Artículos"
+
+msgid "Latest ticket"
+msgstr "Último ticket"
+
+msgid "Logs"
+msgstr "Registros"
+
+msgid "Low"
+msgstr "Bajo"
+
+msgid "Low stock"
+msgstr "Stock bajo"
+
+msgid "Low stock alerts"
+msgstr "Alertas de stock bajo"
+
+msgid "Manage Users"
+msgstr "Gestionar usuarios"
+
+msgid "Manage your catalog and stock levels"
+msgstr "Gestiona tu catálogo y niveles de stock"
+
+msgid "Manual adjustment"
+msgstr "Ajuste manual"
+
+msgid "Measure label (only for measure)"
+msgstr "Etiqueta de medida (solo para medida)"
+
+msgid "Message"
+msgstr "Mensaje"
+
+msgid "Moderate Reviews"
+msgstr "Moderar valoraciones"
+
+msgid "My Balance"
+msgstr "Mi saldo"
+
+msgid "My Dashboard"
+msgstr "Mi panel"
+
+msgid "My Orders"
+msgstr "Mis pedidos"
+
+msgid "My Purchase History"
+msgstr "Mi historial de compras"
+
+msgid "My orders:"
+msgstr "Mis pedidos:"
+
+msgid "My purchase history"
+msgstr "Mi historial de compras"
+
+msgid "My requests"
+msgstr "Mis solicitudes"
+
+msgid "Name"
+msgstr "Nombre"
+
+msgid "Needs attention"
+msgstr "Necesita atención"
+
+msgid "New category"
+msgstr "Nueva categoría"
+
+msgid "New order"
+msgstr "Nuevo pedido"
+
+msgid "New product"
+msgstr "Nuevo producto"
+
+msgid "New sale ticket"
+msgstr "Nuevo ticket de venta"
+
+msgid "No approved orders for this user."
+msgstr "No hay pedidos aprobados para este usuario."
+
+msgid "No approved orders yet."
+msgstr "Aún no hay pedidos aprobados."
+
+msgid "No approved reviews"
+msgstr "Sin valoraciones aprobadas"
+
+msgid "No approved reviews for this product yet."
+msgstr "Aún no hay valoraciones aprobadas para este producto."
+
+msgid "No balance logs yet."
+msgstr "Aún no hay registros de saldo."
+
+msgid "No balance requests found."
+msgstr "No se encontraron solicitudes de saldo."
+
+msgid "No balance requests yet."
+msgstr "Aún no hay solicitudes de saldo."
+
+msgid "No categories yet."
+msgstr "Aún no hay categorías."
+
+msgid "No direct sales for this user."
+msgstr "No hay ventas directas para este usuario."
+
+msgid "No direct sales yet."
+msgstr "Aún no hay ventas directas."
+
+msgid "No items found for this sale."
+msgstr "No se encontraron items para esta venta."
+
+msgid "No logs found."
+msgstr "No se encontraron registros."
+
+msgid "No orders found."
+msgstr "No se encontraron pedidos."
+
+msgid "No orders yet."
+msgstr "Aún no hay pedidos."
+
+msgid "No products yet."
+msgstr "Aún no hay productos."
+
+msgid "No public products available."
+msgstr "No hay productos públicos disponibles."
+
+msgid "No reviews found."
+msgstr "No se encontraron valoraciones."
+
+msgid "No sales yet."
+msgstr "Aún no hay ventas."
+
+msgid "No timeline events yet."
+msgstr "Aún no hay eventos en la cronología."
+
+msgid "Note"
+msgstr "Nota"
+
+#, fuzzy
+msgid "Order"
+msgstr ""
+"#-#-#-#-#  django.po (CashFlow)  #-#-#-#-#\n"
+"Pedido\n"
+"#-#-#-#-#  django.po (CashFlow)  #-#-#-#-#\n"
+"Pedido\n"
+"#-#-#-#-#  django.po (CashFlow)  #-#-#-#-#\n"
+"Orden"
+
+msgid "Order Approval"
+msgstr "Aprobación de pedido"
+
+msgid "Order Detail"
+msgstr "Detalle del pedido"
+
+msgid "Order Form"
+msgstr "Formulario de pedido"
+
+msgid "Order approval"
+msgstr "Aprobación de pedido"
+
+msgid "Order items"
+msgstr "Items del pedido"
+
+msgid "Order status and requested items"
+msgstr "Estado del pedido e items solicitados"
+
+msgid "Out of stock"
+msgstr "Sin stock"
+
+msgid "Pending"
+msgstr "Pendiente"
+
+msgid "Pending balance approvals"
+msgstr "Aprobaciones de saldo pendientes"
+
+msgid "Pending order approvals"
+msgstr "Aprobaciones de pedidos pendientes"
+
+msgid "Pending orders"
+msgstr "Pedidos pendientes"
+
+msgid "Pending review approvals"
+msgstr "Aprobaciones de valoraciones pendientes"
+
+msgid "Pending:"
+msgstr "Pendientes:"
+
+msgid "Price"
+msgstr "Precio"
+
+msgid "Price:"
+msgstr "Precio:"
+
+msgid "Private"
+msgstr "Privado"
+
+msgid "Product"
+msgstr "Producto"
+
+msgid "Product Detail"
+msgstr "Detalle de producto"
+
+msgid "Product details and approved ratings"
+msgstr "Detalles de producto y valoraciones aprobadas"
+
+msgid "Product form"
+msgstr "Formulario de producto"
+
+msgid "Product information"
+msgstr "Información del producto"
+
+msgid "Product list"
+msgstr "Listado de productos"
+
+msgid "Products"
+msgstr "Productos"
+
+msgid "Profile"
+msgstr "Perfil"
+
+msgid "Projected balance:"
+msgstr "Saldo proyectado:"
+
+msgid "Public"
+msgstr "Público"
+
+msgid "Public products and approved ratings"
+msgstr "Productos públicos y valoraciones aprobadas"
+
+msgid "Purchase"
+msgstr "Compra"
+
+msgid "Purchases for"
+msgstr "Compras de"
+
+msgid "Quantity"
+msgstr "Cantidad"
+
+msgid "Rate"
+msgstr "Valorar"
+
+msgid "Rate Product"
+msgstr "Valorar producto"
+
+msgid "Rate product"
+msgstr "Valorar producto"
+
+msgid "Rating"
+msgstr "Valoración"
+
+msgid "Ready to sell"
+msgstr "Listo para vender"
+
+msgid "Reason:"
+msgstr "Motivo:"
+
+msgid "Recent activity"
+msgstr "Actividad reciente"
+
+msgid "Reject"
+msgstr "Rechazar"
+
+msgid "Reject order"
+msgstr "Rechazar pedido"
+
+msgid "Rejected"
+msgstr "Rechazado"
+
+msgid "Rejection reason"
+msgstr "Motivo de rechazo"
+
+#, fuzzy
+msgid "Remove"
+msgstr ""
+"#-#-#-#-#  django.po (CashFlow)  #-#-#-#-#\n"
+"Quitar\n"
+"#-#-#-#-#  django.po (CashFlow)  #-#-#-#-#\n"
+"Eliminar"
+
+msgid "Request top-up"
+msgstr "Solicitar recarga"
+
+msgid "Reset"
+msgstr "Reiniciar"
+
+msgid "Review"
+msgstr "Revisar"
+
+msgid "Review balance requests"
+msgstr "Revisar solicitudes de saldo"
+
+msgid "Review order"
+msgstr "Revisar pedido"
+
+msgid "Review orders"
+msgstr "Revisar pedidos"
+
+msgid "Review ratings"
+msgstr "Revisar valoraciones"
+
+msgid "Review transaction and item details"
+msgstr "Revisar transacción y detalles de artículos"
+
+msgid "Review user purchase requests"
+msgstr "Revisar solicitudes de compra de usuarios"
+
+msgid "Reviewed by"
+msgstr "Revisado por"
+
+msgid "Role"
+msgstr "Rol"
+
+msgid "SKU:"
+msgstr "SKU:"
+
+msgid "Sale"
+msgstr "Venta"
+
+msgid "Sale details"
+msgstr "Detalles de la venta"
+
+msgid "Sale form"
+msgstr "Formulario de venta"
+
+msgid "Sale items"
+msgstr "Artículos de la venta"
+
+msgid "Sale summary"
+msgstr "Resumen de la venta"
+
+msgid "Sales - Annual"
+msgstr "Ventas - Anual"
+
+msgid "Sales - Current month"
+msgstr "Ventas - Mes actual"
+
+msgid "Sales - Previous month"
+msgstr "Ventas - Mes anterior"
+
+msgid "Cash - Annual"
+msgstr "Caja - Anual"
+
+msgid "Cash - Current month"
+msgstr "Caja - Mes actual"
+
+msgid "Cash - Previous month"
+msgstr "Caja - Mes anterior"
+
+msgid "Sales history"
+msgstr "Historial de ventas"
+
+msgid "Save order"
+msgstr "Guardar pedido"
+
+msgid "Save product"
+msgstr "Guardar producto"
+
+msgid "Save sale"
+msgstr "Guardar venta"
+
+msgid "Search by product, user or message"
+msgstr "Buscar por producto, usuario o mensaje"
+
+msgid "Search by username"
+msgstr "Buscar por nombre de usuario"
+
+msgid "Search products"
+msgstr "Buscar productos"
+
+msgid "Search user, admin or note"
+msgstr "Buscar usuario, administrador o nota"
+
+msgid "Seller"
+msgstr "Vendedor"
+
+msgid "Seller:"
+msgstr "Vendedor:"
+
+msgid "Status"
+msgstr "Estado"
+
+msgid "Status:"
+msgstr "Estado:"
+
+msgid "Stock"
+msgstr "Stock"
+
+msgid "Stock status:"
+msgstr "Estado del stock:"
+
+msgid "Stock unit type"
+msgstr "Tipo de unidad de stock"
+
+msgid "Stock will be restored automatically"
+msgstr "El stock se restaurará automáticamente"
+
+msgid "Stock will be restored automatically."
+msgstr "El stock se restaurará automáticamente."
+
+msgid "Stock, users and pending approvals"
+msgstr "Stock, usuarios y aprobaciones pendientes"
+
+msgid "Submit request"
+msgstr "Enviar solicitud"
+
+msgid "Submit review"
+msgstr "Enviar valoración"
+
+msgid "Subtotal"
+msgstr "Subtotal"
+
+msgid "This action cannot be undone"
+msgstr "Esta acción no se puede deshacer"
+
+msgid "Timeline"
+msgstr "Cronología"
+
+msgid "Total"
+msgstr "Total"
+
+msgid "Total products"
+msgstr "Total de productos"
+
+msgid "Total revenue"
+msgstr "Ingresos totales"
+
+msgid "Total sales"
+msgstr "Ventas totales"
+
+msgid "Total:"
+msgstr "Total:"
+
+msgid "Track and manage all transactions"
+msgstr "Rastrear y gestionar todas las transacciones"
+
+msgid "Transactions"
+msgstr "Transacciones"
+
+msgid "Type"
+msgstr "Tipo"
+
+msgid "Unit"
+msgstr "Unidad"
+
+msgid "Unit price (from product)"
+msgstr "Precio unitario (del producto)"
+
+msgid "Update product"
+msgstr "Actualizar producto"
+
+msgid "Update sale"
+msgstr "Actualizar venta"
+
+msgid "User"
+msgstr "Usuario"
+
+msgid "User ID"
+msgstr "ID de usuario"
+
+msgid "User Purchase History"
+msgstr "Historial de compras del usuario"
+
+msgid "User:"
+msgstr "Usuario:"
+
+msgid "Users"
+msgstr "Usuarios"
+
+msgid "Users table and account operations"
+msgstr "Tabla de usuarios y operaciones de cuenta"
+
+msgid "View"
+msgstr "Ver"
+
+msgid "View details"
+msgstr "Ver detalles"
+
+msgid "View purchases"
+msgstr "Ver compras"
+
+msgid "Visibility"
+msgstr "Visibilidad"
+
+msgid "Visible in user catalog"
+msgstr "Visible en el catálogo de usuario"
+
+msgid "Your account and balance information"
+msgstr "Información de tu cuenta y saldo"
+
+msgid "Your approved purchases"
+msgstr "Tus compras aprobadas"
+
+msgid "Your personal activity timeline"
+msgstr "Tu cronología de actividad personal"
+
+msgid ""
+"Your previous review is currently public. Updating it will require approval "
+"again."
+msgstr ""
+"Tu valoración anterior es actualmente pública. Actualizarla requerirá "
+"aprobación nuevamente."
+
+msgid "Your purchase requests pending admin approval"
+msgstr "Tus solicitudes de compra pendientes de aprobación del administrador"
+
+msgid "Your review needs admin approval"
+msgstr "Tu valoración necesita aprobación del administrador"
+
+msgid "star"
+msgstr "estrella"
+
+msgid "stars"
+msgstr "estrellas"
+
+msgid "Approved purchase #%(id)s"
+msgstr "Compra aprobada #%(id)s"
+
+msgid "Your order was approved. Total: € %(total)s"
+msgstr "Tu pedido fue aprobado. Total: € %(total)s"
+
+msgid "Direct purchase #%(id)s"
+msgstr "Compra directa #%(id)s"
+
+msgid "Purchase registered by admin. Total: € %(total)s"
+msgstr "Compra registrada por el administrador. Total: € %(total)s"
+
+msgid "Balance update (%(source)s)"
+msgstr "Actualización de saldo (%(source)s)"
+
+msgid "Change: € %(delta)s | Before: € %(before)s | After: € %(after)s"
+msgstr "Cambio: € %(delta)s | Antes: € %(before)s | Después: € %(after)s"
+
+msgid "New approved review for %(product)s"
+msgstr "Nueva valoración aprobada para %(product)s"
+
+msgid "Review for %(product)s"
+msgstr "Valoración para %(product)s"
+
+msgid "%(stars)s · %(message)s"
+msgstr "%(stars)s · %(message)s"
+
+msgid "Notices"
+msgstr "Avisos"
+
+msgid "Priority notices"
+msgstr "Avisos"
+
+msgid "Manage user dashboard notices"
+msgstr "Gestiona los avisos del dashboard de usuario"
+
+msgid "New notice"
+msgstr "Nuevo aviso"
+
+msgid "Created by"
+msgstr "Creado por"
+
+msgid "Are you sure you want to delete this notice?"
+msgstr "¿Seguro que quieres eliminar este aviso?"
+
+msgid "No notices created yet."
+msgstr "Aún no hay avisos creados."
+
+msgid "Edit notice"
+msgstr "Editar aviso"
+
+msgid "Configure dashboard notice visibility and style"
+msgstr "Configura visibilidad y estilo del aviso en dashboard"
+
+msgid "Back to notices"
+msgstr "Volver a avisos"
+
+msgid "Create notice"
+msgstr "Crear aviso"
+
+msgid "Notice created successfully."
+msgstr "Aviso creado correctamente."
+
+msgid "Notice updated successfully."
+msgstr "Aviso actualizado correctamente."
+
+msgid "Notice deleted successfully."
+msgstr "Aviso eliminado correctamente."
+
+msgid "End date must be greater than or equal to start date."
+msgstr "La fecha de fin debe ser mayor o igual que la fecha de inicio."
+
+msgid "Info"
+msgstr "Información"
+
+msgid "Success"
+msgstr "Éxito"
+
+msgid "Warning"
+msgstr "Advertencia"
+
+msgid "Danger"
+msgstr "Peligro"
+
+msgid "Published"
+msgstr "Publicado"
+
+#, fuzzy
+msgid "In progress"
+msgstr ""
+"#-#-#-#-#  django.po (CashFlow)  #-#-#-#-#\n"
+"En curso\n"
+"#-#-#-#-#  django.po (CashFlow)  #-#-#-#-#\n"
+"En progreso"
+
+msgid "Featured products"
+msgstr "Productos destacados"
+
+msgid "No featured products at the moment."
+msgstr "No hay productos destacados en este momento."
+
+msgid "New products"
+msgstr "Productos nuevos"
+
+msgid "No new products at the moment."
+msgstr "No hay productos nuevos en este momento."
+
+msgid "Untried for you"
+msgstr "No probados para ti"
+
+msgid "You already tried all recommended products."
+msgstr "Ya has probado todos los productos recomendados."
+
+msgid "Featured"
+msgstr "Destacado"
+
+msgid "Untried"
+msgstr "No probado"
+
+msgid "Featured product"
+msgstr "Producto destacado"
+
+msgid "New"
+msgstr "Nuevo"
+
+msgid "Count for untried products"
+msgstr "Contar para productos no probados"
+
+msgid "Categories enabled for untried products"
+msgstr "Categorías habilitadas para productos no probados"
+
+msgid "Configure category behavior for untried products"
+msgstr "Configura el comportamiento de categoría para productos no probados"
+
+msgid ""
+"If disabled, products in this category will not appear in the untried "
+"recommendations."
+msgstr ""
+"Si está desactivado, los productos de esta categoría no aparecerán en las "
+"recomendaciones de no probados."
+
+msgid "Notice text"
+msgstr "Texto de aviso"
+
+msgid "Short text"
+msgstr "Texto corto"
+
+msgid "Long text"
+msgstr "Texto largo"
+
+msgid "Radio options"
+msgstr "Opciones de radio"
+
+msgid "Select options"
+msgstr "Opciones de selección"
+
+msgid "Checkbox"
+msgstr "Casilla"
+
+msgid "Notice fields cannot be required."
+msgstr "Los campos de aviso no pueden ser obligatorios."
+
+msgid "This field type requires at least one option."
+msgstr "Este tipo de campo requiere al menos una opción."
+
+msgid "One option per line"
+msgstr "Una opción por línea"
+
+msgid "Registration form fields"
+msgstr "Campos del formulario de registro"
+
+msgid ""
+"Configure which fields users must complete when registering for this event."
+msgstr ""
+"Configura qué campos deben completar los usuarios al registrarse en este "
+"evento."
+
+msgid "Help text"
+msgstr "Texto de ayuda"
+
+msgid "Options"
+msgstr "Opciones"
+
+msgid "Use one option per line for radio/select."
+msgstr "Usa una opción por línea para radio/selección."
+
+msgid "Please complete the registration form fields."
+msgstr "Por favor completa los campos del formulario de registro."
+
+msgid "Registered at"
+msgstr "Registrado el"
+
+msgid "Form answers"
+msgstr "Respuestas del formulario"
+
+msgid "Label"
+msgstr "Etiqueta"
+
+msgid "Slide %(number)s"
+msgstr "Diapositiva %(number)s"
+
+#, fuzzy
+msgid "Completed"
+msgstr ""
+"#-#-#-#-#  django.po (CashFlow)  #-#-#-#-#\n"
+"Completado\n"
+"#-#-#-#-#  django.po (CashFlow)  #-#-#-#-#\n"
+"Completada"
+
+msgid "Notice"
+msgstr "Aviso"
+
+msgid "Orders and purchase history in one place"
+msgstr "Pedidos e historial de compras en un solo lugar"
+
+msgid "No orders or direct sales yet."
+msgstr "Aún no hay pedidos ni ventas directas."
+
+msgid "Repeat order"
+msgstr "Repetir pedido"
+
+msgid "A new cart was created from this order."
+msgstr "Se creó una cesta nueva a partir de este pedido."
+
+msgid "No available products from this order could be added to cart."
+msgstr "No se pudieron añadir a la cesta productos disponibles de este pedido."
+
+msgid "Some products were skipped due to availability."
+msgstr "Algunos productos se omitieron por disponibilidad."
+
+msgid "You can only repeat approved or rejected orders."
+msgstr "Solo puedes repetir pedidos aprobados o rechazados."
+
+msgid "Top-up request"
+msgstr "Solicitud de recarga"
+
+msgid "Balance log"
+msgstr "Registro de saldo"
+
+msgid "Requests and balance logs"
+msgstr "Solicitudes y registros de saldo"
+
+msgid "No balance records yet."
+msgstr "Aún no hay registros de saldo."
+
+msgid "Purchase Detail"
+msgstr "Detalle de compra"
+
+msgid "Purchase status and items"
+msgstr "Estado de la compra y artículos"
+
+msgid "No items in this purchase."
+msgstr "No hay artículos en esta compra."
+
+msgid "Profile image"
+msgstr "Imagen de perfil"
+
+msgid "Home"
+msgstr "Inicio"
+
+msgid "Analytics"
+msgstr "Analíticas"
+
+msgid "users"
+msgstr "usuarios"
+
+msgid "Pending tasks for orders, reviews and balance requests"
+msgstr "Tareas pendientes de pedidos, valoraciones y solicitudes de saldo"
+
+msgid "No pending orders."
+msgstr "No hay pedidos pendientes."
+
+msgid "No pending reviews."
+msgstr "No hay valoraciones pendientes."
+
+msgid "No pending balance requests."
+msgstr "No hay solicitudes de saldo pendientes."
+
+msgid "No users found."
+msgstr "No se encontraron usuarios."
+
+msgid "Supplier"
+msgstr "Proveedor"
+
+msgid "Suppliers"
+msgstr "Proveedores"
+
+msgid "Supplier:"
+msgstr "Proveedor:"
+
+msgid "Minimum stock"
+msgstr "Stock mínimo"
+
+msgid "Product images"
+msgstr "Imágenes del producto"
+
+msgid "Current images"
+msgstr "Imágenes actuales"
+
+msgid "Delete image"
+msgstr "Eliminar imagen"
+
+msgid "No supplier"
+msgstr "Sin proveedor"
+
+msgid "Create and manage product suppliers"
+msgstr "Crear y gestionar proveedores de productos"
+
+msgid "New supplier"
+msgstr "Nuevo proveedor"
+
+msgid "Create supplier"
+msgstr "Crear proveedor"
+
+msgid "No suppliers yet."
+msgstr "Aún no hay proveedores."
+
+msgid "Suppliers can only be deleted when no products are associated."
+msgstr ""
+"Los proveedores solo se pueden eliminar cuando no tienen productos asociados."
+
+msgid "Each image must be 8MB or smaller."
+msgstr "Cada imagen debe ser de 8 MB o menos."
+
+msgid "Images must be JPG, PNG, or WEBP."
+msgstr "Las imágenes deben ser JPG, PNG o WEBP."
+
+msgid "You can upload multiple JPG, PNG or WEBP images."
+msgstr "Puedes subir varias imágenes JPG, PNG o WEBP."
+
+msgid "Product saved successfully."
+msgstr "Producto guardado correctamente."
+
+msgid "Product updated successfully."
+msgstr "Producto actualizado correctamente."
+
+msgid "Supplier updated successfully."
+msgstr "Proveedor actualizado correctamente."
+
+msgid "Supplier created successfully."
+msgstr "Proveedor creado correctamente."
+
+msgid "Supplier deleted successfully."
+msgstr "Proveedor eliminado correctamente."
+
+msgid "Supplier cannot be deleted because it has associated products."
+msgstr "El proveedor no se puede eliminar porque tiene productos asociados."
+
+msgid "Monthly fee"
+msgstr "Mensualidad"
+
+msgid "Configure monthly charge and monitor user payment status"
+msgstr "Configura el cobro mensual y monitoriza el estado de pago de usuarios"
+
+msgid "Users paying monthly fee"
+msgstr "Usuarios que pagan mensualidad"
+
+msgid "Users not paying monthly fee"
+msgstr "Usuarios que no pagan mensualidad"
+
+msgid "Late users"
+msgstr "Usuarios atrasados"
+
+msgid "Monthly fee settings"
+msgstr "Configuración de mensualidad"
+
+msgid "Monthly amount"
+msgstr "Importe mensual"
+
+msgid "Enable monthly fee processing"
+msgstr "Activar procesamiento de mensualidad"
+
+msgid "Save settings"
+msgstr "Guardar configuración"
+
+msgid "Late users details"
+msgstr "Detalle de usuarios atrasados"
+
+msgid "Pending months"
+msgstr "Meses pendientes"
+
+msgid "No late users."
+msgstr "No hay usuarios atrasados."
+
+msgid "Enable monthly fee for this user"
+msgstr "Activar mensualidad para este usuario"
+
+msgid "Monthly amount must be zero or greater."
+msgstr "El importe mensual debe ser cero o mayor."
+
+msgid "Monthly fee settings updated successfully."
+msgstr "Configuración de mensualidad actualizada correctamente."
+
+msgid "Monthly fee status:"
+msgstr "Estado de mensualidad:"
+
+msgid "Paid months"
+msgstr "Mensualidades pagadas"
+
+msgid "No paid months yet."
+msgstr "Aún no hay mensualidades pagadas."
+
+msgid "No pending months."
+msgstr "No hay mensualidades pendientes."
+
+msgid "Enabled"
+msgstr "Activada"
+
+msgid "Cart"
+msgstr "Carrito"
+
+msgid "items"
+msgstr "artículos"
+
+msgid "Filters"
+msgstr "Filtros"
+
+msgid "Add to cart"
+msgstr "Añadir al carrito"
+
+msgid "Review, edit and send your order"
+msgstr "Revisa, edita y envía tu pedido"
+
+msgid "Update"
+msgstr "Actualizar"
+
+msgid "Cancel cart"
+msgstr "Cancelar carrito"
+
+msgid "Submit order"
+msgstr "Enviar pedido"
+
+msgid "Remove this product from your cart?"
+msgstr "¿Quitar este producto del carrito?"
+
+msgid "Balance after purchase"
+msgstr "Saldo después de la compra"
+
+msgid "Your cart is empty."
+msgstr "Tu carrito está vacío."
+
+msgid "Invalid product or quantity."
+msgstr "Producto o cantidad no válidos."
+
+msgid "Product added to cart."
+msgstr "Producto añadido al carrito."
+
+msgid "Not enough stock for the requested quantity."
+msgstr "No hay stock suficiente para la cantidad solicitada."
+
+msgid "Cart updated successfully."
+msgstr "Carrito actualizado correctamente."
+
+msgid "Product removed from cart."
+msgstr "Producto eliminado del carrito."
+
+msgid "Cart cleared successfully."
+msgstr "Carrito vaciado correctamente."
+
+msgid "Profile updated successfully."
+msgstr "Perfil actualizado correctamente."
+
+msgid "Order submitted for admin approval."
+msgstr "Pedido enviado para aprobación del administrador."
+
+msgid "Order updated successfully."
+msgstr "Pedido actualizado correctamente."
+
+msgid "Review submitted for admin approval."
+msgstr "Valoración enviada para aprobación del administrador."
+
+msgid "Balance request submitted for admin approval."
+msgstr "Solicitud de saldo enviada para aprobación del administrador."
+
+msgid "User created successfully."
+msgstr "Usuario creado correctamente."
+
+msgid "User updated successfully."
+msgstr "Usuario actualizado correctamente."
+
+msgid "Invalid balance amount."
+msgstr "Importe de saldo no válido."
+
+msgid "User mismatch for balance adjustment."
+msgstr "El usuario no coincide para el ajuste de saldo."
+
+msgid "Balance updated for %(username)s."
+msgstr "Saldo actualizado para %(username)s."
+
+msgid "Order approved and stock updated."
+msgstr "Pedido aprobado y stock actualizado."
+
+msgid "Order rejected."
+msgstr "Pedido rechazado."
+
+msgid "Review approved."
+msgstr "Valoración aprobada."
+
+msgid "Review hidden from public listing."
+msgstr "Valoración ocultada del listado público."
+
+msgid "Only pending requests can be approved."
+msgstr "Solo se pueden aprobar solicitudes pendientes."
+
+msgid "Balance request approved and applied."
+msgstr "Solicitud de saldo aprobada y aplicada."
+
+msgid "Only pending requests can be rejected."
+msgstr "Solo se pueden rechazar solicitudes pendientes."
+
+msgid "Balance request rejected."
+msgstr "Solicitud de saldo rechazada."
+
+msgid "Sale created successfully."
+msgstr "Venta creada correctamente."
+
+msgid "Sale updated successfully."
+msgstr "Venta actualizada correctamente."
+
+msgid "Sale deleted and stock restored."
+msgstr "Venta eliminada y stock restaurado."
+
+msgid "Product sheet"
+msgstr "Ficha de producto"
+
+msgid "Manage custom product fields"
+msgstr "Gestiona campos personalizados del producto"
+
+msgid "Edit field"
+msgstr "Editar campo"
+
+msgid "Add field"
+msgstr "Añadir campo"
+
+msgid "Key"
+msgstr "Clave"
+
+msgid "Value"
+msgstr "Valor"
+
+msgid "No product sheet fields yet."
+msgstr "Aún no hay campos en la ficha de producto."
+
+msgid "No product sheet fields available."
+msgstr "No hay campos de ficha de producto disponibles."
+
+msgid "Product sheet field updated successfully."
+msgstr "Campo de ficha de producto actualizado correctamente."
+
+msgid "Product sheet field created successfully."
+msgstr "Campo de ficha de producto creado correctamente."
+
+msgid "Product sheet field deleted successfully."
+msgstr "Campo de ficha de producto eliminado correctamente."
+
+msgid "Key is required."
+msgstr "La clave es obligatoria."
+
+msgid "Value is required."
+msgstr "El valor es obligatorio."
+
+msgid "Related links"
+msgstr "Enlaces relacionados"
+
+msgid "Add URL"
+msgstr "Añadir URL"
+
+msgid "URL"
+msgstr "URL"
+
+msgid "URLs"
+msgstr "URLs"
+
+msgid "No URLs yet."
+msgstr "Aún no hay URLs."
+
+msgid "URL is required."
+msgstr "La URL es obligatoria."
+
+msgid "Product sheet URL created successfully."
+msgstr "URL de ficha de producto creada correctamente."
+
+msgid "Product sheet URL deleted successfully."
+msgstr "URL de ficha de producto eliminada correctamente."
+
+msgid "Invalid URL."
+msgstr "URL no válida."
+
+msgid "Show all recent movements to this user"
+msgstr "Mostrar todos los movimientos recientes a este usuario"
+
+msgid "Recent movements limit"
+msgstr "Límite de movimientos recientes"
+
+msgid "Movement limit is required when not showing all."
+msgstr "El límite de movimientos es obligatorio cuando no se muestran todos."
+
+msgid "Limit recent movements"
+msgstr "Limitar últimos movimientos"
+
+msgid "Empty or 0 shows all. Enter X to show the latest X changes."
+msgstr ""
+"Vacío o 0 muestra todo. Introduce X para mostrar los últimos X cambios."
+
+msgid "Units"
+msgstr "Unidades"
+
+msgid "Calculated units"
+msgstr "Unidades calculadas"
+
+msgid "Amount is too low to buy one unit."
+msgstr "El importe es demasiado bajo para comprar una unidad."
+
+msgid "Reviews"
+msgstr "Valoraciones"
+
+msgid "Your performance summary this week"
+msgstr "Resumen de tu rendimiento esta semana"
+
+msgid "Registered products"
+msgstr "Productos registrados"
+
+msgid "Catalog growth"
+msgstr "Crecimiento del catálogo"
+
+msgid "Low stock items"
+msgstr "Productos con bajo stock"
+
+msgid "Needs replenishment"
+msgstr "Necesita reposición"
+
+msgid "User profile"
+msgstr "Perfil de usuario"
+
+msgid "Store overview"
+msgstr "Resumen de la tienda"
+
+msgid "Global operational summary for your local business"
+msgstr "Resumen operativo global de tu negocio local"
+
+msgid "Quick status"
+msgstr "Estado rápido"
+
+msgid "Healthy"
+msgstr "Saludable"
+
+msgid "Monitor"
+msgstr "Monitorizar"
+
+msgid "Growing"
+msgstr "En crecimiento"
+
+msgid "Sales mix"
+msgstr "Composición de ventas"
+
+msgid "Sales trend"
+msgstr "Tendencia de ventas"
+
+msgid "View more"
+msgstr "Ver más"
+
+msgid "Are you sure you want to approve this item?"
+msgstr "¿Seguro que quieres aprobar este elemento?"
+
+msgid "Balance updated"
+msgstr "Saldo actualizado"
+
+msgid "actual"
+msgstr "actual"
+
+msgid "minimum"
+msgstr "mínimo"
+
+msgid "Sales + Orders - Current month"
+msgstr "Ventas + Pedidos - Mes actual"
+
+msgid "Sales + Orders - Previous month"
+msgstr "Ventas + Pedidos - Mes anterior"
+
+msgid "Gamification"
+msgstr "Gamificación"
+
+msgid "Create and manage engagement challenges for users"
+msgstr "Crea y gestiona retos de participación para usuarios"
+
+msgid "Create gamification"
+msgstr "Crear gamificación"
+
+msgid "Title"
+msgstr "Título"
+
+msgid "Target"
+msgstr "Objetivo"
+
+msgid "Duration"
+msgstr "Duración"
+
+msgid "Finished"
+msgstr "Finalizada"
+
+msgid "Scheduled"
+msgstr "Programada"
+
+msgid "Are you sure you want to delete this gamification?"
+msgstr "¿Seguro que quieres eliminar esta gamificación?"
+
+msgid "No gamifications created yet."
+msgstr "Aún no hay gamificaciones creadas."
+
+msgid "Edit gamification"
+msgstr "Editar gamificación"
+
+msgid "New gamification"
+msgstr "Nueva gamificación"
+
+msgid "Define requirements, dates and rewards for users"
+msgstr "Define requisitos, fechas y recompensas para usuarios"
+
+msgid "Back to gamifications"
+msgstr "Volver a gamificaciones"
+
+msgid "Target value"
+msgstr "Valor objetivo"
+
+msgid "Gamification type"
+msgstr "Tipo de gamificación"
+
+msgid "Example: 1 free coffee or 10% off next purchase"
+msgstr "Ejemplo: 1 café gratis o 10% en la próxima compra"
+
+msgid "Gamification details"
+msgstr "Detalles de la gamificación"
+
+msgid "Track your progress and reward eligibility"
+msgstr "Sigue tu progreso y la elegibilidad de recompensa"
+
+msgid "Start"
+msgstr "Inicio"
+
+msgid "End"
+msgstr "Fin"
+
+msgid "Your progress"
+msgstr "Tu progreso"
+
+msgid "Approved reviews count"
+msgstr "Número de valoraciones aprobadas"
+
+msgid "Distinct products tried"
+msgstr "Productos distintos probados"
+
+msgid "Approved orders count"
+msgstr "Número de pedidos aprobados"
+
+msgid "Target value must be greater than zero."
+msgstr "El valor objetivo debe ser mayor que cero."
+
+msgid "Gamification created successfully."
+msgstr "Gamificación creada correctamente."
+
+msgid "Gamification updated successfully."
+msgstr "Gamificación actualizada correctamente."
+
+msgid "Gamification deleted successfully."
+msgstr "Gamificación eliminada correctamente."
+
+msgid "%(current)s/%(target)s completed · Reward: %(reward)s"
+msgstr "%(current)s/%(target)s completado · Recompensa: %(reward)s"
+
+msgid "Users with completed gamifications"
+msgstr "Usuarios con gamificaciones completadas"
+
+msgid "Users ready for rewards"
+msgstr "Usuarios listos para recompensa"
+
+msgid "Completed gamifications"
+msgstr "Gamificaciones completadas"
+
+msgid "Users who completed at least one gamification"
+msgstr "Usuarios que completaron al menos una gamificación"
+
+msgid "Reward fulfillment queue"
+msgstr "Cola de entrega de recompensas"
+
+msgid "Progress"
+msgstr "Progreso"
+
+msgid "Reward completed"
+msgstr "Recompensa completada"
+
+msgid "Pending reward"
+msgstr "Recompensa pendiente"
+
+msgid "Complete reward"
+msgstr "Completar recompensa"
+
+msgid "No users completed gamifications yet."
+msgstr "Aún no hay usuarios con gamificaciones completadas."
+
+msgid "Rewards completed"
+msgstr "Recompensas completadas"
+
+msgid "Gamifications achieved"
+msgstr "Gamificaciones logradas"
+
+msgid "User has not completed gamifications yet."
+msgstr "El usuario aún no ha completado gamificaciones."
+
+msgid "Completed users"
+msgstr "Usuarios completados"
+
+msgid "This user has not completed the selected gamification yet."
+msgstr "Este usuario aún no ha completado la gamificación seleccionada."
+
+msgid "Reward marked as completed."
+msgstr "Recompensa marcada como completada."
+
+msgid "Gamification rewards completed (count)"
+msgstr "Recompensas de gamificación completadas (cantidad)"
+
+msgid "Completed rewards"
+msgstr "Recompensas completadas"
+
+msgid "Sales + Orders - Annual"
+msgstr "Ventas + Pedidos - Anual"
+
+msgid "Pending actions"
+msgstr "Acciones pendientes"
+
+msgid "Open actions in the unified actions panel"
+msgstr "Abre las acciones en el panel unificado de acciones"
+
+msgid "Received reviews"
+msgstr "Valoraciones recibidas"
+
+msgid "Pending moderation"
+msgstr "Pendiente de moderación"
+
+msgid "No reviews received yet."
+msgstr "Aún no hay valoraciones recibidas."
+
+msgid "User info"
+msgstr "Info de usuario"
+
+msgid "Total spent"
+msgstr "Gasto total"
+
+msgid "Users pending reward validation"
+msgstr "Usuarios pendientes de validar recompensa"
+
+msgid "Cash projection (current vs previous month)"
+msgstr "Proyección de caja (mes actual vs mes anterior)"
+
+msgid "Cash projection"
+msgstr "Proyección de caja"
+
+msgid "Cash previous month"
+msgstr "Caja mes anterior"
+
+msgid "Current month"
+msgstr "Mes actual"
+
+msgid "Forecast based on previous month"
+msgstr "Previsión según mes anterior"
+
+msgid "Gamification validations"
+msgstr "Validaciones de gamificación"
+
+msgid "No pending gamification validations."
+msgstr "No hay validaciones de gamificación pendientes."
+
+msgid "Pending tasks for orders, reviews, balance requests and gamification"
+msgstr ""
+"Tareas pendientes de pedidos, valoraciones, solicitudes de saldo y "
+"gamificación"
+
+msgid "Strikes"
+msgstr "Strikes"
+
+msgid "Admin-only user incidents"
+msgstr "Incidencias de usuario solo para administración"
+
+msgid "Total strikes"
+msgstr "Total de strikes"
+
+msgid "This information is visible only to admins."
+msgstr "Esta información solo es visible para administradores."
+
+msgid "Add strike"
+msgstr "Añadir strike"
+
+msgid "Reason"
+msgstr "Motivo"
+
+msgid "Save strike"
+msgstr "Guardar strike"
+
+msgid "Strike history"
+msgstr "Historial de strikes"
+
+msgid "Added by"
+msgstr "Añadido por"
+
+msgid "This user has no strikes."
+msgstr "Este usuario no tiene strikes."
+
+msgid "Strike added successfully."
+msgstr "Strike añadido correctamente."
+
+msgid "Reason is required."
+msgstr "El motivo es obligatorio."
+
+msgid "Average ticket"
+msgstr "Ticket medio"
+
+msgid "Avg monthly spend"
+msgstr "Gasto medio mensual"
+
+msgid "Last action"
+msgstr "Última acción"
+
+msgid "Top 3 favorite products"
+msgstr "Top 3 productos favoritos"
+
+msgid "Ranked by total quantity purchased"
+msgstr "Ordenados por cantidad total comprada"
+
+msgid "Units:"
+msgstr "Unidades:"
+
+msgid "Spent:"
+msgstr "Gastado:"
+
+msgid "No purchases yet."
+msgstr "Aún no tiene compras."
+
+msgid "Action frequency"
+msgstr "Frecuencia de acción"
+
+msgid "This user performs an action every %(days)s days on average."
+msgstr "Este usuario realiza una acción cada %(days)s días de media."
+
+msgid "Not enough actions to estimate frequency."
+msgstr "No hay suficientes acciones para estimar la frecuencia."
+
+msgid "Usually buys %(qty)s units of %(product)s per line item."
+msgstr "Suele comprar %(qty)s unidades de %(product)s por línea."
+
+msgid "Order status mix"
+msgstr "Distribución de estados de pedidos"
+
+msgid "Products not tried yet"
+msgstr "Productos que aún no ha probado"
+
+msgid "User already tried all active public products."
+msgstr "El usuario ya probó todos los productos activos y públicos."
+
+msgid "Tried but not reviewed"
+msgstr "Probados pero sin valorar"
+
+msgid "No pending reviews detected."
+msgstr "No hay valoraciones pendientes detectadas."
+
+msgid "Top categories"
+msgstr "Categorías principales"
+
+msgid "No category data available yet."
+msgstr "Aún no hay datos de categorías disponibles."
+
+msgid "Apply manual balance changes for a user"
+msgstr "Aplica cambios manuales de saldo para un usuario"
+
+msgid "Amount (+/-)"
+msgstr "Importe (+/-)"
+
+msgid "Apply adjustment"
+msgstr "Aplicar ajuste"
+
+msgid "Uncategorized"
+msgstr "Sin categoría"
+
+msgid "Information"
+msgstr "Información"
+
+msgid "Total quantity sold"
+msgstr "Cantidad total vendida"
+
+msgid "Sales:"
+msgstr "Ventas:"
+
+msgid "Approved orders:"
+msgstr "Pedidos aprobados:"
+
+msgid "Total revenue generated"
+msgstr "Ingresos totales generados"
+
+msgid "Average per user:"
+msgstr "Media por usuario:"
+
+msgid "Users who tried it"
+msgstr "Usuarios que lo probaron"
+
+msgid "Tried but not reviewed:"
+msgstr "Probado pero sin valorar:"
+
+msgid "Operational info"
+msgstr "Información operativa"
+
+msgid "Current stock:"
+msgstr "Stock actual:"
+
+msgid "Minimum stock:"
+msgstr "Stock mínimo:"
+
+msgid "Last movement:"
+msgstr "Último movimiento:"
+
+msgid "Visibility:"
+msgstr "Visibilidad:"
+
+msgid "Top buyers"
+msgstr "Top compradores"
+
+msgid "units"
+msgstr "unidades"
+
+msgid "No buyer data yet."
+msgstr "Aún no hay datos de compradores."
+
+msgid "User reviews"
+msgstr "Valoraciones de usuarios"
+
+msgid "reviews"
+msgstr "valoraciones"
+
+msgid "No reviews yet for this product."
+msgstr "Todavía no hay valoraciones para este producto."
+
+msgid "Sales + Orders (count)"
+msgstr "Ventas + Pedidos (cantidad)"
+
+msgid "Sales + Orders (€)"
+msgstr "Ventas + Pedidos (€)"
+
+msgid "Cash box total (€)"
+msgstr "Caja total (€)"
+
+msgid "Units sold (count)"
+msgstr "Unidades vendidas (cantidad)"
+
+msgid "Pending orders (count)"
+msgstr "Pedidos pendientes (cantidad)"
+
+msgid "Balance requests (count)"
+msgstr "Solicitudes de saldo (cantidad)"
+
+msgid "New users (count)"
+msgstr "Usuarios nuevos (cantidad)"
+
+msgid "Sales (count)"
+msgstr "Ventas (cantidad)"
+
+msgid "Orders (€)"
+msgstr "Pedidos (€)"
+
+msgid "Current cash box total: € %(total).2f"
+msgstr "Caja total actual: € %(total).2f"
+
+msgid "Sales count"
+msgstr "Ventas (cantidad)"
+
+msgid "Orders count"
+msgstr "Pedidos (cantidad)"
+
+msgid "Total actions"
+msgstr "Acciones totales"
+
+msgid "Orders total (€)"
+msgstr "Total pedidos (€)"
+
+msgid "Combined total (€)"
+msgstr "Total combinado (€)"
+
+msgid "Daily income (€)"
+msgstr "Ingresos diarios (€)"
+
+msgid "Units sold"
+msgstr "Unidades vendidas"
+
+msgid "New users"
+msgstr "Usuarios nuevos"
+
+msgid "Events"
+msgstr "Eventos"
+
+msgid "Create and manage timeline events"
+msgstr "Crear y gestionar eventos del timeline"
+
+msgid "New event"
+msgstr "Nuevo evento"
+
+msgid "Registration"
+msgstr "Registro"
+
+msgid "Required"
+msgstr "Requerido"
+
+msgid "Open"
+msgstr "Abierto"
+
+msgid "Are you sure you want to delete this event?"
+msgstr "¿Seguro que quieres eliminar este evento?"
+
+msgid "No events created yet."
+msgstr "Aún no hay eventos creados."
+
+msgid "Edit event"
+msgstr "Editar evento"
+
+msgid "Configure event details for user timeline"
+msgstr "Configura los detalles del evento para el timeline de usuarios"
+
+msgid "Back to events"
+msgstr "Volver a eventos"
+
+msgid "Event name"
+msgstr "Nombre del evento"
+
+msgid "Links"
+msgstr "Enlaces"
+
+msgid "Requires prior registration"
+msgstr "Requiere registro previo"
+
+msgid "Capacity (optional)"
+msgstr "Aforo (opcional)"
+
+msgid "Photos"
+msgstr "Fotos"
+
+msgid "Existing photos"
+msgstr "Fotos existentes"
+
+msgid "Create event"
+msgstr "Crear evento"
+
+msgid "Event created successfully."
+msgstr "Evento creado correctamente."
+
+msgid "Event updated successfully."
+msgstr "Evento actualizado correctamente."
+
+msgid "Event deleted successfully."
+msgstr "Evento eliminado correctamente."
+
+msgid "Event photos"
+msgstr "Fotos del evento"
+
+msgid "Event details"
+msgstr "Detalles del evento"
+
+msgid "Full capacity"
+msgstr "Aforo completo"
+
+msgid "Registered"
+msgstr "Registrado"
+
+msgid "Registered users:"
+msgstr "Usuarios registrados:"
+
+msgid "Register"
+msgstr "Registrarse"
+
+msgid "This event does not require registration."
+msgstr "Este evento no requiere registro."
+
+msgid "Registration is closed for this event."
+msgstr "El registro está cerrado para este evento."
+
+msgid "You are already registered for this event."
+msgstr "Ya estás registrado en este evento."
+
+msgid "This event is full."
+msgstr "Este evento está completo."
+
+msgid "Registration completed successfully."
+msgstr "Registro completado correctamente."
+
+msgid "You are not registered for this event."
+msgstr "No estás registrado en este evento."
+
+msgid "Your event registration was cancelled."
+msgstr "Tu registro al evento ha sido cancelado."
+
+msgid "Cancel registration"
+msgstr "Cancelar registro"
+
+msgid "Capacity must be greater than zero."
+msgstr "El aforo debe ser mayor que cero."
+
+msgid "One URL per line"
+msgstr "Una URL por línea"
+
+msgid "Capacity full"
+msgstr "Aforo completo"
+
+msgid "Registration required"
+msgstr "Registro obligatorio"
+
+msgid "Open event"
+msgstr "Evento abierto"
+
+msgid "Purchase options"
+msgstr "Opciones de compra"
+
+msgid "Both"
+msgstr "Ambas"
+
+msgid "Units only"
+msgstr "Solo unidades"
+
+msgid "Amount only"
+msgstr "Solo importe"
+
+msgid "This product only allows quantity purchase."
+msgstr "Este producto solo permite compra por unidades."
+
+msgid "This product only allows amount purchase."
+msgstr "Este producto solo permite compra por importe."
+
+msgid "Purchase options updated successfully."
+msgstr "Opciones de compra actualizadas correctamente."
+
+msgid "Paid event"
+msgstr "Evento de pago"
+
+msgid "Paid"
+msgstr "De pago"
+
+msgid "Registration fee"
+msgstr "Cuota de registro"
+
+msgid "Paid events require registration."
+msgstr "Los eventos de pago requieren registro."
+
+msgid "Fee amount must be greater than zero."
+msgstr "La cuota debe ser mayor que cero."
+
+msgid "Insufficient balance for this paid event."
+msgstr "Saldo insuficiente para este evento de pago."
+
+msgid "Paid registration for event: %(event)s"
+msgstr "Registro de pago para el evento: %(event)s"
+
+msgid "Refund for event cancellation: %(event)s"
+msgstr "Reembolso por cancelación del evento: %(event)s"
+
+msgid "Event registration charge"
+msgstr "Cargo por registro en evento"
+
+msgid "Event registration refund"
+msgstr "Reembolso de registro en evento"
+
+msgid "Are you sure you want to register for this event?"
+msgstr "¿Seguro que quieres registrarte en este evento?"
+
+msgid ""
+"Are you sure you want to register for this event? This registration will "
+"deduct € %(fee)s from your balance."
+msgstr ""
+"¿Seguro que quieres registrarte en este evento? Este registro descontará € "
+"%(fee)s de tu saldo."
+
+msgid "Are you sure you want to cancel your registration?"
+msgstr "¿Seguro que quieres cancelar tu registro?"
+
+msgid ""
+"Are you sure you want to cancel your registration? If you cancel now, € "
+"%(fee)s will be refunded to your balance."
+msgstr ""
+"¿Seguro que quieres cancelar tu registro? Si cancelas ahora, se reembolsarán "
+"€ %(fee)s a tu saldo."
+
+msgid "Event information"
+msgstr "Información del evento"
+
+msgid "Total collected"
+msgstr "Total recaudado"
+
+msgid "Registered users list"
+msgstr "Listado de usuarios registrados"
+
+msgid "Registration date"
+msgstr "Fecha de registro"
+
+msgid "Are you sure you want to remove this registration?"
+msgstr "¿Seguro que quieres eliminar este registro?"
+
+msgid "Remove registration"
+msgstr "Quitar registro"
+
+msgid "No users registered yet."
+msgstr "Todavía no hay usuarios registrados."
+
+msgid "Comment reply must belong to the same event."
+msgstr "La respuesta debe pertenecer al mismo evento."
+
+msgid "Only one reply level is allowed."
+msgstr "Solo se permite un nivel de respuesta."
+
+msgid "Write your comment..."
+msgstr "Escribe tu comentario..."
+
+msgid "Comment cannot be empty."
+msgstr "El comentario no puede estar vacío."
+
+msgid "Write an admin reply..."
+msgstr "Escribe una respuesta del administrador..."
+
+msgid "Reply cannot be empty."
+msgstr "La respuesta no puede estar vacía."
+
+msgid "Comment posted successfully."
+msgstr "Comentario publicado correctamente."
+
+msgid "Please write a comment before posting."
+msgstr "Escribe un comentario antes de publicar."
+
+msgid "Admin reply posted successfully."
+msgstr "Respuesta del administrador publicada correctamente."
+
+msgid "Please write a reply before posting."
+msgstr "Escribe una respuesta antes de publicar."
+
+msgid "Comments"
+msgstr "Comentarios"
+
+msgid "Post comment"
+msgstr "Publicar comentario"
+
+msgid "No comments yet. Be the first to comment."
+msgstr "Todavía no hay comentarios. Sé el primero en comentar."
+
+msgid "Reply as admin"
+msgstr "Responder como administrador"
+
+msgid "No comments yet."
+msgstr "Todavía no hay comentarios."
+
+msgid "Admin removed event registration: %(event)s"
+msgstr "El administrador eliminó el registro del evento: %(event)s"
+
+msgid "User registration removed successfully."
+msgstr "Registro de usuario eliminado correctamente."
+
+msgid "Stock adjustment"
+msgstr "Ajuste de stock"
+
+msgid "Adjust stock"
+msgstr "Ajustar stock"
+
+msgid "Current stock"
+msgstr "Stock actual"
+
+msgid "Current"
+msgstr "Actual"
+
+msgid "Stock simulation"
+msgstr "Simulación de stock"
+
+msgid "Enter an adjustment to preview the resulting stock."
+msgstr "Introduce un ajuste para previsualizar el stock resultante."
+
+msgid "Resulting stock after update."
+msgstr "Stock resultante tras actualizar."
+
+msgid "Enter a value like 20, +20 or -30."
+msgstr "Introduce un valor como 20, +20 o -30."
+
+msgid "Adjustment"
+msgstr "Ajuste"
+
+msgid "Update stock"
+msgstr "Actualizar stock"
+
+msgid "Invalid stock adjustment value."
+msgstr "Valor de ajuste de stock no válido."
+
+msgid "Stock cannot be negative."
+msgstr "El stock no puede ser negativo."
+
+msgid "Stock updated successfully."
+msgstr "Stock actualizado correctamente."
+
+msgid "Stock adjustment history"
+msgstr "Historial de ajustes de stock"
+
+msgid "No stock adjustments yet."
+msgstr "Todavía no hay ajustes de stock."
+
+msgid "Registered users"
+msgstr "Usuarios registrados"
+
+msgid "Void"
+msgstr "Anular"
+
+msgid "Voided / canceled"
+msgstr "Anuladas / canceladas"
+
+msgid "Transaction history scope"
+msgstr "Ambito del historial de transacciones"
+
+msgid "No voided or canceled transactions yet."
+msgstr "Aun no hay transacciones anuladas o canceladas."
+
+msgid "Product is already deactivated."
+msgstr "El producto ya esta desactivado."
+
+msgid "Product deactivated successfully. Historical records were preserved."
+msgstr ""
+"Producto desactivado correctamente. Los registros historicos se conservaron."
+
+msgid "You cannot delete your own account."
+msgstr "No puedes eliminar tu propia cuenta."
+
+msgid "Superuser accounts cannot be deleted from this interface."
+msgstr "Las cuentas superusuario no se pueden eliminar desde esta interfaz."
+
+msgid ""
+"User cannot be deleted because the current balance is negative (%(balance)s)."
+msgstr ""
+"No se puede eliminar el usuario porque el saldo actual es negativo "
+"(%(balance)s)."
+
+msgid "User cannot be deleted because there are pending balance requests."
+msgstr ""
+"No se puede eliminar el usuario porque hay solicitudes de saldo pendientes."
+
+msgid "User cannot be deleted because there are pending orders."
+msgstr "No se puede eliminar el usuario porque hay pedidos pendientes."
+
+msgid "User account is already inactive."
+msgstr "La cuenta de usuario ya esta inactiva."
+
+msgid ""
+"User account deactivated successfully. Historical records were preserved."
+msgstr ""
+"Cuenta de usuario desactivada correctamente. Los registros historicos se "
+"conservaron."
+
+msgid ""
+"This will deactivate the account and preserve historical records. Continue?"
+msgstr ""
+"Esto desactivara la cuenta y preservara los registros historicos. Continuar?"
+
+msgid "Delete (safe)"
+msgstr "Eliminar (seguro)"
+
+msgid "Type BORRAR to deactivate this user and preserve historical records."
+msgstr "Escribe BORRAR para desactivar este usuario y preservar los registros historicos."
+
+msgid "Delete cancelled. You must type BORRAR."
+msgstr "Eliminacion cancelada. Debes escribir BORRAR."
+
+msgid "Delete confirmation failed. Please type BORRAR."
+msgstr "La confirmacion de eliminacion fallo. Escribe BORRAR."
+
+msgid "This code remains visible until the user changes their password."
+msgstr "Este codigo permanece visible hasta que el usuario cambie su contrasena."
+
+msgid "Member number"
+msgstr "Numero de socio"
+
+msgid "Display name"
+msgstr "Nombre a mostrar"
+
+msgid "No member number"
+msgstr "Sin numero de socio"
+
+msgid "A user with that member number already exists."
+msgstr "Ya existe un usuario con ese numero de socio."
+
+msgid "Deactivate"
+msgstr "Desactivar"
+
+msgid "Deactivate product"
+msgstr "Desactivar producto"
+
+msgid "Are you sure you want to deactivate"
+msgstr "Seguro que quieres desactivar"
+
+msgid ""
+"This keeps historical records and hides the product from active operations"
+msgstr ""
+"Esto conserva los registros historicos y oculta el producto de las "
+"operaciones activas"
+
+msgid "Sale voided and stock restored. Historical records were preserved."
+msgstr ""
+"Venta anulada y stock restaurado. Los registros historicos se conservaron."
+
+msgid ""
+"Order canceled. Stock and user balance restored. Historical records were "
+"preserved."
+msgstr ""
+"Pedido cancelado. Stock y saldo del usuario restaurados. Los registros "
+"historicos se conservaron."
+
+msgid "Void sale"
+msgstr "Anular venta"
+
+msgid "Are you sure you want to void sale"
+msgstr "Seguro que quieres anular la venta"
+
+msgid ""
+"Stock will be restored automatically and historical records will be preserved"
+msgstr ""
+"El stock se restaurara automaticamente y los registros historicos se "
+"conservaran"
+
+msgid "Stock will be restored automatically and the record will be kept."
+msgstr "El stock se restaurara automaticamente y el registro se conservara."
+
+msgid "Cancel order"
+msgstr "Cancelar pedido"
+
+msgid "Are you sure you want to cancel order"
+msgstr "Seguro que quieres cancelar el pedido"
+
+msgid ""
+"Stock and user balance will be restored automatically and historical records "
+"will be preserved"
+msgstr ""
+"El stock y el saldo del usuario se restauraran automaticamente y los "
+"registros historicos se conservaran"
+
+msgid ""
+"Stock and user balance will be restored automatically and the record will be "
+"kept."
+msgstr ""
+"El stock y el saldo del usuario se restauraran automaticamente y el registro "
+"se conservara."
+
+msgid "Voided sales cannot be edited."
+msgstr "Las ventas anuladas no se pueden editar."
+
+msgid "Voided by admin"
+msgstr "Anulado por administrador"
+
+msgid "Canceled by admin"
+msgstr "Cancelado por administrador"
+
+msgid "Order #%(order_id)s canceled by admin"
+msgstr "Pedido #%(order_id)s cancelado por administrador"
+
+msgid "Survey"
+msgstr "Encuesta"
+
+msgid "Surveys"
+msgstr "Encuestas"
+
+msgid "Single choice"
+msgstr "Opcion unica"
+
+msgid "Multiple choice"
+msgstr "Opcion multiple"
+
+msgid "Single choice surveys require exactly one selected option."
+msgstr "Las encuestas de opcion unica requieren exactamente una opcion seleccionada."
+
+msgid "Please select at least one option."
+msgstr "Selecciona al menos una opcion."
+
+msgid "Selected option must belong to the same survey."
+msgstr "La opcion seleccionada debe pertenecer a la misma encuesta."
+
+msgid "Option label is required."
+msgstr "La etiqueta de la opcion es obligatoria."
+
+msgid "Select at least one option."
+msgstr "Selecciona al menos una opcion."
+
+msgid "Select one option."
+msgstr "Selecciona una opcion."
+
+msgid "Answered"
+msgstr "Respondida"
+
+msgid "Pending response"
+msgstr "Respuesta pendiente"
+
+msgid "Survey created successfully."
+msgstr "Encuesta creada correctamente."
+
+msgid "Add at least two options for the survey."
+msgstr "Añade al menos dos opciones para la encuesta."
+
+msgid "Survey updated successfully."
+msgstr "Encuesta actualizada correctamente."
+
+msgid "Survey deleted successfully."
+msgstr "Encuesta eliminada correctamente."
+
+msgid "You already answered this survey."
+msgstr "Ya has respondido esta encuesta."
+
+msgid "Please select an option to continue."
+msgstr "Selecciona una opcion para continuar."
+
+msgid "Invalid survey option selected."
+msgstr "La opcion de encuesta seleccionada no es valida."
+
+msgid "Survey answered successfully."
+msgstr "Encuesta respondida correctamente."
+
+msgid "Edit survey"
+msgstr "Editar encuesta"
+
+msgid "New survey"
+msgstr "Nueva encuesta"
+
+msgid "Back to surveys"
+msgstr "Volver a encuestas"
+
+msgid "Input type"
+msgstr "Tipo de entrada"
+
+msgid "Survey active for users"
+msgstr "Encuesta activa para usuarios"
+
+msgid "Options"
+msgstr "Opciones"
+
+msgid "Add option"
+msgstr "Anadir opcion"
+
+msgid "Create survey"
+msgstr "Crear encuesta"
+
+msgid "Survey information"
+msgstr "Informacion de la encuesta"
+
+msgid "Results by option"
+msgstr "Resultados por opcion"
+
+msgid "No options configured yet."
+msgstr "Aun no hay opciones configuradas."
+
+msgid "Respondents"
+msgstr "Participantes"
+
+msgid "Answered at"
+msgstr "Respondida el"
+
+msgid "Selected options"
+msgstr "Opciones seleccionadas"
+
+msgid "No responses yet."
+msgstr "Aun no hay respuestas."
+
+msgid "Create and manage user surveys"
+msgstr "Crea y gestiona encuestas para usuarios"
+
+msgid "Checkbox (multiple)"
+msgstr "Checkbox (multiple)"
+
+msgid "Radio (single)"
+msgstr "Radio (unica)"
+
+msgid "Are you sure you want to delete this survey?"
+msgstr "Seguro que quieres eliminar esta encuesta?"
+
+msgid "No surveys created yet."
+msgstr "Aun no hay encuestas creadas."
+
+msgid "Submit response"
+msgstr "Enviar respuesta"
+
+msgid "This survey has no active options yet."
+msgstr "Esta encuesta aun no tiene opciones activas."
+
+msgid "Activity calendar"
+msgstr "Calendario de actividad"
+
+msgid "Previous month"
+msgstr "Mes anterior"
+
+msgid "Next month"
+msgstr "Mes siguiente"
+
+msgid "No activity for this day."
+msgstr "No hay actividad para este dia."
+
+msgid "Event comments"
+msgstr "Comentarios en eventos"
+
+msgid "No pending event comments."
+msgstr "No hay comentarios pendientes en eventos."
+
+msgid "Reply"
+msgstr "Responder"
+
+msgid "Charge"
+msgstr "Cobrar"
+
+msgid "Security confirmation failed."
+msgstr "La confirmacion de seguridad ha fallado."
+
+msgid "Monthly fee processing is disabled."
+msgstr "El procesamiento de mensualidades esta desactivado."
+
+msgid "This user has no pending months."
+msgstr "Este usuario no tiene meses pendientes."
+
+msgid "Monthly fees charged for %(username)s: %(months)s month(s)."
+msgstr "Mensualidades cobradas para %(username)s: %(months)s mes(es)."
+
+msgid "No monthly fee charges were applied."
+msgstr "No se aplicaron cobros de mensualidad."
+
+msgid "to continue."
+msgstr "para continuar."
+
+msgid "Ignore comment"
+msgstr "Ignorar comentario"
+
+msgid "Ignore this comment? It will disappear from pending actions."
+msgstr "¿Ignorar este comentario? Desaparecera de acciones pendientes."
+
+msgid "Event comment ignored successfully."
+msgstr "Comentario del evento ignorado correctamente."
+
+msgid "This event comment was already ignored."
+msgstr "Este comentario del evento ya estaba ignorado."
+
+msgid "Estimated total due"
+msgstr "Total estimado adeudado"
+
+msgid "Charge this user now? This action will apply all pending monthly fees."
+msgstr "¿Cobrar a este usuario ahora? Esta accion aplicara todas las mensualidades pendientes."
+
+msgid "View detail"
+msgstr "Ver detalle"
+
+msgid "No users with pending monthly fees."
+msgstr "No hay usuarios con mensualidades pendientes."
+
+msgid "Priority updates"
+msgstr "Actualizaciones prioritarias"
+
+msgid "New and featured products"
+msgstr "Productos nuevos y destacados"
+
+msgid "Latest purchases and actions"
+msgstr "Ultimas compras y acciones"

@@ -1,0 +1,113 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Balance Requests' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Balance requests' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Approve or reject user top-up requests' %}{% endblock %}
+
+{% block content %}
+  <div class="row g-4 mb-4">
+    <div class="col-md-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title mb-0">{% trans 'Pending' %}</p>
+            <i class="mdi mdi-timer-sand text-warning fs-4"></i>
+          </div>
+          <h3 class="rate-percentage mb-2">{{ pending_count }}</h3>
+          <p class="text-warning mb-0">{% trans 'Pending' %}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title mb-0">{% trans 'Approved' %}</p>
+            <i class="mdi mdi-check-circle text-success fs-4"></i>
+          </div>
+          <h3 class="rate-percentage mb-2">{{ approved_count }}</h3>
+          <p class="text-success mb-0">{% trans 'Approved' %}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title mb-0">{% trans 'Rejected' %}</p>
+            <i class="mdi mdi-close-circle text-danger fs-4"></i>
+          </div>
+          <h3 class="rate-percentage mb-2">{{ rejected_count }}</h3>
+          <p class="text-danger mb-0">{% trans 'Rejected' %}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-rounded">
+    <div class="card-body">
+      <div class="mb-3 d-flex gap-2">
+        <a class="btn btn-sm {% if filter_status == 'pending' %}btn-primary text-white{% else %}btn-light{% endif %}" href="{% url 'admin_balance_requests' %}?status=pending">{% trans 'Pending' %}</a>
+        <a class="btn btn-sm {% if filter_status == 'approved' %}btn-primary text-white{% else %}btn-light{% endif %}" href="{% url 'admin_balance_requests' %}?status=approved">{% trans 'Approved' %}</a>
+        <a class="btn btn-sm {% if filter_status == 'rejected' %}btn-primary text-white{% else %}btn-light{% endif %}" href="{% url 'admin_balance_requests' %}?status=rejected">{% trans 'Rejected' %}</a>
+        <a class="btn btn-sm {% if filter_status == 'all' %}btn-primary text-white{% else %}btn-light{% endif %}" href="{% url 'admin_balance_requests' %}?status=all">{% trans 'All' %}</a>
+      </div>
+
+      <form method="get" class="row g-2 mb-3">
+        <input type="hidden" name="status" value="{{ filter_status }}">
+        <div class="col-md-9">
+          <input type="text" name="q" class="form-control" value="{{ query }}" placeholder="{% trans 'Search by username' %}">
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+          <button class="btn btn-primary text-white w-100" type="submit">{% trans 'Filter' %}</button>
+          <a class="btn btn-light w-100" href="{% url 'admin_balance_requests' %}?status={{ filter_status }}">{% trans 'Reset' %}</a>
+        </div>
+      </form>
+
+      <div class="table-responsive">
+        <table class="table select-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>{% trans 'User' %}</th>
+              <th>{% trans 'Amount' %}</th>
+              <th>{% trans 'Status' %}</th>
+              <th>{% trans 'Reviewed by' %}</th>
+              <th class="text-end">{% trans 'Actions' %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for req in requests %}
+              <tr>
+                <td>#{{ req.id }}</td>
+                <td>{{ req.user.username }}</td>
+                <td>€ {{ req.amount }}</td>
+                <td>{{ req.get_status_display }}</td>
+                <td>{{ req.reviewed_by|default:'-' }}</td>
+                <td class="text-end d-flex justify-content-end gap-2">
+                  {% if req.status == 'pending' %}
+                    <form method="post" action="{% url 'admin_balance_request_approve' req.id %}" data-confirm-approve="{% trans 'Are you sure you want to approve this item?' %}">
+                      {% csrf_token %}
+                      <button class="btn btn-sm btn-outline-success" type="submit">{% trans 'Approve' %}</button>
+                    </form>
+                    <form method="post" action="{% url 'admin_balance_request_reject' req.id %}">
+                      {% csrf_token %}
+                      <button class="btn btn-sm btn-outline-danger" type="submit">{% trans 'Reject' %}</button>
+                    </form>
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="6" class="text-center text-muted py-3">{% trans 'No balance requests found.' %}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}

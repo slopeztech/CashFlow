@@ -1,0 +1,1 @@
+"""Customers app views module."""

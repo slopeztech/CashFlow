@@ -1,0 +1,24 @@
+{% load i18n %}
+{% with cls=link_class|default:'dropdown-item' %}
+  <li><a class="{{ cls }}" href="{% url 'admin_user_info' action_user.id %}">{% trans 'Info' %}</a></li>
+  <li><a class="{{ cls }}" href="{% url 'admin_user_edit' action_user.id %}">{% trans 'Edit' %}</a></li>
+  <li><a class="{{ cls }}" href="{% url 'admin_user_strikes' action_user.id %}">{% trans 'Strikes' %}</a></li>
+  {% if not action_user.is_staff %}
+    <li><a class="{{ cls }}" href="{% url 'admin_user_balance_adjust' action_user.id %}">{% trans 'Adjust balance' %}</a></li>
+  {% endif %}
+  <li><a class="{{ cls }}" href="{% url 'admin_user_purchase_history' action_user.id %}">{% trans 'View purchases' %}</a></li>
+  <li><a class="{{ cls }}" href="{% url 'admin_balance_logs' %}?user_id={{ action_user.id }}">{% trans 'Logs' %}</a></li>
+  {% if not action_user.is_staff and action_user.id != request.user.id %}
+    <li>
+      <form
+        method="post"
+        action="{% url 'admin_user_delete' action_user.id %}"
+        onsubmit="var answer=window.prompt('{% trans 'Type BORRAR to deactivate this user and preserve historical records.' %}'); if ((answer||'').trim().toUpperCase() !== 'BORRAR') { window.alert('{% trans 'Delete cancelled. You must type BORRAR.' %}'); return false; } this.querySelector('input[name=delete_confirmation_word]').value=(answer||'').trim().toUpperCase(); return true;"
+      >
+        {% csrf_token %}
+        <input type="hidden" name="delete_confirmation_word" value="">
+        <button type="submit" class="{{ cls }} text-danger border-0 bg-transparent w-100 text-start">{% trans 'Delete (safe)' %}</button>
+      </form>
+    </li>
+  {% endif %}
+{% endwith %}

@@ -1,0 +1,78 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Strikes' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Strikes' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Admin-only user incidents' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'admin_user_list' %}"><i class="icon-arrow-left"></i> {% trans 'Back to users' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h5 class="card-title card-title-dash mb-3">{{ target_user.username }}</h5>
+          <p class="text-muted mb-1">{% trans 'Total strikes' %}: <strong>{{ strikes_count }}</strong></p>
+          <p class="text-muted mb-0">{% trans 'This information is visible only to admins.' %}</p>
+        </div>
+      </div>
+
+      <div class="card card-rounded mt-3">
+        <div class="card-body">
+          <h5 class="card-title card-title-dash mb-3">{% trans 'Add strike' %}</h5>
+          <form method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+            <div class="mb-3">
+              <label class="form-label" for="id_strike_date">{% trans 'Date' %}</label>
+              {{ form.strike_date }}
+              {% if form.strike_date.errors %}<div class="text-danger small mt-1">{{ form.strike_date.errors }}</div>{% endif %}
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="id_reason">{% trans 'Reason' %}</label>
+              {{ form.reason }}
+              {% if form.reason.errors %}<div class="text-danger small mt-1">{{ form.reason.errors }}</div>{% endif %}
+            </div>
+            <button class="btn btn-primary text-white" type="submit">{% trans 'Save strike' %}</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h5 class="card-title card-title-dash mb-3">{% trans 'Strike history' %}</h5>
+          <div class="table-responsive">
+            <table class="table select-table align-middle">
+              <thead>
+                <tr>
+                  <th>{% trans 'Date' %}</th>
+                  <th>{% trans 'Reason' %}</th>
+                  <th>{% trans 'Added by' %}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for strike in strikes %}
+                  <tr>
+                    <td>{{ strike.strike_date|date:'d/m/Y' }}</td>
+                    <td>{{ strike.reason }}</td>
+                    <td>{% if strike.created_by %}{{ strike.created_by.username }}{% else %}-{% endif %}</td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="3" class="text-center text-muted py-3">{% trans 'This user has no strikes.' %}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,221 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Admin Dashboard' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Admin dashboard' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Stock, users and pending approvals' %}{% endblock %}
+
+{% block content %}
+  <div class="row g-4 mb-4">
+    <div class="col-md-6 col-xl-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title mb-0">{% trans 'Products' %}</p>
+            <i class="mdi mdi-package-variant text-primary fs-4"></i>
+          </div>
+          <h3 class="rate-percentage mb-2">{{ products_count }}</h3>
+          <p class="text-primary mb-0">{% trans 'Products' %}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title mb-0">{% trans 'Low stock' %}</p>
+            <i class="mdi mdi-alert text-danger fs-4"></i>
+          </div>
+          <h3 class="rate-percentage mb-2">{{ low_stock_count }}</h3>
+          <p class="text-danger mb-0">{% trans 'Low stock' %}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title mb-0">{% trans 'Pending orders' %}</p>
+            <i class="mdi mdi-clipboard-clock text-warning fs-4"></i>
+          </div>
+          <h3 class="rate-percentage mb-2">{{ pending_orders_count }}</h3>
+          <p class="text-warning mb-0">{% trans 'Pending orders' %}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title mb-0">{% trans 'Users' %}</p>
+            <i class="mdi mdi-account-multiple text-info fs-4"></i>
+          </div>
+          <h3 class="rate-percentage mb-2">{{ users_count }}</h3>
+          <p class="text-info mb-0">{% trans 'Users' %}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-xl-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title mb-0">{% trans 'Total sales' %}</p>
+            <i class="mdi mdi-cash text-success fs-4"></i>
+          </div>
+          <h3 class="rate-percentage mb-2">€ {{ total_sales }}</h3>
+          <p class="text-success mb-0">{% trans 'Total sales' %}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-lg-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h5 class="card-title card-title-dash">{% trans 'Pending balance approvals' %}</h5>
+          <h3 class="mb-3">{{ pending_balance_requests_count }}</h3>
+          <a class="btn btn-sm btn-primary text-white" href="{% url 'admin_balance_requests' %}">{% trans 'Review balance requests' %}</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h5 class="card-title card-title-dash">{% trans 'Pending order approvals' %}</h5>
+          <h3 class="mb-3">{{ pending_orders_count }}</h3>
+          <a class="btn btn-sm btn-primary text-white" href="{% url 'admin_actions' %}">{% trans 'Review orders' %}</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h5 class="card-title card-title-dash">{% trans 'Pending review approvals' %}</h5>
+          <h3 class="mb-3">{{ pending_reviews_count }}</h3>
+          <a class="btn btn-sm btn-primary text-white" href="{% url 'admin_reviews' %}">{% trans 'Review ratings' %}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-lg-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h5 class="card-title card-title-dash">{% trans 'Sales - Current month' %} ({{ sales_current_month_title }})</h5>
+          <div class="sales-chart-wrapper">
+            <canvas id="sales-current-month-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h5 class="card-title card-title-dash">{% trans 'Sales - Previous month' %} ({{ sales_previous_month_title }})</h5>
+          <div class="sales-chart-wrapper">
+            <canvas id="sales-previous-month-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h5 class="card-title card-title-dash">{% trans 'Sales - Annual' %} ({{ sales_year_title }})</h5>
+          <div class="sales-chart-wrapper">
+            <canvas id="sales-year-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_css %}
+  <style>
+    .sales-chart-wrapper {
+      position: relative;
+      width: 100%;
+      height: 260px;
+    }
+  </style>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    (function () {
+      const chartDefaults = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: (value) => `€ ${value}`,
+            },
+          },
+        },
+      };
+
+      const createLineChart = (canvasId, labels, data, color) => {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas || typeof Chart === 'undefined') {
+          return;
+        }
+        new Chart(canvas, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [
+              {
+                data,
+                borderColor: color,
+                backgroundColor: `${color}22`,
+                fill: true,
+                tension: 0.35,
+                pointRadius: 2,
+                pointHoverRadius: 4,
+              },
+            ],
+          },
+          options: chartDefaults,
+        });
+      };
+
+      createLineChart(
+        'sales-current-month-chart',
+        JSON.parse('{{ sales_current_month_labels_json|escapejs }}'),
+        JSON.parse('{{ sales_current_month_data_json|escapejs }}'),
+        '#4B49AC'
+      );
+
+      createLineChart(
+        'sales-previous-month-chart',
+        JSON.parse('{{ sales_previous_month_labels_json|escapejs }}'),
+        JSON.parse('{{ sales_previous_month_data_json|escapejs }}'),
+        '#1F3BB3'
+      );
+
+      createLineChart(
+        'sales-year-chart',
+        JSON.parse('{{ sales_year_labels_json|escapejs }}'),
+        JSON.parse('{{ sales_year_data_json|escapejs }}'),
+        '#57B657'
+      );
+    })();
+  </script>
+{% endblock %}
+

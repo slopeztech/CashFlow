@@ -1,0 +1,214 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'User info' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'User info' %}{% endblock %}
+{% block page_subtitle %}{{ target_user.username }}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'admin_user_list' %}"><i class="icon-arrow-left"></i> {% trans 'Back to users' %}</a>
+{% endblock %}
+
+{% block content %}
+  {% if pending_temporary_access_code %}
+    <div class="row g-3 mb-1">
+      <div class="col-12">
+        <div class="card card-rounded border-warning">
+          <div class="card-body">
+            <p class="text-muted mb-1">{% trans 'Temporary access code' %}</p>
+            <h5 class="mb-0 font-monospace">{{ pending_temporary_access_code }}</h5>
+            <p class="text-muted mt-2 mb-0">{% trans 'This code remains visible until the user changes their password.' %}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if strikes_count %}
+    <div class="row g-3 mb-1">
+      <div class="col-12">
+        <div class="card card-rounded border-danger">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h5 class="card-title mb-0 text-danger">{% trans 'Strikes' %}</h5>
+              <span class="badge badge-opacity-danger">{{ strikes_count }}</span>
+            </div>
+            <div class="d-flex flex-column gap-2">
+              {% for strike in strikes|slice:':5' %}
+                <div class="border rounded p-2">
+                  <div class="small text-muted mb-1">{{ strike.strike_date|date:'Y/m/d' }}</div>
+                  <div class="fw-semibold">{{ strike.reason }}</div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="row g-3">
+    <div class="col-md-3">
+      <div class="card card-rounded h-100">
+        <div class="card-body">
+          <p class="text-muted mb-1">{% trans 'Total spent' %}</p>
+          <h4 class="mb-0">€ {{ total_spent|truncate_2 }}</h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card card-rounded h-100">
+        <div class="card-body">
+          <p class="text-muted mb-1">{% trans 'Average ticket' %}</p>
+          <h4 class="mb-0">€ {{ avg_ticket|truncate_2 }}</h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card card-rounded h-100">
+        <div class="card-body">
+          <p class="text-muted mb-1">{% trans 'Avg monthly spend' %}</p>
+          <h4 class="mb-0">€ {{ avg_monthly_spend|truncate_2 }}</h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card card-rounded h-100">
+        <div class="card-body">
+          <p class="text-muted mb-1">{% trans 'Last action' %}</p>
+          <h6 class="mb-0">{% if last_action_at %}{{ last_action_at|date:'Y/m/d H:i' }}{% else %}-{% endif %}</h6>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mt-1">
+    <div class="col-md-12">
+      <div class="card card-rounded h-100">
+        <div class="card-body">
+          <p class="text-muted mb-1">{% trans 'Rewards completed' %}</p>
+          <h4 class="mb-0">{{ rewarded_gamifications_count }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h5 class="card-title">{% trans 'Gamifications achieved' %}</h5>
+          {% if completed_gamifications %}
+            <div class="d-flex flex-column gap-2">
+              {% for row in completed_gamifications %}
+                <div class="border rounded p-2 d-flex justify-content-between align-items-center">
+                  <div>
+                    <div class="fw-semibold">{{ row.gamification.title }}</div>
+                    <div class="small text-muted">{{ row.status.current_value }}/{{ row.status.target_value }} · {{ row.gamification.reward }}</div>
+                  </div>
+                  {% if row.reward_completed %}
+                    <span class="badge badge-opacity-success">{% trans 'Reward completed' %}</span>
+                  {% else %}
+                    <span class="badge badge-opacity-warning">{% trans 'Pending reward' %}</span>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="text-muted mb-0">{% trans 'User has not completed gamifications yet.' %}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card card-rounded h-100">
+        <div class="card-body">
+          <h5 class="card-title">{% trans 'Top 3 favorite products' %}</h5>
+          <p class="text-muted mb-3">{% trans 'Ranked by total quantity purchased' %}</p>
+          {% if favorite_products %}
+            <ol class="mb-0 ps-3">
+              {% for row in favorite_products %}
+                <li class="mb-2">
+                  <strong>{{ row.product.name }}</strong>
+                  <div class="text-muted small">{% trans 'Units:' %} {{ row.quantity }} · {% trans 'Spent:' %} € {{ row.spent|truncate_2 }}</div>
+                </li>
+              {% endfor %}
+            </ol>
+          {% else %}
+            <p class="text-muted mb-0">{% trans 'No purchases yet.' %}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card card-rounded h-100">
+        <div class="card-body">
+          <h5 class="card-title">{% trans 'Action frequency' %}</h5>
+          {% if avg_action_days %}
+            <p class="mb-2">{% blocktrans with days=avg_action_days|floatformat:1 %}This user performs an action every {{ days }} days on average.{% endblocktrans %}</p>
+          {% else %}
+            <p class="mb-2 text-muted">{% trans 'Not enough actions to estimate frequency.' %}</p>
+          {% endif %}
+
+          {% if favorite_product_hint %}
+            <p class="mb-0 text-muted">{% blocktrans with product=favorite_product_hint.name qty=favorite_product_hint.avg_qty|floatformat:1 %}Usually buys {{ qty }} units of {{ product }} per line item.{% endblocktrans %}</p>
+          {% endif %}
+
+          <hr>
+          <h6 class="mb-2">{% trans 'Order status mix' %}</h6>
+          <p class="mb-0 text-muted">{% trans 'Approved:' %} {{ approved_count }} · {% trans 'Pending:' %} {{ pending_count }} · {% trans 'Rejected:' %} {{ rejected_count }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card card-rounded h-100">
+        <div class="card-body">
+          <h5 class="card-title">{% trans 'Products not tried yet' %}</h5>
+          {% if untried_products %}
+            <ul class="mb-0 ps-3">
+              {% for product in untried_products %}
+                <li>{{ product.name }}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-muted mb-0">{% trans 'User already tried all active public products.' %}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card card-rounded h-100">
+        <div class="card-body">
+          <h5 class="card-title">{% trans 'Tried but not reviewed' %}</h5>
+          {% if unreviewed_products %}
+            <ul class="mb-0 ps-3">
+              {% for product in unreviewed_products %}
+                <li>{{ product.name }}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-muted mb-0">{% trans 'No pending reviews detected.' %}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h5 class="card-title">{% trans 'Top categories' %}</h5>
+          {% if top_categories %}
+            <div class="d-flex flex-wrap gap-2">
+              {% for category_name, qty in top_categories %}
+                <span class="badge badge-opacity-primary">{{ category_name }} · {{ qty }}</span>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="text-muted mb-0">{% trans 'No category data available yet.' %}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

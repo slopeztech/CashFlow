@@ -1,0 +1,2750 @@
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: CashFlow\n"
+"POT-Creation-Date: 2026-02-25 00:00+0000\n"
+"PO-Revision-Date: 2026-02-25 00:00+0000\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Username"
+msgstr "Username"
+
+msgid "Password"
+msgstr "Password"
+
+msgid "Measure label is required when unit type is measure."
+msgstr "Measure label is required when unit type is measure."
+
+msgid "Unit price"
+msgstr "Unit price"
+
+msgid "A user with that username already exists."
+msgstr "A user with that username already exists."
+
+msgid "Optional reason"
+msgstr "Optional reason"
+
+msgid "Amount must be greater than zero."
+msgstr "Amount must be greater than zero."
+
+msgid "Use positive amount to add balance and negative amount to withdraw."
+msgstr "Use positive amount to add balance and negative amount to withdraw."
+
+msgid "Welcome,"
+msgstr "Welcome,"
+
+msgid "Store operations overview"
+msgstr "Store operations overview"
+
+msgid "No email"
+msgstr "No email"
+
+msgid "Admin panel"
+msgstr "Admin panel"
+
+msgid "My Profile"
+msgstr "My Profile"
+
+msgid "Sign Out"
+msgstr "Sign Out"
+
+msgid "Admin dashboard"
+msgstr "Admin dashboard"
+
+msgid "Stock & products"
+msgstr "Stock & products"
+
+msgid "Sales"
+msgstr "Sales"
+
+msgid "Charts"
+msgstr "Charts"
+
+msgid "Approve orders"
+msgstr "Approve orders"
+
+msgid "Manage users"
+msgstr "Manage users"
+
+msgid "Moderate reviews"
+msgstr "Moderate reviews"
+
+msgid "Balance requests"
+msgstr "Balance requests"
+
+msgid "Balance logs"
+msgstr "Balance logs"
+
+msgid "My dashboard"
+msgstr "My dashboard"
+
+msgid "My profile"
+msgstr "My profile"
+
+msgid "My orders"
+msgstr "My orders"
+
+msgid "Purchase history"
+msgstr "Purchase history"
+
+msgid "Available products"
+msgstr "Available products"
+
+msgid "My balance"
+msgstr "My balance"
+
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "CashFlow backoffice"
+msgstr "CashFlow backoffice"
+
+msgid "StarAdmin2 integrated template"
+msgstr "StarAdmin2 integrated template"
+
+msgid "Sign in"
+msgstr "Sign in"
+
+msgid "Welcome back"
+msgstr "Welcome back"
+
+msgid "Sign in to continue."
+msgstr "Sign in to continue."
+
+msgid "SIGN IN"
+msgstr "SIGN IN"
+
+msgid "Edit Profile"
+msgstr "Edit Profile"
+
+msgid "Edit profile"
+msgstr "Edit profile"
+
+msgid "Update your account information"
+msgstr "Update your account information"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Phone"
+msgstr "Phone"
+
+msgid "Address"
+msgstr "Address"
+
+msgid "Language"
+msgstr "Language"
+
+msgid "Save changes"
+msgstr "Save changes"
+
+msgid "Edit User"
+msgstr "Edit User"
+
+msgid "Add User"
+msgstr "Add User"
+
+msgid "Add user"
+msgstr "Add user"
+
+msgid "Update user account information"
+msgstr "Update user account information"
+
+msgid "Create a new user account"
+msgstr "Create a new user account"
+
+msgid "Back to users"
+msgstr "Back to users"
+
+msgid "Confirm password"
+msgstr "Confirm password"
+
+msgid "Grant admin access"
+msgstr "Grant admin access"
+
+msgid "Create user"
+msgstr "Create user"
+
+msgid "Cancel"
+msgstr "Cancel"
+
+msgid "Visualize metrics by date range"
+msgstr "Visualize metrics by date range"
+
+msgid "Configure chart"
+msgstr "Configure chart"
+
+msgid "Metric"
+msgstr "Metric"
+
+msgid "Start date"
+msgstr "Start date"
+
+msgid "End date"
+msgstr "End date"
+
+msgid "Apply"
+msgstr "Apply"
+
+msgid "Detailed records"
+msgstr "Detailed records"
+
+msgid "rows"
+msgstr "rows"
+
+msgid "No records found for the selected date range and metric."
+msgstr "No records found for the selected date range and metric."
+
+msgid "Sales (€)"
+msgstr "Sales (€)"
+
+msgid "Orders"
+msgstr "Orders"
+
+msgid "Sales (amount)"
+msgstr "Sales (amount)"
+
+msgid "Orders (count)"
+msgstr "Orders (count)"
+
+msgid "Sales + Orders"
+msgstr "Sales + Orders"
+
+msgid "Total cash (net movement)"
+msgstr "Total cash (net movement)"
+
+msgid "Approved reviews (count)"
+msgstr "Approved reviews (count)"
+
+msgid "Sales total: € %(sales_total).2f | Orders total: %(orders_total)s"
+msgstr "Sales total: € %(sales_total).2f | Orders total: %(orders_total)s"
+
+msgid "Range total: %(total)s"
+msgstr "Range total: %(total)s"
+
+msgid "Account details"
+msgstr "Account details"
+
+msgid "Account snapshot"
+msgstr "Account snapshot"
+
+msgid "Action"
+msgstr "Action"
+
+msgid "Actions"
+msgstr "Actions"
+
+msgid "Active"
+msgstr "Active"
+
+msgid "Active product"
+msgstr "Active product"
+
+msgid "Active products"
+msgstr "Active products"
+
+msgid "Add item"
+msgstr "Add item"
+
+msgid "Adjust balance"
+msgstr "Adjust balance"
+
+msgid "Admin"
+msgstr "Admin"
+
+msgid "Admin Dashboard"
+msgstr "Admin Dashboard"
+
+msgid "Current password"
+msgstr "Current password"
+
+msgid "New password"
+msgstr "New password"
+
+msgid "Confirm new password"
+msgstr "Confirm new password"
+
+msgid "Password changed successfully."
+msgstr "Password changed successfully."
+
+msgid "Password settings"
+msgstr "Password settings"
+
+msgid "Update password"
+msgstr "Update password"
+
+msgid "Security reminder"
+msgstr "Security reminder"
+
+msgid "For security reasons, please change your password before continuing to use your account."
+msgstr "For security reasons, please change your password before continuing to use your account."
+
+msgid "This message appears only until you update your password."
+msgstr "This message appears only until you update your password."
+
+msgid "Change password now"
+msgstr "Change password now"
+
+msgid "Temporary access code"
+msgstr "Temporary access code"
+
+msgid "Generated automatically. Share this code securely with the user."
+msgstr "Generated automatically. Share this code securely with the user."
+
+msgid "Temporary access code must have 8 characters using lowercase letters and numbers."
+msgstr "Temporary access code must have 8 characters using lowercase letters and numbers."
+
+msgid "User created successfully. Temporary access code: %(code)s"
+msgstr "User created successfully. Temporary access code: %(code)s"
+
+msgid "After"
+msgstr "After"
+
+msgid "All"
+msgstr "All"
+
+msgid "All categories"
+msgstr "All categories"
+
+msgid "All ratings"
+msgstr "All ratings"
+
+msgid "All registered balance changes"
+msgstr "All registered balance changes"
+
+msgid "All types"
+msgstr "All types"
+
+msgid "Active sessions"
+msgstr "Active sessions"
+
+msgid "Users connected now or active in the last 2 hours"
+msgstr "Users connected now or active in the last 2 hours"
+
+msgid "Active users"
+msgstr "Active users"
+
+msgid "Cash today"
+msgstr "Cash today"
+
+msgid "Cash current month"
+msgstr "Cash current month"
+
+msgid "Pending gamifications"
+msgstr "Pending gamifications"
+
+msgid "Sales + approved orders for today"
+msgstr "Sales + approved orders for today"
+
+msgid "No users with recent activity."
+msgstr "No users with recent activity."
+
+msgid "Last activity"
+msgstr "Last activity"
+
+msgid "Filter users"
+msgstr "Filter users"
+
+msgid "Type a username..."
+msgstr "Type a username..."
+
+msgid "System"
+msgstr "System"
+
+msgid "Global system settings and maintenance tools"
+msgstr "Global system settings and maintenance tools"
+
+msgid "Summary"
+msgstr "Summary"
+
+msgid "Environment variables"
+msgstr "Environment variables"
+
+msgid "Backups"
+msgstr "Backups"
+
+msgid "Platform name"
+msgstr "Platform name"
+
+msgid "Code version"
+msgstr "Code version"
+
+msgid "Brand and texts"
+msgstr "Brand and texts"
+
+msgid "Store name"
+msgstr "Store name"
+
+msgid "Primary brand color (HEX)"
+msgstr "Primary brand color (HEX)"
+
+msgid "Secondary brand color (HEX)"
+msgstr "Secondary brand color (HEX)"
+
+msgid "Current CashFlow style example: #111827 and #5E8DF5"
+msgstr "Current CashFlow style example: #111827 and #5E8DF5"
+
+msgid "Footer text"
+msgstr "Footer text"
+
+msgid "Download full database backup"
+msgstr "Download full database backup"
+
+msgid "Generates a complete backup file of the current database."
+msgstr "Generates a complete backup file of the current database."
+
+msgid "Download backup"
+msgstr "Download backup"
+
+msgid "Use a valid HEX color (example: #5E8DF5)."
+msgstr "Use a valid HEX color (example: #5E8DF5)."
+
+msgid "Automatic backup download is only available for SQLite projects."
+msgstr "Automatic backup download is only available for SQLite projects."
+
+msgid "Database file was not found."
+msgstr "Database file was not found."
+
+msgid "System settings updated successfully."
+msgstr "System settings updated successfully."
+
+msgid "BackendLog"
+msgstr "BackendLog"
+
+msgid "Log file path"
+msgstr "Log file path"
+
+msgid "Log file not found."
+msgstr "Log file not found."
+
+msgid "Log file is empty."
+msgstr "Log file is empty."
+
+msgid "Showing last %(count)s lines."
+msgstr "Showing last %(count)s lines."
+
+msgid "Filter text"
+msgstr "Filter text"
+
+msgid "Type to filter log lines..."
+msgstr "Type to filter log lines..."
+
+msgid "Auto refresh"
+msgstr "Auto refresh"
+
+msgid "Disabled"
+msgstr "Disabled"
+
+msgid "Refresh log"
+msgstr "Refresh log"
+
+msgid "No log lines match the filter."
+msgstr "No log lines match the filter."
+
+msgid "Backups and exports"
+msgstr "Backups and exports"
+
+msgid "Download complete backups or operational snapshots."
+msgstr "Download complete backups or operational snapshots."
+
+msgid "Full database backup"
+msgstr "Full database backup"
+
+msgid "Users and balances"
+msgstr "Users and balances"
+
+msgid "Exports current users and their current balances in CSV format."
+msgstr "Exports current users and their current balances in CSV format."
+
+msgid "Current products"
+msgstr "Current products"
+
+msgid "Exports products with category, supplier, prices, stock and status."
+msgstr "Exports products with category, supplier, prices, stock and status."
+
+msgid "Low stock products"
+msgstr "Low stock products"
+
+msgid "Useful for operations: exports only active products below minimum stock."
+msgstr "Useful for operations: exports only active products below minimum stock."
+
+msgid "Download CSV"
+msgstr "Download CSV"
+
+msgid "Balance logs (last N days)"
+msgstr "Balance logs (last N days)"
+
+msgid "Exports balance movements from the last N days for auditing. The range is defined by admin input."
+msgstr "Exports balance movements from the last N days for auditing. The range is defined by admin input."
+
+msgid "Orders (last N days)"
+msgstr "Orders (last N days)"
+
+msgid "Exports orders from the last N days. The range is defined by admin input."
+msgstr "Exports orders from the last N days. The range is defined by admin input."
+
+msgid "Days to export"
+msgstr "Days to export"
+
+msgid "Allowed range: %(min)s to %(max)s days."
+msgstr "Allowed range: %(min)s to %(max)s days."
+
+msgid "Amount"
+msgstr "Amount"
+
+msgid "Approve"
+msgstr "Approve"
+
+msgid "Approve Orders"
+msgstr "Approve Orders"
+
+msgid "Approve or hide user product reviews"
+msgstr "Approve or hide user product reviews"
+
+msgid "Approve or reject user purchase request"
+msgstr "Approve or reject user purchase request"
+
+msgid "Approve or reject user top-up requests"
+msgstr "Approve or reject user top-up requests"
+
+msgid "Approve order"
+msgstr "Approve order"
+
+msgid "Approved"
+msgstr "Approved"
+
+msgid "Approved by"
+msgstr "Approved by"
+
+msgid "Approved by:"
+msgstr "Approved by:"
+
+msgid "Approved orders"
+msgstr "Approved orders"
+
+msgid "Approved orders and direct sales"
+msgstr "Approved orders and direct sales"
+
+msgid "Approved review"
+msgstr "Approved review"
+
+msgid "Approved reviews"
+msgstr "Approved reviews"
+
+msgid "Approved:"
+msgstr "Approved:"
+
+msgid "Are you sure you want to delete"
+msgstr "Are you sure you want to delete"
+
+msgid "Are you sure you want to delete sale"
+msgstr "Are you sure you want to delete sale"
+
+msgid "Available Products"
+msgstr "Available Products"
+
+msgid "Avg approved rating"
+msgstr "Avg approved rating"
+
+msgid "Back to catalog"
+msgstr "Back to catalog"
+
+msgid "Back to dashboard"
+msgstr "Back to dashboard"
+
+msgid "Back to details"
+msgstr "Back to details"
+
+msgid "Back to orders"
+msgstr "Back to orders"
+
+msgid "Back to products"
+msgstr "Back to products"
+
+msgid "Back to sales"
+msgstr "Back to sales"
+
+msgid "Balance"
+msgstr "Balance"
+
+msgid "Balance Logs"
+msgstr "Balance Logs"
+
+msgid "Balance Requests"
+msgstr "Balance Requests"
+
+msgid "Balance can be negative."
+msgstr "Balance can be negative."
+
+msgid "Balance request approval"
+msgstr "Balance request approval"
+
+msgid "Before"
+msgstr "Before"
+
+msgid "By"
+msgstr "By"
+
+msgid "Catalog"
+msgstr "Catalog"
+
+msgid "Catalog size"
+msgstr "Catalog size"
+
+msgid "Categories"
+msgstr "Categories"
+
+msgid "Categories can only be deleted when no products are associated."
+msgstr "Categories can only be deleted when no products are associated."
+
+msgid "Category"
+msgstr "Category"
+
+msgid "Category:"
+msgstr "Category:"
+
+msgid "Configure sale items and customer"
+msgstr "Configure sale items and customer"
+
+msgid "Create a purchase request for admin approval"
+msgstr "Create a purchase request for admin approval"
+
+msgid "Create and manage product categories"
+msgstr "Create and manage product categories"
+
+msgid "Create category"
+msgstr "Create category"
+
+msgid "Create or update product catalog records"
+msgstr "Create or update product catalog records"
+
+msgid "Create product"
+msgstr "Create product"
+
+msgid "Create sale"
+msgstr "Create sale"
+
+msgid "Created"
+msgstr "Created"
+
+msgid "Created:"
+msgstr "Created:"
+
+msgid "Current balance"
+msgstr "Current balance"
+
+msgid "Current balance and top-up requests"
+msgstr "Current balance and top-up requests"
+
+msgid "Current balance:"
+msgstr "Current balance:"
+
+msgid "Current order total:"
+msgstr "Current order total:"
+
+msgid "Current sale total:"
+msgstr "Current sale total:"
+
+msgid "Customer"
+msgstr "Customer"
+
+msgid "Customer:"
+msgstr "Customer:"
+
+msgid "Date"
+msgstr "Date"
+
+msgid "Date:"
+msgstr "Date:"
+
+msgid "Delete"
+msgstr "Delete"
+
+msgid "Delete product"
+msgstr "Delete product"
+
+msgid "Delete sale"
+msgstr "Delete sale"
+
+msgid "Delta"
+msgstr "Delta"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "Description:"
+msgstr "Description:"
+
+msgid "Direct sales"
+msgstr "Direct sales"
+
+msgid "Edit"
+msgstr "Edit"
+
+msgid "Edit order"
+msgstr "Edit order"
+
+msgid "Edit product"
+msgstr "Edit product"
+
+msgid "Edit sale"
+msgstr "Edit sale"
+
+msgid "Edit user"
+msgstr "Edit user"
+
+msgid "Filter"
+msgstr "Filter"
+
+msgid "History"
+msgstr "History"
+
+msgid "All customers"
+msgstr "All customers"
+
+msgid "Gross amount"
+msgstr "Gross amount"
+
+msgid "Period: Current month"
+msgstr "Period: Current month"
+
+msgid "Hide"
+msgstr "Hide"
+
+msgid "In stock"
+msgstr "In stock"
+
+msgid "Inactive"
+msgstr "Inactive"
+
+msgid "Items"
+msgstr "Items"
+
+msgid "Latest ticket"
+msgstr "Latest ticket"
+
+msgid "Logs"
+msgstr "Logs"
+
+msgid "Low"
+msgstr "Low"
+
+msgid "Low stock"
+msgstr "Low stock"
+
+msgid "Low stock alerts"
+msgstr "Low stock alerts"
+
+msgid "Manage Users"
+msgstr "Manage Users"
+
+msgid "Manage your catalog and stock levels"
+msgstr "Manage your catalog and stock levels"
+
+msgid "Manual adjustment"
+msgstr "Manual adjustment"
+
+msgid "Measure label (only for measure)"
+msgstr "Measure label (only for measure)"
+
+msgid "Message"
+msgstr "Message"
+
+msgid "Moderate Reviews"
+msgstr "Moderate Reviews"
+
+msgid "My Balance"
+msgstr "My Balance"
+
+msgid "My Dashboard"
+msgstr "My Dashboard"
+
+msgid "My Orders"
+msgstr "My Orders"
+
+msgid "My Purchase History"
+msgstr "My Purchase History"
+
+msgid "My orders:"
+msgstr "My orders:"
+
+msgid "My purchase history"
+msgstr "My purchase history"
+
+msgid "My requests"
+msgstr "My requests"
+
+msgid "Name"
+msgstr "Name"
+
+msgid "Needs attention"
+msgstr "Needs attention"
+
+msgid "New category"
+msgstr "New category"
+
+msgid "New order"
+msgstr "New order"
+
+msgid "New product"
+msgstr "New product"
+
+msgid "New sale ticket"
+msgstr "New sale ticket"
+
+msgid "No approved orders for this user."
+msgstr "No approved orders for this user."
+
+msgid "No approved orders yet."
+msgstr "No approved orders yet."
+
+msgid "No approved reviews"
+msgstr "No approved reviews"
+
+msgid "No approved reviews for this product yet."
+msgstr "No approved reviews for this product yet."
+
+msgid "No balance logs yet."
+msgstr "No balance logs yet."
+
+msgid "No balance requests found."
+msgstr "No balance requests found."
+
+msgid "No balance requests yet."
+msgstr "No balance requests yet."
+
+msgid "No categories yet."
+msgstr "No categories yet."
+
+msgid "No direct sales for this user."
+msgstr "No direct sales for this user."
+
+msgid "No direct sales yet."
+msgstr "No direct sales yet."
+
+msgid "No items found for this sale."
+msgstr "No items found for this sale."
+
+msgid "No logs found."
+msgstr "No logs found."
+
+msgid "No orders found."
+msgstr "No orders found."
+
+msgid "No orders yet."
+msgstr "No orders yet."
+
+msgid "No products yet."
+msgstr "No products yet."
+
+msgid "No public products available."
+msgstr "No public products available."
+
+msgid "No reviews found."
+msgstr "No reviews found."
+
+msgid "No sales yet."
+msgstr "No sales yet."
+
+msgid "No timeline events yet."
+msgstr "No timeline events yet."
+
+msgid "Note"
+msgstr "Note"
+
+msgid "Order"
+msgstr "Order"
+
+msgid "Order Approval"
+msgstr "Order Approval"
+
+msgid "Order Detail"
+msgstr "Order Detail"
+
+msgid "Order Form"
+msgstr "Order Form"
+
+msgid "Order approval"
+msgstr "Order approval"
+
+msgid "Order items"
+msgstr "Order items"
+
+msgid "Order status and requested items"
+msgstr "Order status and requested items"
+
+msgid "Out of stock"
+msgstr "Out of stock"
+
+msgid "Pending"
+msgstr "Pending"
+
+msgid "Pending balance approvals"
+msgstr "Pending balance approvals"
+
+msgid "Pending order approvals"
+msgstr "Pending order approvals"
+
+msgid "Pending orders"
+msgstr "Pending orders"
+
+msgid "Pending review approvals"
+msgstr "Pending review approvals"
+
+msgid "Pending:"
+msgstr "Pending:"
+
+msgid "Price"
+msgstr "Price"
+
+msgid "Price:"
+msgstr "Price:"
+
+msgid "Private"
+msgstr "Private"
+
+msgid "Product"
+msgstr "Product"
+
+msgid "Product Detail"
+msgstr "Product Detail"
+
+msgid "Product details and approved ratings"
+msgstr "Product details and approved ratings"
+
+msgid "Product form"
+msgstr "Product form"
+
+msgid "Product information"
+msgstr "Product information"
+
+msgid "Product list"
+msgstr "Product list"
+
+msgid "Products"
+msgstr "Products"
+
+msgid "Profile"
+msgstr "Profile"
+
+msgid "Projected balance:"
+msgstr "Projected balance:"
+
+msgid "Public"
+msgstr "Public"
+
+msgid "Public products and approved ratings"
+msgstr "Public products and approved ratings"
+
+msgid "Purchase"
+msgstr "Purchase"
+
+msgid "Purchases for"
+msgstr "Purchases for"
+
+msgid "Quantity"
+msgstr "Quantity"
+
+msgid "Rate"
+msgstr "Rate"
+
+msgid "Rate Product"
+msgstr "Rate Product"
+
+msgid "Rate product"
+msgstr "Rate product"
+
+msgid "Rating"
+msgstr "Rating"
+
+msgid "Ready to sell"
+msgstr "Ready to sell"
+
+msgid "Reason:"
+msgstr "Reason:"
+
+msgid "Recent activity"
+msgstr "Recent activity"
+
+msgid "Reject"
+msgstr "Reject"
+
+msgid "Reject order"
+msgstr "Reject order"
+
+msgid "Rejected"
+msgstr "Rejected"
+
+msgid "Rejection reason"
+msgstr "Rejection reason"
+
+msgid "Remove"
+msgstr "Remove"
+
+msgid "Request top-up"
+msgstr "Request top-up"
+
+msgid "Reset"
+msgstr "Reset"
+
+msgid "Review"
+msgstr "Review"
+
+msgid "Review balance requests"
+msgstr "Review balance requests"
+
+msgid "Review order"
+msgstr "Review order"
+
+msgid "Review orders"
+msgstr "Review orders"
+
+msgid "Review ratings"
+msgstr "Review ratings"
+
+msgid "Review transaction and item details"
+msgstr "Review transaction and item details"
+
+msgid "Review user purchase requests"
+msgstr "Review user purchase requests"
+
+msgid "Reviewed by"
+msgstr "Reviewed by"
+
+msgid "Role"
+msgstr "Role"
+
+msgid "SKU:"
+msgstr "SKU:"
+
+msgid "Sale"
+msgstr "Sale"
+
+msgid "Sale details"
+msgstr "Sale details"
+
+msgid "Sale form"
+msgstr "Sale form"
+
+msgid "Sale items"
+msgstr "Sale items"
+
+msgid "Sale summary"
+msgstr "Sale summary"
+
+msgid "Sales - Annual"
+msgstr "Sales - Annual"
+
+msgid "Sales - Current month"
+msgstr "Sales - Current month"
+
+msgid "Sales - Previous month"
+msgstr "Sales - Previous month"
+
+msgid "Cash - Annual"
+msgstr "Cash - Annual"
+
+msgid "Cash - Current month"
+msgstr "Cash - Current month"
+
+msgid "Cash - Previous month"
+msgstr "Cash - Previous month"
+
+msgid "Sales history"
+msgstr "Sales history"
+
+msgid "Save order"
+msgstr "Save order"
+
+msgid "Save product"
+msgstr "Save product"
+
+msgid "Save sale"
+msgstr "Save sale"
+
+msgid "Search by product, user or message"
+msgstr "Search by product, user or message"
+
+msgid "Search by username"
+msgstr "Search by username"
+
+msgid "Search products"
+msgstr "Search products"
+
+msgid "Search user, admin or note"
+msgstr "Search user, admin or note"
+
+msgid "Seller"
+msgstr "Seller"
+
+msgid "Seller:"
+msgstr "Seller:"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Status:"
+msgstr "Status:"
+
+msgid "Stock"
+msgstr "Stock"
+
+msgid "Stock status:"
+msgstr "Stock status:"
+
+msgid "Stock unit type"
+msgstr "Stock unit type"
+
+msgid "Stock will be restored automatically"
+msgstr "Stock will be restored automatically"
+
+msgid "Stock will be restored automatically."
+msgstr "Stock will be restored automatically."
+
+msgid "Stock, users and pending approvals"
+msgstr "Stock, users and pending approvals"
+
+msgid "Submit request"
+msgstr "Submit request"
+
+msgid "Submit review"
+msgstr "Submit review"
+
+msgid "Subtotal"
+msgstr "Subtotal"
+
+msgid "System"
+msgstr "System"
+
+msgid "This action cannot be undone"
+msgstr "This action cannot be undone"
+
+msgid "Timeline"
+msgstr "Timeline"
+
+msgid "Total"
+msgstr "Total"
+
+msgid "Total products"
+msgstr "Total products"
+
+msgid "Total revenue"
+msgstr "Total revenue"
+
+msgid "Total sales"
+msgstr "Total sales"
+
+msgid "Total:"
+msgstr "Total:"
+
+msgid "Track and manage all transactions"
+msgstr "Track and manage all transactions"
+
+msgid "Transactions"
+msgstr "Transactions"
+
+msgid "Type"
+msgstr "Type"
+
+msgid "Unit"
+msgstr "Unit"
+
+msgid "Unit price (from product)"
+msgstr "Unit price (from product)"
+
+msgid "Update product"
+msgstr "Update product"
+
+msgid "Update sale"
+msgstr "Update sale"
+
+msgid "User"
+msgstr "User"
+
+msgid "User ID"
+msgstr "User ID"
+
+msgid "User Purchase History"
+msgstr "User Purchase History"
+
+msgid "User:"
+msgstr "User:"
+
+msgid "Users"
+msgstr "Users"
+
+msgid "Users table and account operations"
+msgstr "Users table and account operations"
+
+msgid "View"
+msgstr "View"
+
+msgid "View details"
+msgstr "View details"
+
+msgid "View purchases"
+msgstr "View purchases"
+
+msgid "Visibility"
+msgstr "Visibility"
+
+msgid "Visible in user catalog"
+msgstr "Visible in user catalog"
+
+msgid "Your account and balance information"
+msgstr "Your account and balance information"
+
+msgid "Your approved purchases"
+msgstr "Your approved purchases"
+
+msgid "Your personal activity timeline"
+msgstr "Your personal activity timeline"
+
+msgid ""
+"Your previous review is currently public. Updating it will require approval "
+"again."
+msgstr ""
+"Your previous review is currently public. Updating it will require approval "
+"again."
+
+msgid "Your purchase requests pending admin approval"
+msgstr "Your purchase requests pending admin approval"
+
+msgid "Your review needs admin approval"
+msgstr "Your review needs admin approval"
+
+msgid "star"
+msgstr "star"
+
+msgid "stars"
+msgstr "stars"
+
+msgid "Approved purchase #%(id)s"
+msgstr "Approved purchase #%(id)s"
+
+msgid "Your order was approved. Total: € %(total)s"
+msgstr "Your order was approved. Total: € %(total)s"
+
+msgid "Direct purchase #%(id)s"
+msgstr "Direct purchase #%(id)s"
+
+msgid "Purchase registered by admin. Total: € %(total)s"
+msgstr "Purchase registered by admin. Total: € %(total)s"
+
+msgid "Balance update (%(source)s)"
+msgstr "Balance update (%(source)s)"
+
+msgid "Change: € %(delta)s | Before: € %(before)s | After: € %(after)s"
+msgstr "Change: € %(delta)s | Before: € %(before)s | After: € %(after)s"
+
+msgid "New approved review for %(product)s"
+msgstr "New approved review for %(product)s"
+
+msgid "Order"
+msgstr "Order"
+
+msgid "Review for %(product)s"
+msgstr "Review for %(product)s"
+
+msgid "%(stars)s · %(message)s"
+msgstr "%(stars)s · %(message)s"
+
+msgid "Notices"
+msgstr "Notices"
+
+msgid "Priority notices"
+msgstr "Notices"
+
+msgid "Manage user dashboard notices"
+msgstr "Manage user dashboard notices"
+
+msgid "New notice"
+msgstr "New notice"
+
+msgid "Created by"
+msgstr "Created by"
+
+msgid "Are you sure you want to delete this notice?"
+msgstr "Are you sure you want to delete this notice?"
+
+msgid "No notices created yet."
+msgstr "No notices created yet."
+
+msgid "Edit notice"
+msgstr "Edit notice"
+
+msgid "Configure dashboard notice visibility and style"
+msgstr "Configure dashboard notice visibility and style"
+
+msgid "Featured products"
+msgstr "Featured products"
+
+msgid "No featured products at the moment."
+msgstr "No featured products at the moment."
+
+msgid "New products"
+msgstr "New products"
+
+msgid "No new products at the moment."
+msgstr "No new products at the moment."
+
+msgid "Untried for you"
+msgstr "Untried for you"
+
+msgid "You already tried all recommended products."
+msgstr "You already tried all recommended products."
+
+msgid "Featured"
+msgstr "Featured"
+
+msgid "Untried"
+msgstr "Untried"
+
+msgid "Featured product"
+msgstr "Featured product"
+
+msgid "New"
+msgstr "New"
+
+msgid "Count for untried products"
+msgstr "Count for untried products"
+
+msgid "Categories enabled for untried products"
+msgstr "Categories enabled for untried products"
+
+msgid "Configure category behavior for untried products"
+msgstr "Configure category behavior for untried products"
+
+msgid "If disabled, products in this category will not appear in the untried recommendations."
+msgstr "If disabled, products in this category will not appear in the untried recommendations."
+
+msgid "Notice text"
+msgstr "Notice text"
+
+msgid "Short text"
+msgstr "Short text"
+
+msgid "Long text"
+msgstr "Long text"
+
+msgid "Radio options"
+msgstr "Radio options"
+
+msgid "Select options"
+msgstr "Select options"
+
+msgid "Checkbox"
+msgstr "Checkbox"
+
+msgid "Notice fields cannot be required."
+msgstr "Notice fields cannot be required."
+
+msgid "This field type requires at least one option."
+msgstr "This field type requires at least one option."
+
+msgid "One option per line"
+msgstr "One option per line"
+
+msgid "Registration form fields"
+msgstr "Registration form fields"
+
+msgid "Configure which fields users must complete when registering for this event."
+msgstr "Configure which fields users must complete when registering for this event."
+
+msgid "Help text"
+msgstr "Help text"
+
+msgid "Options"
+msgstr "Options"
+
+msgid "Order"
+msgstr "Order"
+
+msgid "Use one option per line for radio/select."
+msgstr "Use one option per line for radio/select."
+
+msgid "Please complete the registration form fields."
+msgstr "Please complete the registration form fields."
+
+msgid "Registered at"
+msgstr "Registered at"
+
+msgid "Form answers"
+msgstr "Form answers"
+
+msgid "Label"
+msgstr "Label"
+
+msgid "Slide %(number)s"
+msgstr "Slide %(number)s"
+
+msgid "Back to notices"
+msgstr "Back to notices"
+
+msgid "Create notice"
+msgstr "Create notice"
+
+msgid "Notice created successfully."
+msgstr "Notice created successfully."
+
+msgid "Notice updated successfully."
+msgstr "Notice updated successfully."
+
+msgid "Notice deleted successfully."
+msgstr "Notice deleted successfully."
+
+msgid "End date must be greater than or equal to start date."
+msgstr "End date must be greater than or equal to start date."
+
+msgid "Info"
+msgstr "Info"
+
+msgid "Success"
+msgstr "Success"
+
+msgid "Warning"
+msgstr "Warning"
+
+msgid "Danger"
+msgstr "Danger"
+
+msgid "Published"
+msgstr "Published"
+
+msgid "In progress"
+msgstr "In progress"
+
+msgid "Completed"
+msgstr "Completed"
+
+msgid "Notice"
+msgstr "Notice"
+
+msgid "Orders and purchase history in one place"
+msgstr "Orders and purchase history in one place"
+
+msgid "No orders or direct sales yet."
+msgstr "No orders or direct sales yet."
+
+msgid "Repeat order"
+msgstr "Repeat order"
+
+msgid "A new cart was created from this order."
+msgstr "A new cart was created from this order."
+
+msgid "No available products from this order could be added to cart."
+msgstr "No available products from this order could be added to cart."
+
+msgid "Some products were skipped due to availability."
+msgstr "Some products were skipped due to availability."
+
+msgid "You can only repeat approved or rejected orders."
+msgstr "You can only repeat approved or rejected orders."
+
+msgid "Top-up request"
+msgstr "Top-up request"
+
+msgid "Balance log"
+msgstr "Balance log"
+
+msgid "Requests and balance logs"
+msgstr "Requests and balance logs"
+
+msgid "No balance records yet."
+msgstr "No balance records yet."
+
+msgid "Purchase Detail"
+msgstr "Purchase Detail"
+
+msgid "Purchase status and items"
+msgstr "Purchase status and items"
+
+msgid "No items in this purchase."
+msgstr "No items in this purchase."
+
+msgid "Profile image"
+msgstr "Profile image"
+
+msgid "Home"
+msgstr "Home"
+
+msgid "Analytics"
+msgstr "Analytics"
+
+msgid "users"
+msgstr "users"
+
+msgid "Actions"
+msgstr "Actions"
+
+msgid "Pending tasks for orders, reviews and balance requests"
+msgstr "Pending tasks for orders, reviews and balance requests"
+
+msgid "No pending orders."
+msgstr "No pending orders."
+
+msgid "No pending reviews."
+msgstr "No pending reviews."
+
+msgid "No pending balance requests."
+msgstr "No pending balance requests."
+
+msgid "No users found."
+msgstr "No users found."
+
+msgid "Supplier"
+msgstr "Supplier"
+
+msgid "Suppliers"
+msgstr "Suppliers"
+
+msgid "Supplier:"
+msgstr "Supplier:"
+
+msgid "Minimum stock"
+msgstr "Minimum stock"
+
+msgid "Product images"
+msgstr "Product images"
+
+msgid "Current images"
+msgstr "Current images"
+
+msgid "Delete image"
+msgstr "Delete image"
+
+msgid "No supplier"
+msgstr "No supplier"
+
+msgid "Create and manage product suppliers"
+msgstr "Create and manage product suppliers"
+
+msgid "New supplier"
+msgstr "New supplier"
+
+msgid "Create supplier"
+msgstr "Create supplier"
+
+msgid "No suppliers yet."
+msgstr "No suppliers yet."
+
+msgid "Suppliers can only be deleted when no products are associated."
+msgstr "Suppliers can only be deleted when no products are associated."
+
+msgid "Each image must be 8MB or smaller."
+msgstr "Each image must be 8MB or smaller."
+
+msgid "Images must be JPG, PNG, or WEBP."
+msgstr "Images must be JPG, PNG, or WEBP."
+
+msgid "You can upload multiple JPG, PNG or WEBP images."
+msgstr "You can upload multiple JPG, PNG or WEBP images."
+
+msgid "Product saved successfully."
+msgstr "Product saved successfully."
+
+msgid "Product updated successfully."
+msgstr "Product updated successfully."
+
+msgid "Supplier updated successfully."
+msgstr "Supplier updated successfully."
+
+msgid "Supplier created successfully."
+msgstr "Supplier created successfully."
+
+msgid "Supplier deleted successfully."
+msgstr "Supplier deleted successfully."
+
+msgid "Supplier cannot be deleted because it has associated products."
+msgstr "Supplier cannot be deleted because it has associated products."
+
+msgid "Monthly fee"
+msgstr "Monthly fee"
+
+msgid "Configure monthly charge and monitor user payment status"
+msgstr "Configure monthly charge and monitor user payment status"
+
+msgid "Users paying monthly fee"
+msgstr "Users paying monthly fee"
+
+msgid "Users not paying monthly fee"
+msgstr "Users not paying monthly fee"
+
+msgid "Late users"
+msgstr "Late users"
+
+msgid "Monthly fee settings"
+msgstr "Monthly fee settings"
+
+msgid "Monthly amount"
+msgstr "Monthly amount"
+
+msgid "Enable monthly fee processing"
+msgstr "Enable monthly fee processing"
+
+msgid "Save settings"
+msgstr "Save settings"
+
+msgid "Late users details"
+msgstr "Late users details"
+
+msgid "Pending months"
+msgstr "Pending months"
+
+msgid "No late users."
+msgstr "No late users."
+
+msgid "Enable monthly fee for this user"
+msgstr "Enable monthly fee for this user"
+
+msgid "Monthly amount must be zero or greater."
+msgstr "Monthly amount must be zero or greater."
+
+msgid "Monthly fee settings updated successfully."
+msgstr "Monthly fee settings updated successfully."
+
+msgid "Monthly fee status:"
+msgstr "Monthly fee status:"
+
+msgid "Paid months"
+msgstr "Paid months"
+
+msgid "No paid months yet."
+msgstr "No paid months yet."
+
+msgid "No pending months."
+msgstr "No pending months."
+
+msgid "Enabled"
+msgstr "Enabled"
+
+msgid "Disabled"
+msgstr "Disabled"
+
+msgid "Cart"
+msgstr "Cart"
+
+msgid "items"
+msgstr "items"
+
+msgid "Filters"
+msgstr "Filters"
+
+msgid "Add to cart"
+msgstr "Add to cart"
+
+msgid "Quantity"
+msgstr "Quantity"
+
+msgid "Total"
+msgstr "Total"
+
+msgid "Review, edit and send your order"
+msgstr "Review, edit and send your order"
+
+msgid "Update"
+msgstr "Update"
+
+msgid "Remove"
+msgstr "Remove"
+
+msgid "Cancel cart"
+msgstr "Cancel cart"
+
+msgid "Submit order"
+msgstr "Submit order"
+
+msgid "Remove this product from your cart?"
+msgstr "Remove this product from your cart?"
+
+msgid "Balance after purchase"
+msgstr "Balance after purchase"
+
+msgid "Your cart is empty."
+msgstr "Your cart is empty."
+
+msgid "Invalid product or quantity."
+msgstr "Invalid product or quantity."
+
+msgid "Product added to cart."
+msgstr "Product added to cart."
+
+msgid "Not enough stock for the requested quantity."
+msgstr "Not enough stock for the requested quantity."
+
+msgid "Cart updated successfully."
+msgstr "Cart updated successfully."
+
+msgid "Product removed from cart."
+msgstr "Product removed from cart."
+
+msgid "Cart cleared successfully."
+msgstr "Cart cleared successfully."
+
+msgid "Profile updated successfully."
+msgstr "Profile updated successfully."
+
+msgid "Order submitted for admin approval."
+msgstr "Order submitted for admin approval."
+
+msgid "Order updated successfully."
+msgstr "Order updated successfully."
+
+msgid "Review submitted for admin approval."
+msgstr "Review submitted for admin approval."
+
+msgid "Balance request submitted for admin approval."
+msgstr "Balance request submitted for admin approval."
+
+msgid "User created successfully."
+msgstr "User created successfully."
+
+msgid "User updated successfully."
+msgstr "User updated successfully."
+
+msgid "Invalid balance amount."
+msgstr "Invalid balance amount."
+
+msgid "User mismatch for balance adjustment."
+msgstr "User mismatch for balance adjustment."
+
+msgid "Balance updated for %(username)s."
+msgstr "Balance updated for %(username)s."
+
+msgid "Order approved and stock updated."
+msgstr "Order approved and stock updated."
+
+msgid "Order rejected."
+msgstr "Order rejected."
+
+msgid "Review approved."
+msgstr "Review approved."
+
+msgid "Review hidden from public listing."
+msgstr "Review hidden from public listing."
+
+msgid "Only pending requests can be approved."
+msgstr "Only pending requests can be approved."
+
+msgid "Balance request approved and applied."
+msgstr "Balance request approved and applied."
+
+msgid "Only pending requests can be rejected."
+msgstr "Only pending requests can be rejected."
+
+msgid "Balance request rejected."
+msgstr "Balance request rejected."
+
+msgid "Sale created successfully."
+msgstr "Sale created successfully."
+
+msgid "Sale updated successfully."
+msgstr "Sale updated successfully."
+
+msgid "Sale deleted and stock restored."
+msgstr "Sale deleted and stock restored."
+
+msgid "Product sheet"
+msgstr "Product sheet"
+
+msgid "Manage custom product fields"
+msgstr "Manage custom product fields"
+
+msgid "Edit field"
+msgstr "Edit field"
+
+msgid "Add field"
+msgstr "Add field"
+
+msgid "Key"
+msgstr "Key"
+
+msgid "Value"
+msgstr "Value"
+
+msgid "No product sheet fields yet."
+msgstr "No product sheet fields yet."
+
+msgid "No product sheet fields available."
+msgstr "No product sheet fields available."
+
+msgid "Product sheet field updated successfully."
+msgstr "Product sheet field updated successfully."
+
+msgid "Product sheet field created successfully."
+msgstr "Product sheet field created successfully."
+
+msgid "Product sheet field deleted successfully."
+msgstr "Product sheet field deleted successfully."
+
+msgid "Key is required."
+msgstr "Key is required."
+
+msgid "Value is required."
+msgstr "Value is required."
+
+msgid "Related links"
+msgstr "Related links"
+
+msgid "Add URL"
+msgstr "Add URL"
+
+msgid "URL"
+msgstr "URL"
+
+msgid "URLs"
+msgstr "URLs"
+
+msgid "No URLs yet."
+msgstr "No URLs yet."
+
+msgid "URL is required."
+msgstr "URL is required."
+
+msgid "Product sheet URL created successfully."
+msgstr "Product sheet URL created successfully."
+
+msgid "Product sheet URL deleted successfully."
+msgstr "Product sheet URL deleted successfully."
+
+msgid "Invalid URL."
+msgstr "Invalid URL."
+
+msgid "Show all recent movements to this user"
+msgstr "Show all recent movements to this user"
+
+msgid "Recent movements limit"
+msgstr "Recent movements limit"
+
+msgid "Movement limit is required when not showing all."
+msgstr "Movement limit is required when not showing all."
+
+msgid "Limit recent movements"
+msgstr "Limit recent movements"
+
+msgid "Empty or 0 shows all. Enter X to show the latest X changes."
+msgstr "Empty or 0 shows all. Enter X to show the latest X changes."
+
+msgid "Units"
+msgstr "Units"
+
+msgid "Calculated units"
+msgstr "Calculated units"
+
+msgid "Amount must be greater than zero."
+msgstr "Amount must be greater than zero."
+
+msgid "Amount is too low to buy one unit."
+msgstr "Amount is too low to buy one unit."
+
+msgid "Reviews"
+msgstr "Reviews"
+
+msgid "Your performance summary this week"
+msgstr "Your performance summary this week"
+
+msgid "Registered products"
+msgstr "Registered products"
+
+msgid "Catalog growth"
+msgstr "Catalog growth"
+
+msgid "Low stock items"
+msgstr "Low stock items"
+
+msgid "Needs replenishment"
+msgstr "Needs replenishment"
+
+msgid "User profile"
+msgstr "User profile"
+
+msgid "Store overview"
+msgstr "Store overview"
+
+msgid "Global operational summary for your local business"
+msgstr "Global operational summary for your local business"
+
+msgid "Quick status"
+msgstr "Quick status"
+
+msgid "Healthy"
+msgstr "Healthy"
+
+msgid "Monitor"
+msgstr "Monitor"
+
+msgid "Growing"
+msgstr "Growing"
+
+msgid "Sales mix"
+msgstr "Sales mix"
+
+msgid "Sales trend"
+msgstr "Sales trend"
+
+msgid "View more"
+msgstr "View more"
+
+msgid "Are you sure you want to approve this item?"
+msgstr "Are you sure you want to approve this item?"
+
+msgid "Balance updated"
+msgstr "Balance updated"
+
+msgid "actual"
+msgstr "actual"
+
+msgid "minimum"
+msgstr "minimum"
+
+msgid "Sales + Orders - Current month"
+msgstr "Sales + Orders - Current month"
+
+msgid "Sales + Orders - Previous month"
+msgstr "Sales + Orders - Previous month"
+
+msgid "Gamification"
+msgstr "Gamification"
+
+msgid "Create and manage engagement challenges for users"
+msgstr "Create and manage engagement challenges for users"
+
+msgid "Create gamification"
+msgstr "Create gamification"
+
+msgid "Title"
+msgstr "Title"
+
+msgid "Target"
+msgstr "Target"
+
+msgid "Duration"
+msgstr "Duration"
+
+msgid "Finished"
+msgstr "Finished"
+
+msgid "Scheduled"
+msgstr "Scheduled"
+
+msgid "Are you sure you want to delete this gamification?"
+msgstr "Are you sure you want to delete this gamification?"
+
+msgid "No gamifications created yet."
+msgstr "No gamifications created yet."
+
+msgid "Edit gamification"
+msgstr "Edit gamification"
+
+msgid "New gamification"
+msgstr "New gamification"
+
+msgid "Define requirements, dates and rewards for users"
+msgstr "Define requirements, dates and rewards for users"
+
+msgid "Back to gamifications"
+msgstr "Back to gamifications"
+
+msgid "Target value"
+msgstr "Target value"
+
+msgid "Gamification type"
+msgstr "Gamification type"
+
+msgid "Example: 1 free coffee or 10% off next purchase"
+msgstr "Example: 1 free coffee or 10% off next purchase"
+
+msgid "Gamification details"
+msgstr "Gamification details"
+
+msgid "Track your progress and reward eligibility"
+msgstr "Track your progress and reward eligibility"
+
+msgid "Back to dashboard"
+msgstr "Back to dashboard"
+
+msgid "Completed"
+msgstr "Completed"
+
+msgid "In progress"
+msgstr "In progress"
+
+msgid "Start"
+msgstr "Start"
+
+msgid "End"
+msgstr "End"
+
+msgid "Your progress"
+msgstr "Your progress"
+
+msgid "Approved reviews count"
+msgstr "Approved reviews count"
+
+msgid "Distinct products tried"
+msgstr "Distinct products tried"
+
+msgid "Approved orders count"
+msgstr "Approved orders count"
+
+msgid "Target value must be greater than zero."
+msgstr "Target value must be greater than zero."
+
+msgid "Gamification created successfully."
+msgstr "Gamification created successfully."
+
+msgid "Gamification updated successfully."
+msgstr "Gamification updated successfully."
+
+msgid "Gamification deleted successfully."
+msgstr "Gamification deleted successfully."
+
+msgid "%(current)s/%(target)s completed · Reward: %(reward)s"
+msgstr "%(current)s/%(target)s completed · Reward: %(reward)s"
+
+msgid "Users with completed gamifications"
+msgstr "Users with completed gamifications"
+
+msgid "Users ready for rewards"
+msgstr "Users ready for rewards"
+
+msgid "Completed gamifications"
+msgstr "Completed gamifications"
+
+msgid "Users who completed at least one gamification"
+msgstr "Users who completed at least one gamification"
+
+msgid "Reward fulfillment queue"
+msgstr "Reward fulfillment queue"
+
+msgid "User"
+msgstr "User"
+
+msgid "Progress"
+msgstr "Progress"
+
+msgid "Reward completed"
+msgstr "Reward completed"
+
+msgid "Pending reward"
+msgstr "Pending reward"
+
+msgid "Complete reward"
+msgstr "Complete reward"
+
+msgid "No users completed gamifications yet."
+msgstr "No users completed gamifications yet."
+
+msgid "Rewards completed"
+msgstr "Rewards completed"
+
+msgid "Gamifications achieved"
+msgstr "Gamifications achieved"
+
+msgid "User has not completed gamifications yet."
+msgstr "User has not completed gamifications yet."
+
+msgid "Completed users"
+msgstr "Completed users"
+
+msgid "This user has not completed the selected gamification yet."
+msgstr "This user has not completed the selected gamification yet."
+
+msgid "Reward marked as completed."
+msgstr "Reward marked as completed."
+
+msgid "Gamification rewards completed (count)"
+msgstr "Gamification rewards completed (count)"
+
+msgid "Completed rewards"
+msgstr "Completed rewards"
+
+msgid "Sales + Orders - Previous month"
+msgstr "Sales + Orders - Previous month"
+
+msgid "Sales + Orders - Annual"
+msgstr "Sales + Orders - Annual"
+
+msgid "Pending actions"
+msgstr "Pending actions"
+
+msgid "Open actions in the unified actions panel"
+msgstr "Open actions in the unified actions panel"
+
+msgid "Received reviews"
+msgstr "Received reviews"
+
+msgid "Pending moderation"
+msgstr "Pending moderation"
+
+msgid "No reviews received yet."
+msgstr "No reviews received yet."
+
+msgid "Users pending reward validation"
+msgstr "Users pending reward validation"
+
+msgid "Cash projection (current vs previous month)"
+msgstr "Cash projection (current vs previous month)"
+
+msgid "Cash projection"
+msgstr "Cash projection"
+
+msgid "Cash previous month"
+msgstr "Cash previous month"
+
+msgid "Cash current month"
+msgstr "Cash current month"
+
+msgid "Current month"
+msgstr "Current month"
+
+msgid "Forecast based on previous month"
+msgstr "Forecast based on previous month"
+
+msgid "Gamification validations"
+msgstr "Gamification validations"
+
+msgid "No pending gamification validations."
+msgstr "No pending gamification validations."
+
+msgid "Pending tasks for orders, reviews, balance requests and gamification"
+msgstr "Pending tasks for orders, reviews, balance requests and gamification"
+
+msgid "Strikes"
+msgstr "Strikes"
+
+msgid "Admin-only user incidents"
+msgstr "Admin-only user incidents"
+
+msgid "Back to users"
+msgstr "Back to users"
+
+msgid "Total strikes"
+msgstr "Total strikes"
+
+msgid "This information is visible only to admins."
+msgstr "This information is visible only to admins."
+
+msgid "Add strike"
+msgstr "Add strike"
+
+msgid "Reason"
+msgstr "Reason"
+
+msgid "Save strike"
+msgstr "Save strike"
+
+msgid "Strike history"
+msgstr "Strike history"
+
+msgid "Added by"
+msgstr "Added by"
+
+msgid "This user has no strikes."
+msgstr "This user has no strikes."
+
+msgid "Strike added successfully."
+msgstr "Strike added successfully."
+
+msgid "Reason is required."
+msgstr "Reason is required."
+
+msgid "User info"
+msgstr "User info"
+
+msgid "Total spent"
+msgstr "Total spent"
+
+msgid "Average ticket"
+msgstr "Average ticket"
+
+msgid "Avg monthly spend"
+msgstr "Avg monthly spend"
+
+msgid "Last action"
+msgstr "Last action"
+
+msgid "Top 3 favorite products"
+msgstr "Top 3 favorite products"
+
+msgid "Ranked by total quantity purchased"
+msgstr "Ranked by total quantity purchased"
+
+msgid "Units:"
+msgstr "Units:"
+
+msgid "Spent:"
+msgstr "Spent:"
+
+msgid "No purchases yet."
+msgstr "No purchases yet."
+
+msgid "Action frequency"
+msgstr "Action frequency"
+
+msgid "This user performs an action every %(days)s days on average."
+msgstr "This user performs an action every %(days)s days on average."
+
+msgid "Not enough actions to estimate frequency."
+msgstr "Not enough actions to estimate frequency."
+
+msgid "Usually buys %(qty)s units of %(product)s per line item."
+msgstr "Usually buys %(qty)s units of %(product)s per line item."
+
+msgid "Order status mix"
+msgstr "Order status mix"
+
+msgid "Products not tried yet"
+msgstr "Products not tried yet"
+
+msgid "User already tried all active public products."
+msgstr "User already tried all active public products."
+
+msgid "Tried but not reviewed"
+msgstr "Tried but not reviewed"
+
+msgid "No pending reviews detected."
+msgstr "No pending reviews detected."
+
+msgid "Top categories"
+msgstr "Top categories"
+
+msgid "No category data available yet."
+msgstr "No category data available yet."
+
+msgid "Apply manual balance changes for a user"
+msgstr "Apply manual balance changes for a user"
+
+msgid "Amount (+/-)"
+msgstr "Amount (+/-)"
+
+msgid "Apply adjustment"
+msgstr "Apply adjustment"
+
+msgid "Uncategorized"
+msgstr "Uncategorized"
+
+msgid "Information"
+msgstr "Information"
+
+msgid "Back to products"
+msgstr "Back to products"
+
+msgid "Total quantity sold"
+msgstr "Total quantity sold"
+
+msgid "Sales:"
+msgstr "Sales:"
+
+msgid "Approved orders:"
+msgstr "Approved orders:"
+
+msgid "Total revenue generated"
+msgstr "Total revenue generated"
+
+msgid "Average per user:"
+msgstr "Average per user:"
+
+msgid "Users who tried it"
+msgstr "Users who tried it"
+
+msgid "Tried but not reviewed:"
+msgstr "Tried but not reviewed:"
+
+msgid "Operational info"
+msgstr "Operational info"
+
+msgid "Current stock:"
+msgstr "Current stock:"
+
+msgid "Minimum stock:"
+msgstr "Minimum stock:"
+
+msgid "Last movement:"
+msgstr "Last movement:"
+
+msgid "Visibility:"
+msgstr "Visibility:"
+
+msgid "Top buyers"
+msgstr "Top buyers"
+
+msgid "units"
+msgstr "units"
+
+msgid "No buyer data yet."
+msgstr "No buyer data yet."
+
+msgid "User reviews"
+msgstr "User reviews"
+
+msgid "reviews"
+msgstr "reviews"
+
+msgid "No reviews yet for this product."
+msgstr "No reviews yet for this product."
+
+msgid "Duration"
+msgstr "Duration"
+
+msgid "Sales + Orders (count)"
+msgstr "Sales + Orders (count)"
+
+msgid "Sales + Orders (€)"
+msgstr "Sales + Orders (€)"
+
+msgid "Cash box total (€)"
+msgstr "Cash box total (€)"
+
+msgid "Units sold (count)"
+msgstr "Units sold (count)"
+
+msgid "Pending orders (count)"
+msgstr "Pending orders (count)"
+
+msgid "Balance requests (count)"
+msgstr "Balance requests (count)"
+
+msgid "New users (count)"
+msgstr "New users (count)"
+
+msgid "Sales (count)"
+msgstr "Sales (count)"
+
+msgid "Orders (€)"
+msgstr "Orders (€)"
+
+msgid "Current cash box total: € %(total).2f"
+msgstr "Current cash box total: € %(total).2f"
+
+msgid "Sales count"
+msgstr "Sales count"
+
+msgid "Orders count"
+msgstr "Orders count"
+
+msgid "Total actions"
+msgstr "Total actions"
+
+msgid "Orders total (€)"
+msgstr "Orders total (€)"
+
+msgid "Combined total (€)"
+msgstr "Combined total (€)"
+
+msgid "Daily income (€)"
+msgstr "Daily income (€)"
+
+msgid "Units sold"
+msgstr "Units sold"
+
+msgid "New users"
+msgstr "New users"
+
+msgid "Events"
+msgstr "Events"
+
+msgid "Create and manage timeline events"
+msgstr "Create and manage timeline events"
+
+msgid "New event"
+msgstr "New event"
+
+msgid "Registration"
+msgstr "Registration"
+
+msgid "Required"
+msgstr "Required"
+
+msgid "Open"
+msgstr "Open"
+
+msgid "Are you sure you want to delete this event?"
+msgstr "Are you sure you want to delete this event?"
+
+msgid "No events created yet."
+msgstr "No events created yet."
+
+msgid "Edit event"
+msgstr "Edit event"
+
+msgid "Configure event details for user timeline"
+msgstr "Configure event details for user timeline"
+
+msgid "Back to events"
+msgstr "Back to events"
+
+msgid "Event name"
+msgstr "Event name"
+
+msgid "Links"
+msgstr "Links"
+
+msgid "Requires prior registration"
+msgstr "Requires prior registration"
+
+msgid "Capacity (optional)"
+msgstr "Capacity (optional)"
+
+msgid "Photos"
+msgstr "Photos"
+
+msgid "Existing photos"
+msgstr "Existing photos"
+
+msgid "Create event"
+msgstr "Create event"
+
+msgid "Event created successfully."
+msgstr "Event created successfully."
+
+msgid "Event updated successfully."
+msgstr "Event updated successfully."
+
+msgid "Event deleted successfully."
+msgstr "Event deleted successfully."
+
+msgid "Event photos"
+msgstr "Event photos"
+
+msgid "Event details"
+msgstr "Event details"
+
+msgid "Full capacity"
+msgstr "Full capacity"
+
+msgid "Registered"
+msgstr "Registered"
+
+msgid "Registered users:"
+msgstr "Registered users:"
+
+msgid "Register"
+msgstr "Register"
+
+msgid "This event does not require registration."
+msgstr "This event does not require registration."
+
+msgid "Registration is closed for this event."
+msgstr "Registration is closed for this event."
+
+msgid "You are already registered for this event."
+msgstr "You are already registered for this event."
+
+msgid "This event is full."
+msgstr "This event is full."
+
+msgid "Registration completed successfully."
+msgstr "Registration completed successfully."
+
+msgid "You are not registered for this event."
+msgstr "You are not registered for this event."
+
+msgid "Your event registration was cancelled."
+msgstr "Your event registration was cancelled."
+
+msgid "Cancel registration"
+msgstr "Cancel registration"
+
+msgid "Capacity must be greater than zero."
+msgstr "Capacity must be greater than zero."
+
+msgid "One URL per line"
+msgstr "One URL per line"
+
+msgid "Capacity full"
+msgstr "Capacity full"
+
+msgid "Registration required"
+msgstr "Registration required"
+
+msgid "Open event"
+msgstr "Open event"
+
+msgid "Purchase options"
+msgstr "Purchase options"
+
+msgid "Both"
+msgstr "Both"
+
+msgid "Units only"
+msgstr "Units only"
+
+msgid "Amount only"
+msgstr "Amount only"
+
+msgid "This product only allows quantity purchase."
+msgstr "This product only allows quantity purchase."
+
+msgid "This product only allows amount purchase."
+msgstr "This product only allows amount purchase."
+
+msgid "Purchase options updated successfully."
+msgstr "Purchase options updated successfully."
+
+msgid "Paid event"
+msgstr "Paid event"
+
+msgid "Paid"
+msgstr "Paid"
+
+msgid "Registration fee"
+msgstr "Registration fee"
+
+msgid "Paid events require registration."
+msgstr "Paid events require registration."
+
+msgid "Fee amount must be greater than zero."
+msgstr "Fee amount must be greater than zero."
+
+msgid "Insufficient balance for this paid event."
+msgstr "Insufficient balance for this paid event."
+
+msgid "Paid registration for event: %(event)s"
+msgstr "Paid registration for event: %(event)s"
+
+msgid "Refund for event cancellation: %(event)s"
+msgstr "Refund for event cancellation: %(event)s"
+
+msgid "Event registration charge"
+msgstr "Event registration charge"
+
+msgid "Event registration refund"
+msgstr "Event registration refund"
+
+msgid "Are you sure you want to register for this event?"
+msgstr "Are you sure you want to register for this event?"
+
+msgid "Are you sure you want to register for this event? This registration will deduct € %(fee)s from your balance."
+msgstr "Are you sure you want to register for this event? This registration will deduct € %(fee)s from your balance."
+
+msgid "Are you sure you want to cancel your registration?"
+msgstr "Are you sure you want to cancel your registration?"
+
+msgid "Are you sure you want to cancel your registration? If you cancel now, € %(fee)s will be refunded to your balance."
+msgstr "Are you sure you want to cancel your registration? If you cancel now, € %(fee)s will be refunded to your balance."
+
+msgid "Event information"
+msgstr "Event information"
+
+msgid "Information"
+msgstr "Information"
+
+msgid "Total collected"
+msgstr "Total collected"
+
+msgid "Registered users list"
+msgstr "Registered users list"
+
+msgid "Registration date"
+msgstr "Registration date"
+
+msgid "Are you sure you want to remove this registration?"
+msgstr "Are you sure you want to remove this registration?"
+
+msgid "Remove registration"
+msgstr "Remove registration"
+
+msgid "No users registered yet."
+msgstr "No users registered yet."
+
+msgid "Comment reply must belong to the same event."
+msgstr "Comment reply must belong to the same event."
+
+msgid "Only one reply level is allowed."
+msgstr "Only one reply level is allowed."
+
+msgid "Write your comment..."
+msgstr "Write your comment..."
+
+msgid "Comment cannot be empty."
+msgstr "Comment cannot be empty."
+
+msgid "Write an admin reply..."
+msgstr "Write an admin reply..."
+
+msgid "Reply cannot be empty."
+msgstr "Reply cannot be empty."
+
+msgid "Comment posted successfully."
+msgstr "Comment posted successfully."
+
+msgid "Please write a comment before posting."
+msgstr "Please write a comment before posting."
+
+msgid "Admin reply posted successfully."
+msgstr "Admin reply posted successfully."
+
+msgid "Please write a reply before posting."
+msgstr "Please write a reply before posting."
+
+msgid "Comments"
+msgstr "Comments"
+
+msgid "Post comment"
+msgstr "Post comment"
+
+msgid "No comments yet. Be the first to comment."
+msgstr "No comments yet. Be the first to comment."
+
+msgid "Reply as admin"
+msgstr "Reply as admin"
+
+msgid "No comments yet."
+msgstr "No comments yet."
+
+msgid "Admin removed event registration: %(event)s"
+msgstr "Admin removed event registration: %(event)s"
+
+msgid "User registration removed successfully."
+msgstr "User registration removed successfully."
+
+msgid "Stock adjustment"
+msgstr "Stock adjustment"
+
+msgid "Adjust stock"
+msgstr "Adjust stock"
+
+msgid "Current stock"
+msgstr "Current stock"
+
+msgid "Current"
+msgstr "Current"
+
+msgid "Stock simulation"
+msgstr "Stock simulation"
+
+msgid "Enter an adjustment to preview the resulting stock."
+msgstr "Enter an adjustment to preview the resulting stock."
+
+msgid "Resulting stock after update."
+msgstr "Resulting stock after update."
+
+msgid "Enter a value like 20, +20 or -30."
+msgstr "Enter a value like 20, +20 or -30."
+
+msgid "Adjustment"
+msgstr "Adjustment"
+
+msgid "Update stock"
+msgstr "Update stock"
+
+msgid "Invalid stock adjustment value."
+msgstr "Invalid stock adjustment value."
+
+msgid "Stock cannot be negative."
+msgstr "Stock cannot be negative."
+
+msgid "Stock updated successfully."
+msgstr "Stock updated successfully."
+
+msgid "Stock adjustment history"
+msgstr "Stock adjustment history"
+
+msgid "No stock adjustments yet."
+msgstr "No stock adjustments yet."
+
+msgid "Registered users"
+msgstr "Registered users"
+
+msgid "Void"
+msgstr "Void"
+
+msgid "Voided / canceled"
+msgstr "Voided / canceled"
+
+msgid "Transaction history scope"
+msgstr "Transaction history scope"
+
+msgid "No voided or canceled transactions yet."
+msgstr "No voided or canceled transactions yet."
+
+msgid "Product is already deactivated."
+msgstr "Product is already deactivated."
+
+msgid "Product deactivated successfully. Historical records were preserved."
+msgstr "Product deactivated successfully. Historical records were preserved."
+
+msgid "You cannot delete your own account."
+msgstr "You cannot delete your own account."
+
+msgid "Superuser accounts cannot be deleted from this interface."
+msgstr "Superuser accounts cannot be deleted from this interface."
+
+msgid "User cannot be deleted because the current balance is negative (%(balance)s)."
+msgstr "User cannot be deleted because the current balance is negative (%(balance)s)."
+
+msgid "User cannot be deleted because there are pending balance requests."
+msgstr "User cannot be deleted because there are pending balance requests."
+
+msgid "User cannot be deleted because there are pending orders."
+msgstr "User cannot be deleted because there are pending orders."
+
+msgid "User account is already inactive."
+msgstr "User account is already inactive."
+
+msgid "User account deactivated successfully. Historical records were preserved."
+msgstr "User account deactivated successfully. Historical records were preserved."
+
+msgid "This will deactivate the account and preserve historical records. Continue?"
+msgstr "This will deactivate the account and preserve historical records. Continue?"
+
+msgid "Delete (safe)"
+msgstr "Delete (safe)"
+
+msgid "Deactivate"
+msgstr "Deactivate"
+
+msgid "Deactivate product"
+msgstr "Deactivate product"
+
+msgid "Are you sure you want to deactivate"
+msgstr "Are you sure you want to deactivate"
+
+msgid "This keeps historical records and hides the product from active operations"
+msgstr "This keeps historical records and hides the product from active operations"
+
+msgid "Sale voided and stock restored. Historical records were preserved."
+msgstr "Sale voided and stock restored. Historical records were preserved."
+
+msgid "Order canceled. Stock and user balance restored. Historical records were preserved."
+msgstr "Order canceled. Stock and user balance restored. Historical records were preserved."
+
+msgid "Void sale"
+msgstr "Void sale"
+
+msgid "Are you sure you want to void sale"
+msgstr "Are you sure you want to void sale"
+
+msgid "Stock will be restored automatically and historical records will be preserved"
+msgstr "Stock will be restored automatically and historical records will be preserved"
+
+msgid "Stock will be restored automatically and the record will be kept."
+msgstr "Stock will be restored automatically and the record will be kept."
+
+msgid "Cancel order"
+msgstr "Cancel order"
+
+msgid "Are you sure you want to cancel order"
+msgstr "Are you sure you want to cancel order"
+
+msgid "Stock and user balance will be restored automatically and historical records will be preserved"
+msgstr "Stock and user balance will be restored automatically and historical records will be preserved"
+
+msgid "Stock and user balance will be restored automatically and the record will be kept."
+msgstr "Stock and user balance will be restored automatically and the record will be kept."
+
+msgid "Voided sales cannot be edited."
+msgstr "Voided sales cannot be edited."
+
+msgid "Voided by admin"
+msgstr "Voided by admin"
+
+msgid "Canceled by admin"
+msgstr "Canceled by admin"
+
+msgid "Order #%(order_id)s canceled by admin"
+msgstr "Order #%(order_id)s canceled by admin"

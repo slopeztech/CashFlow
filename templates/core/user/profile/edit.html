@@ -1,0 +1,56 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Edit Profile' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Edit profile' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Update your account information' %}{% endblock %}
+
+{% block content %}
+  <div class="card card-rounded">
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">{% trans 'Username' %}</label>
+            <input type="text" class="form-control" value="{{ request.user.username }}" disabled>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="id_email">{% trans 'Email' %}</label>
+            {{ form.email }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="id_phone">{% trans 'Phone' %}</label>
+            {{ form.phone }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="id_address">{% trans 'Address' %}</label>
+            {{ form.address }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="id_profile_image">{% trans 'Profile image' %}</label>
+            <input type="file" name="profile_image" id="id_profile_image" class="form-control" accept="image/*">
+            {% if form.profile_image.errors %}<div class="text-danger small mt-1">{{ form.profile_image.errors }}</div>{% endif %}
+            {% if profile.profile_image %}
+              <div class="mt-2">
+                <img src="{{ profile.profile_image.url }}" alt="{% trans 'Profile image' %}" class="img-xs rounded-circle" style="width:56px;height:56px;object-fit:cover;">
+              </div>
+            {% endif %}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="id_language">{% trans 'Language' %}</label>
+            {{ form.language }}
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <button class="btn btn-primary text-white" type="submit">{% trans 'Save changes' %}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

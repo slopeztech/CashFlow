@@ -1,0 +1,70 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+cfenv/
+
+# Django
+*.log
+*.pid
+local_settings.py
+db.sqlite3
+*.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# Translation build artifacts
+*.mo
+
+# Test / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# Mypy / lint caches
+.mypy_cache/
+.ruff_cache/
+.dmypy.json
+dmypy.json
+
+# Build / packaging
+dist/
+build/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# IDE / editor
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# Runtime folders
+run/
+logs/
+gunicorn.sock

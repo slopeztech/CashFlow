@@ -1,0 +1,90 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'My Orders' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'My orders' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Orders and purchase history in one place' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-primary text-white" href="{% url 'user_order_create' %}">{% trans 'New order' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="card card-rounded mb-3">
+    <div class="card-body">
+      <h4 class="card-title card-title-dash mb-3">{% trans 'Orders and direct sales' %}</h4>
+      <div class="table-responsive">
+        <table class="table select-table">
+          <thead>
+            <tr>
+              <th>{% trans 'Date' %}</th>
+              <th>{% trans 'Total' %}</th>
+              <th class="text-end">{% trans 'Status' %}</th>
+              <th class="text-end"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if orders or direct_sales %}
+              {% for order in orders %}
+                <tr class="order-row" data-href="{% url 'user_order_detail' order.pk %}">
+                  <td>{{ order.created_at|date:"Y/m/d H:i" }}</td>
+                  <td>€ {{ order.total_amount }}</td>
+                  <td class="d-flex justify-content-end">
+                    {% if order.status == 'pending' %}
+                      <span class="badge badge-opacity-warning">{% trans 'Pending' %}</span>
+                    {% elif order.status == 'approved' %}
+                      <span class="badge badge-opacity-success">{% trans 'Approved' %}</span>
+                    {% else %}
+                      <span class="badge badge-opacity-danger">{% trans 'Rejected' %}</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end">
+                    {% if order.status == 'pending' %}
+                      <a class="btn btn-sm btn-outline-primary" href="{% url 'user_order_update' order.pk %}">{% trans 'Edit' %}</a>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+
+              {% for sale in direct_sales %}
+                <tr>
+                  <td>{{ sale.created_at|date:"Y/m/d H:i" }}</td>
+                  <td>€ {{ sale.total_amount }}</td>
+                  <td class="d-flex justify-content-end"><span class="badge badge-opacity-success">{% trans 'Approved' %}</span></td>
+                  <td class="text-end"></td>
+                </tr>
+              {% endfor %}
+            {% else %}
+              <tr><td colspan="4" class="text-center text-muted py-3">{% trans 'No orders or direct sales yet.' %}</td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_css %}
+  <style>
+    .order-row {
+      cursor: pointer;
+    }
+  </style>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    (function () {
+      document.querySelectorAll('.order-row').forEach(function (row) {
+        row.addEventListener('click', function (event) {
+          if (event.target.closest('a, button, form')) {
+            return;
+          }
+          const href = row.getAttribute('data-href');
+          if (href) {
+            window.location.href = href;
+          }
+        });
+      });
+    })();
+  </script>
+{% endblock %}

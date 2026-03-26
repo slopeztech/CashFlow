@@ -1,0 +1,97 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Survey information' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Survey information' %}{% endblock %}
+{% block page_subtitle %}{{ survey.title }}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'admin_surveys' %}"><i class="icon-arrow-left"></i> {% trans 'Back to surveys' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card card-rounded h-100">
+        <div class="card-body">
+          <p class="text-muted mb-1">{% trans 'Responses' %}</p>
+          <h4 class="mb-0">{{ responses_count }}</h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card card-rounded h-100">
+        <div class="card-body">
+          <p class="text-muted mb-1">{% trans 'Type' %}</p>
+          <h4 class="mb-0">{% if survey.selection_type == 'checkbox' %}{% trans 'Multiple choice' %}{% else %}{% trans 'Single choice' %}{% endif %}</h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card card-rounded h-100">
+        <div class="card-body">
+          <p class="text-muted mb-1">{% trans 'Status' %}</p>
+          <h4 class="mb-0">{% if survey.is_active %}{% trans 'Active' %}{% else %}{% trans 'Inactive' %}{% endif %}</h4>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-rounded mb-3">
+    <div class="card-body">
+      <h5 class="card-title mb-3">{% trans 'Results by option' %}</h5>
+      {% if survey_options %}
+        <div class="d-flex flex-column gap-3">
+          {% for option in survey_options %}
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <strong>{{ option.label }}</strong>
+                <span class="text-muted">{{ option.selected_total }} ({% widthratio option.selected_total responses_count 100 %}%)</span>
+              </div>
+              <div class="progress" style="height: 9px;">
+                <div class="progress-bar bg-info" role="progressbar" style="width: {% widthratio option.selected_total responses_count 100 %}%" aria-valuenow="{{ option.selected_total }}" aria-valuemin="0" aria-valuemax="{{ responses_count }}"></div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">{% trans 'No options configured yet.' %}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card card-rounded">
+    <div class="card-body">
+      <h5 class="card-title mb-3">{% trans 'Respondents' %}</h5>
+      {% if survey_responses %}
+        <div class="table-responsive">
+          <table class="table select-table align-middle">
+            <thead>
+              <tr>
+                <th>{% trans 'User' %}</th>
+                <th>{% trans 'Answered at' %}</th>
+                <th>{% trans 'Selected options' %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for response in survey_responses %}
+                <tr>
+                  <td>{{ response.user.username }}</td>
+                  <td>{{ response.created_at|date:'Y/m/d H:i' }}</td>
+                  <td>
+                    {% for selected in response.selected_options.all %}
+                      <span class="badge badge-opacity-primary me-1">{{ selected.option.label }}</span>
+                    {% empty %}
+                      <span class="text-muted">-</span>
+                    {% endfor %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">{% trans 'No responses yet.' %}</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

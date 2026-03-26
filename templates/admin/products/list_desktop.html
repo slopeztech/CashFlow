@@ -1,0 +1,721 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Products' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Products' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Manage your catalog and stock levels' %}{% endblock %}
+{% block page_actions %}
+  <div class="dropdown product-page-actions">
+    <button class="btn btn-primary text-white dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+      {% trans 'Actions' %}
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+      <li><a class="dropdown-item" href="{% url 'category_list' %}"><i class="icon-tag me-2"></i>{% trans 'Categories' %}</a></li>
+      <li><a class="dropdown-item" href="{% url 'supplier_list' %}"><i class="icon-briefcase me-2"></i>{% trans 'Suppliers' %}</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item" href="{% url 'product_create' %}"><i class="icon-plus me-2"></i>{% trans 'Create product' %}</a></li>
+    </ul>
+  </div>
+{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <style>
+    .product-page-actions {
+      flex-wrap: wrap;
+    }
+
+    .product-list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .65rem;
+      margin-bottom: .75rem;
+    }
+
+    .product-list-header .card-title {
+      margin-bottom: 0;
+    }
+
+    .product-filter-toggle {
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .product-filter-panel {
+      margin-top: .65rem;
+      display: none;
+    }
+
+    .product-filter-panel.is-open {
+      display: block;
+    }
+
+    .low-stock-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      margin-bottom: .65rem;
+    }
+
+    .low-stock-title-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+    }
+
+    .low-stock-title-icon {
+      color: #DC2626;
+      font-size: 1.15rem;
+      line-height: 1;
+    }
+
+    .low-stock-count-badge {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #FEE2E2;
+      color: #B91C1C;
+      border: 1px solid #FECACA;
+      font-weight: 800;
+      font-size: .86rem;
+      line-height: 1;
+    }
+
+    .low-stock-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: .3rem;
+    }
+
+    .low-stock-item {
+      border-radius: 10px;
+    }
+
+    .low-stock-link {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      width: 100%;
+      padding: .35rem .5rem;
+      border-radius: 10px;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid transparent;
+      transition: background-color .18s ease, border-color .18s ease, color .18s ease;
+    }
+
+    .low-stock-eye {
+      font-size: .95rem;
+      line-height: 1;
+    }
+
+    .low-stock-link-danger {
+      color: #B91C1C;
+      background: #FEF2F2;
+      border-color: #FECACA;
+    }
+
+    .low-stock-link-danger:hover,
+    .low-stock-link-danger:focus {
+      color: #991B1B;
+      background: #FEE2E2;
+      border-color: #FCA5A5;
+    }
+
+    .low-stock-link-warning {
+      color: #A16207;
+      background: #FFFBEB;
+      border-color: #FDE68A;
+    }
+
+    .low-stock-link-warning:hover,
+    .low-stock-link-warning:focus {
+      color: #854D0E;
+      background: #FEF3C7;
+      border-color: #F59E0B;
+    }
+
+    .product-group-row td {
+      background: linear-gradient(90deg, #F8FAFC 0%, #F1F5F9 100%);
+      font-weight: 700;
+      color: #334155;
+      border: 0;
+      border-top: 1px solid #E2E8F0;
+      padding: 10px 14px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      font-size: .76rem;
+      letter-spacing: .08em;
+    }
+
+    .product-table-modern {
+      width: 100%;
+      min-width: 0;
+      border-collapse: separate;
+      border-spacing: 0 10px;
+    }
+
+    .product-table-modern tbody td {
+      color: #1F2937;
+      background: #FFFFFF;
+      padding: 14px 10px;
+      vertical-align: middle;
+      border-top: 1px solid #E2E8F0;
+      border-bottom: 1px solid #E2E8F0;
+    }
+
+    .product-table-modern tbody td:first-child {
+      border-left: 1px solid #E2E8F0;
+      padding-left: 16px;
+      border-radius: 14px 0 0 14px;
+      width: 98px;
+    }
+
+    .product-table-modern tbody td:last-child {
+      border-right: 1px solid #E2E8F0;
+      border-radius: 0 14px 14px 0;
+    }
+
+    .product-table-modern tbody tr.product-main-row:hover {
+      transform: translateY(-1px);
+      transition: transform .18s ease;
+    }
+
+    .text-col {
+      text-align: left;
+    }
+
+    .num-col {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .rating-accent {
+      color: #1D4ED8;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+      overflow-y: visible !important;
+      scrollbar-width: thin;
+      scrollbar-color: #CBD5E1 transparent;
+    }
+
+    .table-responsive::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
+
+    .table-responsive::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .table-responsive::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 999px;
+    }
+
+    .product-name-cell {
+      font-weight: 800 !important;
+      min-width: 220px;
+    }
+
+    .product-name-title {
+      display: inline-block;
+      margin-left: 0;
+      font-weight: 800 !important;
+      color: #111827;
+      font-size: 15px !important;
+      line-height: 1.15;
+    }
+
+    .product-row-trigger {
+      display: block;
+      width: 100%;
+      padding: 0;
+      margin: 0;
+      background: transparent;
+      border: 0;
+      text-align: left;
+      color: inherit;
+      position: relative;
+      padding-right: 96px;
+    }
+
+    .product-row-trigger:focus-visible {
+      outline: 2px solid #93C5FD;
+      outline-offset: 3px;
+      border-radius: 8px;
+    }
+
+    .product-name-head {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: .5rem;
+    }
+
+    .product-head-trailing {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: .4rem;
+      margin: 0;
+    }
+
+    .product-thumb-box {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 0;
+      background: transparent;
+      flex: 0 0 46px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .product-thumb-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      display: block;
+    }
+
+    .product-chevron {
+      color: #94A3B8;
+      font-size: 1rem;
+      line-height: 1;
+      transition: transform .2s ease, color .2s ease;
+    }
+
+    .product-row-trigger[aria-expanded="true"] .product-chevron {
+      transform: rotate(180deg);
+      color: #334155;
+    }
+
+    .product-meta-stack {
+      display: flex;
+      flex-direction: column;
+      gap: .3rem;
+      margin-top: .35rem;
+      margin-left: 0;
+      font-size: 10px !important;
+      line-height: 1.25;
+      font-weight: 600;
+    }
+
+    .product-meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+    }
+
+    .product-meta-label {
+      color: #64748B;
+      font-weight: 600;
+      min-width: 42px;
+      font-size: 10px !important;
+      letter-spacing: .02em;
+      text-transform: none;
+    }
+
+    .product-price-value {
+      color: #16A34A;
+      font-weight: 800;
+      font-size: 12px !important;
+      display: inline-flex;
+      align-items: center;
+      padding: 1px 7px;
+      border-radius: 999px;
+      border: 1px solid #BBF7D0;
+      background: #F0FDF4;
+    }
+
+    .stock-value {
+      font-weight: 800;
+      padding: 1px 7px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 12px !important;
+    }
+
+    .stock-value-ok {
+      color: #111827;
+      background: #F8FAFC;
+      border-color: #E2E8F0;
+    }
+
+    .stock-value-low {
+      color: #CA8A04;
+      background: #FEF9C3;
+      border-color: #FDE68A;
+    }
+
+    .stock-value-empty {
+      color: #DC2626;
+      background: #FEE2E2;
+      border-color: #FECACA;
+    }
+
+    .status-col {
+      text-align: left;
+      width: 98px;
+    }
+
+    .state-icons {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      padding: .28rem .5rem;
+      border-radius: 999px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+    }
+
+    .status-icon {
+      font-size: 1rem;
+      line-height: 1;
+      display: inline-block;
+    }
+
+    .status-icon-ok {
+      color: #16A34A;
+    }
+
+    .status-icon-off {
+      color: #DC2626;
+    }
+
+    .rating-inline {
+      margin-top: .45rem;
+      margin-left: 0;
+      font-size: .83rem;
+      line-height: 1;
+    }
+
+    .rating-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .25rem;
+      padding: .22rem .5rem;
+      border-radius: 999px;
+      background: #EEF2FF;
+      border: 1px solid #C7D2FE;
+      color: #334155;
+      font-weight: 700;
+      min-width: 64px;
+      justify-content: center;
+    }
+
+    .rating-badge .rating-star {
+      color: #1D4ED8;
+      font-size: .82rem;
+      line-height: 1;
+    }
+
+    .rating-badge .rating-value {
+      color: #1E40AF;
+      font-size: .8rem;
+      line-height: 1;
+      font-weight: 800;
+    }
+
+    .rating-badge-empty {
+      background: #F8FAFC;
+      border-color: #E2E8F0;
+      color: #64748B;
+      min-width: 46px;
+    }
+
+    .product-inline-actions {
+      margin-top: .55rem;
+    }
+
+    .product-actions-wrap {
+      border: 1px solid #E2E8F0;
+      background: #F8FAFC;
+      border-radius: 12px;
+      padding: .5rem;
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+    }
+
+    .product-action-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      width: 100%;
+      padding: .42rem .68rem;
+      border-radius: 10px;
+      border: 1px solid #CBD5E1;
+      background: #FFFFFF;
+      color: #334155;
+      font-size: .8rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .product-action-link:hover,
+    .product-action-link:focus {
+      background: #EEF2FF;
+      border-color: #C7D2FE;
+      color: #1E3A8A;
+      text-decoration: none;
+    }
+
+    .product-action-link-danger {
+      color: #B91C1C;
+      border-color: #FECACA;
+      background: #FEF2F2;
+    }
+
+    .product-action-link-danger:hover,
+    .product-action-link-danger:focus {
+      color: #991B1B;
+      border-color: #FCA5A5;
+      background: #FEE2E2;
+    }
+
+    @media (max-width: 767.98px) {
+      .product-page-actions {
+        width: 100%;
+        gap: .5rem !important;
+      }
+
+      .product-page-actions .btn {
+        flex: 1 1 100%;
+        width: 100%;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  {% if products_low_stock > 0 %}
+    <div class="row g-4 mb-4">
+      <div class="col-md-12 grid-margin stretch-card">
+        <div class="card card-rounded">
+          <div class="card-body">
+            <div class="low-stock-header">
+              <div class="low-stock-title-wrap">
+                <i class="mdi mdi-alert low-stock-title-icon"></i>
+                <p class="statistics-title mb-0">{% trans 'Low stock alerts' %}</p>
+              </div>
+              <span class="low-stock-count-badge">{{ products_low_stock }}</span>
+            </div>
+            <ul class="low-stock-list mb-0">
+              {% for low_stock_product in products_low_stock_items %}
+                <li class="low-stock-item">
+                  <a class="low-stock-link {% if low_stock_product.stock <= 0 %}low-stock-link-danger{% else %}low-stock-link-warning{% endif %}" href="#product-{{ low_stock_product.pk }}">
+                    <i class="mdi mdi-eye low-stock-eye" aria-hidden="true"></i>
+                    <span>{{ low_stock_product.name }} ({% trans 'actual' %} {{ low_stock_product.stock }}, {% trans 'minimum' %} {{ low_stock_product.min_stock }})</span>
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="row">
+    <div class="col-lg-12 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="product-list-header">
+            <h4 class="card-title card-title-dash">{% trans 'Product list' %}</h4>
+            <button
+              type="button"
+              class="btn btn-light product-filter-toggle"
+              aria-expanded="{% if filter_category %}true{% else %}false{% endif %}"
+            >
+              {% trans 'Filter' %}
+            </button>
+          </div>
+          <div class="product-filter-panel mb-3{% if filter_category %} is-open{% endif %}">
+            <form method="get" class="row g-2 mt-0">
+              <input type="hidden" name="status" value="{{ active_status_filter }}">
+              <div class="col-md-4">
+                <select name="category" class="form-select">
+                  <option value="">{% trans 'All categories' %}</option>
+                  {% for category in categories %}
+                    <option value="{{ category.id }}" {% if filter_category == category.id|stringformat:'s' %}selected{% endif %}>{{ category.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-2">
+                <button class="btn btn-primary text-white w-100" type="submit">{% trans 'Filter' %}</button>
+              </div>
+            </form>
+          </div>
+          <ul class="nav nav-pills mb-3" role="tablist" aria-label="{% trans 'Product status filters' %}">
+            <li class="nav-item" role="presentation">
+              <a
+                class="nav-link {% if active_status_filter == 'active' %}active{% endif %}"
+                href="?status=active{% if filter_category %}&category={{ filter_category }}{% endif %}"
+                role="tab"
+                aria-selected="{% if active_status_filter == 'active' %}true{% else %}false{% endif %}"
+              >
+                {% trans 'Active' %} ({{ products_active }})
+              </a>
+            </li>
+            <li class="nav-item" role="presentation">
+              <a
+                class="nav-link {% if active_status_filter == 'inactive' %}active{% endif %}"
+                href="?status=inactive{% if filter_category %}&category={{ filter_category }}{% endif %}"
+                role="tab"
+                aria-selected="{% if active_status_filter == 'inactive' %}true{% else %}false{% endif %}"
+              >
+                {% trans 'Inactive' %} ({{ products_inactive }})
+              </a>
+            </li>
+            <li class="nav-item" role="presentation">
+              <a
+                class="nav-link {% if active_status_filter == 'all' %}active{% endif %}"
+                href="?status=all{% if filter_category %}&category={{ filter_category }}{% endif %}"
+                role="tab"
+                aria-selected="{% if active_status_filter == 'all' %}true{% else %}false{% endif %}"
+              >
+                {% trans 'All' %} ({{ products_total }})
+              </a>
+            </li>
+          </ul>
+          <div class="table-responsive">
+            <table class="table select-table product-table-modern">
+              <tbody id="products-accordion">
+                {% regroup products by category as category_groups %}
+                {% for group in category_groups %}
+                  <tr class="product-group-row">
+                    <td colspan="2">
+                      {% if group.grouper %}
+                        {{ group.grouper.name }}
+                      {% else %}
+                        {% trans 'Uncategorized' %}
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% for product in group.list %}
+                    <tr class="product-main-row">
+                      <td class="status-col">
+                        <div class="state-icons">
+                          <i
+                            class="mdi {% if product.is_active %}mdi-check-circle status-icon-ok{% else %}mdi-close-circle status-icon-off{% endif %} status-icon"
+                            title="{% if product.is_active %}{% trans 'Active' %}{% else %}{% trans 'Inactive' %}{% endif %}"
+                          ></i>
+                          <i
+                            class="mdi {% if product.is_public_listing %}mdi-eye status-icon-ok{% else %}mdi-eye-off status-icon-off{% endif %} status-icon"
+                            title="{% if product.is_public_listing %}{% trans 'Public' %}{% else %}{% trans 'Private' %}{% endif %}"
+                          ></i>
+                        </div>
+                        <div class="rating-inline">
+                          {% if product.approved_avg_rating %}
+                            <span class="rating-badge">
+                              <span class="rating-star">★</span>
+                              <span class="rating-value">{{ product.approved_avg_rating|floatformat:1 }}</span>
+                            </span>
+                          {% else %}
+                            <span class="rating-badge rating-badge-empty">-</span>
+                          {% endif %}
+                        </div>
+                      </td>
+                      <td class="product-name-cell text-col">
+                        <button
+                          type="button"
+                          id="product-{{ product.pk }}"
+                          class="product-row-trigger"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#product-actions-{{ product.pk }}"
+                          aria-expanded="false"
+                          aria-controls="product-actions-{{ product.pk }}"
+                        >
+                          <div class="product-name-head">
+                            <span class="product-name-title">{{ product.name }}</span>
+                            <span class="product-head-trailing">
+                              {% with first_image=product.images.first %}
+                                {% if first_image and first_image.image %}
+                                  <span class="product-thumb-box">
+                                    <img src="{{ first_image.image.url }}" alt="{{ product.name }}">
+                                  </span>
+                                {% endif %}
+                              {% endwith %}
+                              <i class="mdi mdi-chevron-down product-chevron" aria-hidden="true"></i>
+                            </span>
+                          </div>
+                          <div class="product-meta-stack">
+                            <div class="product-meta-item">
+                              <span class="product-meta-label">{% trans 'Price' %}:</span>
+                              <span class="product-price-value">{{ product.price|truncate_2 }}</span>
+                            </div>
+                            <div class="product-meta-item">
+                              <span class="product-meta-label">{% trans 'Stock' %}:</span>
+                              <span class="stock-value {% if product.stock == 0 %}stock-value-empty{% elif product.stock <= product.min_stock %}stock-value-low{% else %}stock-value-ok{% endif %}">{{ product.stock }}</span>
+                            </div>
+                          </div>
+                        </button>
+                        <div id="product-actions-{{ product.pk }}" class="collapse product-inline-actions" data-bs-parent="#products-accordion">
+                          <div class="product-actions-wrap">
+                            <a class="product-action-link" href="{% url 'product_stock_adjust' product.pk %}">{% trans 'Adjust stock' %}</a>
+                            <a class="product-action-link" href="{% url 'product_info' product.pk %}">{% trans 'Information' %}</a>
+                            <a class="product-action-link" href="{% url 'product_sheet' product.pk %}">{% trans 'Product sheet' %}</a>
+                            <a class="product-action-link" href="{% url 'product_update' product.pk %}">{% trans 'Edit' %}</a>
+                            <a class="product-action-link product-action-link-danger" href="{% url 'product_delete' product.pk %}">{% trans 'Deactivate' %}</a>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% empty %}
+                  <tr>
+                    <td colspan="2" class="text-center py-4 text-muted">{% trans 'No products yet.' %}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  {{ block.super }}
+  <script>
+    (function () {
+      document.querySelectorAll('.product-filter-toggle').forEach(function (button) {
+        button.addEventListener('click', function () {
+          var cardBody = button.closest('.card-body');
+          if (!cardBody) {
+            return;
+          }
+          var panel = cardBody.querySelector('.product-filter-panel');
+          if (!panel) {
+            return;
+          }
+          var isOpen = panel.classList.toggle('is-open');
+          button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+      });
+    })();
+  </script>
+{% endblock %}

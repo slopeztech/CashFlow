@@ -1,0 +1,804 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Admin Dashboard' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Admin dashboard' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Stock, users and pending approvals' %}{% endblock %}
+
+{% block content %}
+  <div class="row g-3 mb-4 dashboard-kpi-grid" data-live-region="admin-dashboard-kpis">
+    <div class="col-6 grid-margin stretch-card">
+      <div class="card card-rounded dashboard-card-clickable dashboard-kpi-card" data-href="{% url 'admin_actions' %}">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title dashboard-kpi-title mb-0">{% trans 'Pending actions' %}</p>
+            <span class="dashboard-kpi-icon-badge dashboard-kpi-icon-primary"><i class="mdi mdi-playlist-check"></i></span>
+          </div>
+          <h3 class="rate-percentage dashboard-kpi-value mb-2">{{ pending_actions_count }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 grid-margin stretch-card">
+      <div class="card card-rounded dashboard-card-clickable dashboard-kpi-card" data-href="{% url 'product_list' %}">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title dashboard-kpi-title mb-0">{% trans 'Low stock' %}</p>
+            <span class="dashboard-kpi-icon-badge dashboard-kpi-icon-danger"><i class="mdi mdi-alert"></i></span>
+          </div>
+          <h3 class="rate-percentage dashboard-kpi-value mb-2">{{ low_stock_count }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 grid-margin stretch-card">
+      <div class="card card-rounded dashboard-card-clickable dashboard-kpi-card" data-href="{% url 'admin_user_list' %}">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title dashboard-kpi-title mb-0">{% trans 'Active users' %}</p>
+            <span class="dashboard-kpi-icon-badge dashboard-kpi-icon-warning"><i class="mdi mdi-account-multiple"></i></span>
+          </div>
+          <h3 class="rate-percentage dashboard-kpi-value mb-2">{{ active_users_count }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 grid-margin stretch-card">
+      <div class="card card-rounded dashboard-card-clickable dashboard-kpi-card" data-href="{% url 'sale_list' %}">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title dashboard-kpi-title mb-0">{% trans 'Cash today' %}</p>
+            <span class="dashboard-kpi-icon-badge dashboard-kpi-icon-info"><i class="mdi mdi-cash"></i></span>
+          </div>
+          <h3 class="rate-percentage dashboard-kpi-value mb-2">€ {{ cash_today_total|truncate_2 }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 grid-margin stretch-card">
+      <div class="card card-rounded dashboard-card-clickable dashboard-kpi-card" data-href="{% url 'admin_gamification_completions' %}">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title dashboard-kpi-title mb-0">{% trans 'Pending gamifications' %}</p>
+            <span class="dashboard-kpi-icon-badge dashboard-kpi-icon-success"><i class="mdi mdi-trophy-award"></i></span>
+          </div>
+          <h3 class="rate-percentage dashboard-kpi-value mb-2">{{ pending_gamification_count }}</h3>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 grid-margin stretch-card">
+      <div class="card card-rounded dashboard-card-clickable dashboard-kpi-card" data-href="{% url 'sale_list' %}">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title dashboard-kpi-title mb-0">{% trans 'Cash current month' %}</p>
+            <span class="dashboard-kpi-icon-badge dashboard-kpi-icon-success"><i class="mdi mdi-cash"></i></span>
+          </div>
+          <h3 class="rate-percentage dashboard-kpi-value mb-2">€ {{ current_month_sales_orders_total|truncate_2 }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-lg-6 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h5 class="card-title card-title-dash">{% trans 'Cash - Current month' %} ({{ sales_current_month_title }})</h5>
+          <div class="sales-chart-wrapper">
+            <canvas id="sales-current-month-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h5 class="card-title card-title-dash">{% trans 'Cash - Previous month' %} ({{ sales_previous_month_title }})</h5>
+          <div class="sales-chart-wrapper">
+            <canvas id="sales-previous-month-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-12 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h5 class="card-title card-title-dash">{% trans 'Cash projection' %}</h5>
+          <div class="sales-chart-wrapper">
+            <canvas id="cash-projection-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-12 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h5 class="card-title card-title-dash">{% trans 'Cash - Annual' %} ({{ sales_year_title }})</h5>
+          <div class="sales-chart-wrapper">
+            <canvas id="sales-year-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-12 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="admin-calendar-header mb-3">
+            <button id="admin-calendar-prev" class="btn btn-sm btn-light admin-calendar-nav-btn admin-calendar-nav-btn--prev" type="button" title="{% trans 'Previous month' %}" aria-label="{% trans 'Previous month' %}">&lsaquo;</button>
+            <strong id="admin-calendar-month-label" class="text-dark admin-calendar-month-label"></strong>
+            <button id="admin-calendar-next" class="btn btn-sm btn-light admin-calendar-nav-btn admin-calendar-nav-btn--next" type="button" title="{% trans 'Next month' %}" aria-label="{% trans 'Next month' %}">&rsaquo;</button>
+          </div>
+
+          <div class="admin-calendar-legend mb-2">
+            <span class="admin-calendar-legend-item admin-calendar-legend-item-event"><i class="admin-calendar-dot admin-calendar-dot-event"></i>{% trans 'Events' %}</span>
+            <span class="admin-calendar-legend-item admin-calendar-legend-item-notice"><i class="admin-calendar-dot admin-calendar-dot-notice"></i>{% trans 'Notices' %}</span>
+            <span class="admin-calendar-legend-item admin-calendar-legend-item-survey"><i class="admin-calendar-dot admin-calendar-dot-survey"></i>{% trans 'Surveys' %}</span>
+            <span class="admin-calendar-legend-item admin-calendar-legend-item-gamification"><i class="admin-calendar-dot admin-calendar-dot-gamification"></i>{% trans 'Gamification' %}</span>
+          </div>
+
+          <div id="admin-activity-calendar" class="admin-activity-calendar mb-3"></div>
+          <div id="admin-calendar-day-details" class="admin-calendar-day-details text-muted small"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <style>
+    .sales-chart-wrapper {
+      position: relative;
+      width: 100%;
+      height: 260px;
+    }
+
+    .dashboard-kpi-grid {
+      --bs-gutter-y: 0.55rem;
+    }
+
+    .dashboard-kpi-grid .grid-margin {
+      margin-bottom: 0 !important;
+    }
+
+    .dashboard-card-clickable {
+      cursor: pointer;
+      transition: transform .16s ease, box-shadow .22s ease, border-color .22s ease;
+    }
+
+    .dashboard-kpi-card {
+      border: 1px solid rgb(15 23 42 / 0.08);
+      box-shadow: 0 10px 22px -16px rgb(15 23 42 / 0.35);
+      background: linear-gradient(180deg, rgb(255 255 255 / 1) 0%, rgb(248 250 252 / 0.95) 100%);
+      border-radius: 16px !important;
+      height: 100%;
+    }
+
+    .dashboard-kpi-card .card-body {
+      padding: 1.05rem 1.15rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.35rem;
+      min-height: 126px;
+    }
+
+    .dashboard-kpi-title {
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: #111827;
+      letter-spacing: 0.01em;
+      line-height: 1.2;
+    }
+
+    .dashboard-kpi-value {
+      font-size: clamp(1.65rem, 2vw, 1.9rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #0f172a;
+      line-height: 1.1;
+    }
+
+    .dashboard-kpi-caption {
+      font-size: 0.86rem;
+      font-weight: 600;
+    }
+
+    .dashboard-kpi-icon-badge {
+      width: 1.85rem;
+      height: 1.85rem;
+      min-width: 1.85rem;
+      min-height: 1.85rem;
+      border-radius: 50%;
+      aspect-ratio: 1 / 1;
+      display: inline-flex;
+      flex: 0 0 1.85rem;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      line-height: 1;
+      border: 1px solid transparent;
+    }
+
+    .dashboard-kpi-icon-badge i {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    .dashboard-kpi-icon-primary {
+      color: #3346bf;
+      background: rgb(51 70 191 / 0.11);
+      border-color: rgb(51 70 191 / 0.2);
+    }
+
+    .dashboard-kpi-icon-danger {
+      color: #e95d54;
+      background: rgb(233 93 84 / 0.11);
+      border-color: rgb(233 93 84 / 0.2);
+    }
+
+    .dashboard-kpi-icon-warning {
+      color: #dca406;
+      background: rgb(220 164 6 / 0.12);
+      border-color: rgb(220 164 6 / 0.22);
+    }
+
+    .dashboard-kpi-icon-info {
+      color: #2f9fb0;
+      background: rgb(47 159 176 / 0.12);
+      border-color: rgb(47 159 176 / 0.24);
+    }
+
+    .dashboard-kpi-icon-info i {
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 575.98px) {
+      .dashboard-kpi-icon-badge {
+        width: 1.7rem;
+        height: 1.7rem;
+        min-width: 1.7rem;
+        min-height: 1.7rem;
+        flex: 0 0 1.7rem;
+        font-size: 0.92rem;
+      }
+    }
+
+    .dashboard-kpi-icon-success {
+      color: #4f9a52;
+      background: rgb(79 154 82 / 0.11);
+      border-color: rgb(79 154 82 / 0.2);
+    }
+
+    .dashboard-card-clickable:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 28px -18px rgb(15 23 42 / 0.45);
+      border-color: rgb(15 23 42 / 0.14);
+    }
+
+    .admin-activity-calendar {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 0.35rem;
+    }
+
+    .admin-calendar-weekday,
+    .admin-calendar-day {
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      background: #fff;
+      min-height: 62px;
+      padding: 0.4rem;
+    }
+
+    .admin-calendar-weekday {
+      min-height: auto;
+      text-align: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #6b7280;
+      background: #f8fafc;
+      padding: 0.3rem;
+    }
+
+    .admin-calendar-day {
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .admin-calendar-day.has-activity {
+      background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%);
+      border-color: #bfdbfe;
+    }
+
+    .admin-calendar-day:hover {
+      border-color: #94a3b8;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+    }
+
+    .admin-calendar-day.is-selected {
+      border-color: #1f3bb3;
+      box-shadow: 0 0 0 2px rgba(31, 59, 179, 0.15);
+    }
+
+    .admin-calendar-day.is-empty {
+      background: #f8fafc;
+      border-style: dashed;
+      cursor: default;
+    }
+
+    .admin-calendar-day-number {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .admin-calendar-day.has-activity .admin-calendar-day-number {
+      color: #1e3a8a;
+    }
+
+    .admin-calendar-markers {
+      display: flex;
+      gap: 0.18rem;
+      flex-wrap: wrap;
+    }
+
+    .admin-calendar-dot {
+      width: 0.45rem;
+      height: 0.45rem;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .admin-calendar-dot-event { background: #7c3aed; }
+    .admin-calendar-dot-notice { background: #4b49ac; }
+    .admin-calendar-dot-survey { background: #0ea5e9; }
+    .admin-calendar-dot-gamification { background: #d97706; }
+
+    .admin-calendar-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem;
+      font-size: 0.8rem;
+      color: #4b5563;
+    }
+
+    .admin-calendar-legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      background: #f8fafc;
+      font-weight: 600;
+    }
+
+    .admin-calendar-legend-item-event { border-color: #c4b5fd; background: #f5f3ff; }
+    .admin-calendar-legend-item-notice { border-color: #c7d2fe; background: #eef2ff; }
+    .admin-calendar-legend-item-survey { border-color: #bae6fd; background: #ecfeff; }
+    .admin-calendar-legend-item-gamification { border-color: #fed7aa; background: #fff7ed; }
+
+    .admin-calendar-header {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .admin-calendar-month-label {
+      font-size: 1.06rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .admin-calendar-nav-btn {
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      line-height: 1;
+      font-weight: 700;
+    }
+
+    .admin-calendar-nav-btn--prev {
+      justify-self: start;
+    }
+
+    .admin-calendar-nav-btn--next {
+      justify-self: end;
+    }
+
+    .admin-calendar-day-cards {
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .admin-calendar-action-card {
+      display: block;
+      border: 1px solid #dbeafe;
+      border-radius: 12px;
+      background: #f8fbff;
+      padding: 0.55rem 0.7rem;
+      text-decoration: none;
+      color: #1f2937;
+      transition: transform .14s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+
+    .admin-calendar-action-card:hover {
+      transform: translateY(-1px);
+      border-color: #93c5fd;
+      box-shadow: 0 8px 16px -14px rgba(15, 23, 42, 0.5);
+      text-decoration: none;
+      color: #0f172a;
+    }
+
+    .admin-calendar-action-card.is-static {
+      border-color: #e5e7eb;
+      background: #f8fafc;
+      cursor: default;
+    }
+
+    .admin-calendar-action-kind {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #475569;
+      margin-bottom: 0.12rem;
+    }
+
+    .admin-calendar-action-title {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #0f172a;
+      line-height: 1.28;
+    }
+
+    .admin-calendar-day-details ul { margin: 0; padding-left: 1rem; }
+
+    @media (max-width: 575.98px) {
+      .dashboard-kpi-grid {
+        --bs-gutter-x: 0.65rem;
+        --bs-gutter-y: 0.5rem;
+      }
+
+      .dashboard-kpi-card .card-body {
+        padding: 0.85rem 0.85rem;
+        min-height: 112px;
+      }
+
+      .dashboard-kpi-title {
+        font-size: 0.8rem;
+      }
+
+      .dashboard-kpi-value {
+        font-size: 1.72rem;
+      }
+
+      .dashboard-kpi-caption {
+        font-size: 0.78rem;
+      }
+
+      .admin-calendar-weekday,
+      .admin-calendar-day {
+        min-height: 54px;
+        padding: 0.3rem;
+      }
+
+      .admin-calendar-month-label {
+        font-size: 0.92rem;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    (function () {
+      document.querySelectorAll('.dashboard-card-clickable').forEach(function (card) {
+        card.addEventListener('click', function (event) {
+          if (event.target.closest('a, button, form, input, textarea, select, label')) {
+            return;
+          }
+          const href = card.getAttribute('data-href');
+          if (href) {
+            window.location.href = href;
+          }
+        });
+      });
+
+      const chartDefaults = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: (value) => `€ ${Number(value).toFixed(2)}`,
+            },
+          },
+        },
+      };
+
+      const createLineChart = (canvasId, labels, data, color) => {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas || typeof Chart === 'undefined') {
+          return;
+        }
+        new Chart(canvas, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [
+              {
+                data,
+                borderColor: color,
+                backgroundColor: `${color}22`,
+                fill: true,
+                tension: 0.35,
+                pointRadius: 2,
+                pointHoverRadius: 4,
+              },
+            ],
+          },
+          options: chartDefaults,
+        });
+      };
+
+      const createMultiLineChart = (canvasId, labels, datasets) => {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas || typeof Chart === 'undefined') {
+          return;
+        }
+        new Chart(canvas, {
+          type: 'line',
+          plugins: [
+            {
+              id: 'legendSpacing',
+              beforeInit: function (chart) {
+                const originalFit = chart.legend.fit;
+                chart.legend.fit = function fitWithSpacing() {
+                  originalFit.bind(chart.legend)();
+                  this.height += 14;
+                };
+              },
+            },
+          ],
+          data: {
+            labels,
+            datasets,
+          },
+          options: {
+            ...chartDefaults,
+            plugins: {
+              ...chartDefaults.plugins,
+              legend: {
+                display: true,
+                align: 'start',
+              },
+            },
+          },
+        });
+      };
+
+      createLineChart(
+        'sales-current-month-chart',
+        JSON.parse('{{ sales_current_month_labels_json|escapejs }}'),
+        JSON.parse('{{ sales_current_month_data_json|escapejs }}'),
+        '#4B49AC'
+      );
+
+      createLineChart(
+        'sales-previous-month-chart',
+        JSON.parse('{{ sales_previous_month_labels_json|escapejs }}'),
+        JSON.parse('{{ sales_previous_month_data_json|escapejs }}'),
+        '#1F3BB3'
+      );
+
+      createLineChart(
+        'sales-year-chart',
+        JSON.parse('{{ sales_year_labels_json|escapejs }}'),
+        JSON.parse('{{ sales_year_data_json|escapejs }}'),
+        '#57B657'
+      );
+
+      createMultiLineChart(
+        'cash-projection-chart',
+        JSON.parse('{{ cash_projection_labels_json|escapejs }}'),
+        [
+          {
+            label: '{% trans "Cash previous month" %}',
+            data: JSON.parse('{{ cash_previous_month_data_json|escapejs }}'),
+            borderColor: '#F59E0B',
+            backgroundColor: '#F59E0B22',
+            fill: false,
+            tension: 0.35,
+            pointRadius: 2,
+          },
+          {
+            label: '{% trans "Cash current month" %}',
+            data: JSON.parse('{{ cash_current_month_data_json|escapejs }}'),
+            borderColor: '#10B981',
+            backgroundColor: '#10B98122',
+            fill: false,
+            tension: 0.35,
+            pointRadius: 2,
+          },
+          {
+            label: '{% trans "Forecast based on previous month" %}',
+            data: JSON.parse('{{ cash_forecast_data_json|escapejs }}'),
+            borderColor: '#57B657',
+            backgroundColor: '#57B65722',
+            borderDash: [6, 4],
+            fill: false,
+            tension: 0.35,
+            pointRadius: 0,
+          },
+        ]
+      );
+
+      const calendarItems = JSON.parse('{{ admin_calendar_items_json|escapejs }}');
+      const calendarGrid = document.getElementById('admin-activity-calendar');
+      const monthLabel = document.getElementById('admin-calendar-month-label');
+      const dayDetails = document.getElementById('admin-calendar-day-details');
+      const prevButton = document.getElementById('admin-calendar-prev');
+      const nextButton = document.getElementById('admin-calendar-next');
+
+      if (calendarGrid && monthLabel && dayDetails && prevButton && nextButton) {
+        const weekdayLabels = ['{% trans "Mon" %}', '{% trans "Tue" %}', '{% trans "Wed" %}', '{% trans "Thu" %}', '{% trans "Fri" %}', '{% trans "Sat" %}', '{% trans "Sun" %}'].map((label) => String(label || '').trim().charAt(0).toUpperCase());
+        const monthNames = ['{% trans "January" %}', '{% trans "February" %}', '{% trans "March" %}', '{% trans "April" %}', '{% trans "May" %}', '{% trans "June" %}', '{% trans "July" %}', '{% trans "August" %}', '{% trans "September" %}', '{% trans "October" %}', '{% trans "November" %}', '{% trans "December" %}'];
+        let currentMonth = new Date();
+        currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+        let selectedDateKey = null;
+
+        const kindsOrder = ['event', 'notice', 'survey', 'gamification'];
+
+        function toDateKey(year, month, day) {
+          const mm = String(month + 1).padStart(2, '0');
+          const dd = String(day).padStart(2, '0');
+          return `${year}-${mm}-${dd}`;
+        }
+
+        function renderDayDetails(dateKey) {
+          const items = calendarItems[dateKey] || [];
+          if (!items.length) {
+            dayDetails.textContent = '{% trans "No activity for this day." %}';
+            return;
+          }
+          const cards = items.map((item) => {
+            const safeTitle = String(item.title || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const kindLabel = item.kind === 'event'
+              ? '{% trans "Event" %}'
+              : item.kind === 'notice'
+                ? '{% trans "Notice" %}'
+                : item.kind === 'survey'
+                  ? '{% trans "Survey" %}'
+                  : '{% trans "Gamification" %}';
+            return item.url
+              ? `<a class="admin-calendar-action-card" href="${item.url}"><span class="admin-calendar-action-kind">${kindLabel}</span><span class="admin-calendar-action-title">${safeTitle}</span></a>`
+              : `<div class="admin-calendar-action-card is-static"><span class="admin-calendar-action-kind">${kindLabel}</span><span class="admin-calendar-action-title">${safeTitle}</span></div>`;
+          }).join('');
+          dayDetails.innerHTML = `<div class="admin-calendar-day-cards">${cards}</div>`;
+        }
+
+        function renderCalendar() {
+          const year = currentMonth.getFullYear();
+          const month = currentMonth.getMonth();
+          const daysInMonth = new Date(year, month + 1, 0).getDate();
+          const jsWeekday = new Date(year, month, 1).getDay();
+          const startOffset = (jsWeekday + 6) % 7;
+
+          monthLabel.textContent = `${monthNames[month]} ${year}`;
+          calendarGrid.innerHTML = '';
+
+          weekdayLabels.forEach((label) => {
+            const el = document.createElement('div');
+            el.className = 'admin-calendar-weekday';
+            el.textContent = label;
+            calendarGrid.appendChild(el);
+          });
+
+          for (let i = 0; i < startOffset; i += 1) {
+            const emptyEl = document.createElement('div');
+            emptyEl.className = 'admin-calendar-day is-empty';
+            calendarGrid.appendChild(emptyEl);
+          }
+
+          for (let day = 1; day <= daysInMonth; day += 1) {
+            const dateKey = toDateKey(year, month, day);
+            const items = calendarItems[dateKey] || [];
+            const dayEl = document.createElement('button');
+            dayEl.type = 'button';
+            dayEl.className = 'admin-calendar-day';
+            if (items.length) {
+              dayEl.classList.add('has-activity');
+            }
+            if (selectedDateKey === dateKey) {
+              dayEl.classList.add('is-selected');
+            }
+
+            const numberEl = document.createElement('span');
+            numberEl.className = 'admin-calendar-day-number';
+            numberEl.textContent = String(day);
+            dayEl.appendChild(numberEl);
+
+            const markersEl = document.createElement('span');
+            markersEl.className = 'admin-calendar-markers';
+            const kinds = [...new Set(items.map((item) => item.kind))].sort((a, b) => kindsOrder.indexOf(a) - kindsOrder.indexOf(b));
+            kinds.forEach((kind) => {
+              const marker = document.createElement('i');
+              marker.className = `admin-calendar-dot admin-calendar-dot-${kind}`;
+              markersEl.appendChild(marker);
+            });
+            dayEl.appendChild(markersEl);
+
+            dayEl.addEventListener('click', function () {
+              selectedDateKey = dateKey;
+              renderCalendar();
+              renderDayDetails(dateKey);
+            });
+
+            calendarGrid.appendChild(dayEl);
+          }
+
+          if (!selectedDateKey || selectedDateKey.slice(0, 7) !== toDateKey(year, month, 1).slice(0, 7)) {
+            const today = new Date();
+            const todayKey = toDateKey(today.getFullYear(), today.getMonth(), today.getDate());
+            if (today.getFullYear() === year && today.getMonth() === month) {
+              selectedDateKey = todayKey;
+            } else {
+              const monthItemKey = Object.keys(calendarItems).find((key) => key.startsWith(toDateKey(year, month, 1).slice(0, 7)));
+              selectedDateKey = monthItemKey || toDateKey(year, month, 1);
+            }
+            renderCalendar();
+            renderDayDetails(selectedDateKey);
+          }
+        }
+
+        prevButton.addEventListener('click', function () {
+          currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
+          selectedDateKey = null;
+          renderCalendar();
+        });
+
+        nextButton.addEventListener('click', function () {
+          currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
+          selectedDateKey = null;
+          renderCalendar();
+        });
+
+        renderCalendar();
+      }
+    })();
+  </script>
+{% endblock %}
+

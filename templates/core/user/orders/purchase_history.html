@@ -1,0 +1,64 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'My Purchase History' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'My purchase history' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Your approved purchases' %}{% endblock %}
+
+{% block content %}
+  <div class="card card-rounded mb-3">
+    <div class="card-body">
+      <h4 class="card-title card-title-dash mb-3">{% trans 'Direct sales' %}</h4>
+      <div class="table-responsive">
+        <table class="table select-table">
+          <thead>
+            <tr>
+              <th>{% trans 'Sale' %}</th>
+              <th>{% trans 'Date' %}</th>
+              <th>{% trans 'Total' %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for sale in direct_sales %}
+              <tr>
+                <td>#{{ sale.id }}</td>
+                <td>{{ sale.created_at }}</td>
+                <td>€ {{ sale.total_amount }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="3" class="text-center text-muted py-3">{% trans 'No direct sales yet.' %}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-rounded">
+    <div class="card-body">
+      <h4 class="card-title card-title-dash mb-3">{% trans 'Approved orders' %}</h4>
+      <div class="table-responsive">
+        <table class="table select-table">
+          <thead>
+            <tr>
+              <th>{% trans 'Order' %}</th>
+              <th>{% trans 'Date' %}</th>
+              <th>{% trans 'Total' %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in approved_orders %}
+              <tr>
+                <td>#{{ order.id }}</td>
+                <td>{{ order.created_at }}</td>
+                <td>€ {{ order.total_amount }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="3" class="text-center text-muted py-3">{% trans 'No approved orders yet.' %}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}

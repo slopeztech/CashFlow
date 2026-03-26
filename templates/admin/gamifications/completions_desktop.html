@@ -1,0 +1,106 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Completed gamifications' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Completed gamifications' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Users who completed at least one gamification' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'admin_dashboard' %}"><i class="icon-arrow-left"></i> {% trans 'Back to dashboard' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="card card-rounded mb-3">
+    <div class="card-body">
+      <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label" for="id_status">{% trans 'Status' %}</label>
+          <select class="form-select" id="id_status" name="status">
+            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>{% trans 'Pending reward' %}</option>
+            <option value="rewarded" {% if status_filter == 'rewarded' %}selected{% endif %}>{% trans 'Reward completed' %}</option>
+            <option value="all" {% if status_filter == 'all' %}selected{% endif %}>{% trans 'All' %}</option>
+          </select>
+        </div>
+        <div class="col-md-5">
+          <label class="form-label" for="id_gamification">{% trans 'Gamification' %}</label>
+          <select class="form-select" id="id_gamification" name="gamification_id">
+            <option value="">{% trans 'All' %}</option>
+            {% for gamification in gamifications %}
+              <option value="{{ gamification.id }}" {% if selected_gamification_id == gamification.id|stringformat:'s' %}selected{% endif %}>{{ gamification.title }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label" for="id_user_q">{% trans 'User' %}</label>
+          <input class="form-control" id="id_user_q" type="text" name="user_q" value="{{ user_q }}" placeholder="{% trans 'Username' %}">
+        </div>
+        <div class="col-md-1 d-grid">
+          <button class="btn btn-primary text-white" type="submit">{% trans 'Apply' %}</button>
+        </div>
+        <div class="col-12 text-end">
+          <a class="btn btn-light btn-sm" href="{% url 'admin_gamification_completions' %}">{% trans 'Reset' %}</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card card-rounded mb-3">
+    <div class="card-body d-flex justify-content-between align-items-center">
+      <div>
+        <h5 class="mb-1">{% trans 'Users with completed gamifications' %}</h5>
+        <p class="text-muted mb-0">{% trans 'Reward fulfillment queue' %}</p>
+      </div>
+      <h3 class="mb-0">{{ completed_users_count }}</h3>
+    </div>
+  </div>
+
+  <div class="card card-rounded">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table select-table align-middle">
+          <thead>
+            <tr>
+              <th>{% trans 'User' %}</th>
+              <th>{% trans 'Gamification' %}</th>
+              <th>{% trans 'Progress' %}</th>
+              <th>{% trans 'Reward' %}</th>
+              <th>{% trans 'Status' %}</th>
+              <th class="text-end">{% trans 'Actions' %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in completion_rows %}
+              <tr>
+                <td>
+                  <a href="{% url 'admin_user_info' row.user.id %}">{{ row.user.username }}</a>
+                </td>
+                <td>{{ row.gamification.title }}</td>
+                <td>{{ row.status.current_value }}/{{ row.status.target_value }}</td>
+                <td>{{ row.gamification.reward }}</td>
+                <td>
+                  {% if row.reward_completed %}
+                    <span class="badge badge-opacity-success">{% trans 'Reward completed' %}</span>
+                  {% else %}
+                    <span class="badge badge-opacity-warning">{% trans 'Pending reward' %}</span>
+                  {% endif %}
+                </td>
+                <td class="text-end">
+                  {% if row.reward_completed %}
+                    <span class="text-muted small">{% trans 'Completed' %}</span>
+                  {% else %}
+                    <form method="post" action="{% url 'admin_gamification_complete_reward' row.user.id row.gamification.id %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                      <button class="btn btn-sm btn-success text-white" type="submit">{% trans 'Complete reward' %}</button>
+                    </form>
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="6" class="text-center text-muted py-3">{% trans 'No users completed gamifications yet.' %}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}

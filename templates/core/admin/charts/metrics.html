@@ -1,0 +1,168 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Charts' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Charts' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Visualize metrics by date range' %}{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-12 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h5 class="card-title card-title-dash mb-3">{% trans 'Configure chart' %}</h5>
+          <form method="get" class="row g-3 align-items-end">
+            <div class="col-12 col-md-4">
+              <label class="form-label" for="id_metric">{% trans 'Metric' %}</label>
+              <select id="id_metric" name="metric" class="form-select">
+                {% for key, label in metric_options.items %}
+                  <option value="{{ key }}" {% if selected_metric == key %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label" for="id_start_date">{% trans 'Start date' %}</label>
+              <input id="id_start_date" type="date" name="start_date" value="{{ start_date }}" class="form-control">
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label" for="id_end_date">{% trans 'End date' %}</label>
+              <input id="id_end_date" type="date" name="end_date" value="{{ end_date }}" class="form-control">
+            </div>
+            <div class="col-12 col-md-2 d-grid">
+              <button type="submit" class="btn btn-primary text-white">{% trans 'Apply' %}</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-2">
+            <h5 class="card-title card-title-dash mb-0">{{ chart_metric_label }}</h5>
+            <span class="badge badge-opacity-primary">{{ chart_total_label }}</span>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="admin-configurable-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-2">
+            <h5 class="card-title card-title-dash mb-0">{% trans 'Detailed records' %}</h5>
+            <span class="badge badge-opacity-secondary">{{ detail_rows|length }} {% trans 'rows' %}</span>
+          </div>
+
+          {% if detail_rows %}
+            <div class="table-responsive">
+              <table class="table select-table align-middle">
+                <thead>
+                  <tr>
+                    {% for header in detail_headers %}
+                      <th>{{ header }}</th>
+                    {% endfor %}
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in detail_rows %}
+                    <tr>
+                      {% for cell in row %}
+                        <td>{{ cell }}</td>
+                      {% endfor %}
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="alert alert-light mb-0">{% trans 'No records found for the selected date range and metric.' %}</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_css %}
+  <style>
+    .chart-wrapper {
+      position: relative;
+      width: 100%;
+      height: 380px;
+    }
+
+    @media (max-width: 767.98px) {
+      .chart-wrapper {
+        height: 300px;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    (function () {
+      const canvas = document.getElementById('admin-configurable-chart');
+      if (!canvas || typeof Chart === 'undefined') {
+        return;
+      }
+
+      const labels = JSON.parse('{{ chart_labels_json|escapejs }}');
+      const datasets = JSON.parse('{{ chart_datasets_json|escapejs }}').map((dataset) => ({
+        ...dataset,
+        fill: true,
+        tension: 0.35,
+        pointRadius: 2,
+        pointHoverRadius: 4,
+      }));
+      const hasSecondaryAxis = '{{ has_secondary_axis|yesno:"true,false" }}' === 'true';
+
+      const scales = hasSecondaryAxis
+        ? {
+            y_amount: {
+              type: 'linear',
+              position: 'left',
+              beginAtZero: true,
+              title: { display: true, text: '{% trans "Sales (€)" %}' },
+            },
+            y_count: {
+              type: 'linear',
+              position: 'right',
+              beginAtZero: true,
+              grid: { drawOnChartArea: false },
+              title: { display: true, text: '{% trans "Orders" %}' },
+            },
+          }
+        : {
+            y: {
+              beginAtZero: true,
+            },
+          };
+
+      new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels,
+          datasets,
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: true },
+          },
+          scales,
+        },
+      });
+    })();
+  </script>
+{% endblock %}

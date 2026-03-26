@@ -1,0 +1,302 @@
+from django.urls import path
+from django.views.generic import RedirectView
+
+from core.webviews.admin.balance import (
+    AdminBalanceLogListView,
+    AdminMonthlyFeeLateUsersView,
+    AdminMonthlyFeeSettingsView,
+    AdminBalanceRequestApproveView,
+    AdminBalanceRequestListView,
+    AdminBalanceRequestRejectView,
+)
+from core.webviews.admin.actions import AdminActionsView
+from core.webviews.admin.charts import AdminChartsView
+from core.webviews.admin.dashboard import AdminDashboardView
+from core.webviews.admin.events import (
+    AdminEventCommentIgnoreView,
+    AdminEventCommentReplyView,
+    AdminEventCreateView,
+    AdminEventDeleteView,
+    AdminEventInfoView,
+    AdminEventListView,
+    AdminEventRegistrationRemoveView,
+    AdminEventUpdateView,
+)
+from core.webviews.admin.gamifications import (
+    AdminGamificationCompletedUsersView,
+    AdminGamificationRewardCompleteView,
+    AdminGamificationCreateView,
+    AdminGamificationDeleteView,
+    AdminGamificationListView,
+    AdminGamificationUpdateView,
+)
+from core.webviews.admin.notices import (
+    AdminNoticeCreateView,
+    AdminNoticeDeleteView,
+    AdminNoticeListView,
+    AdminNoticeUpdateView,
+)
+from core.webviews.admin.orders import AdminOrderApprovalView
+from core.webviews.admin.products import (
+    CategoryDeleteView,
+    CategoryListCreateView,
+    CategoryUpdateView,
+    ProductCreateView,
+    ProductDeleteView,
+    ProductInfoView,
+    ProductListView,
+    ProductStockAdjustView,
+    ProductSheetFieldDeleteView,
+    ProductSheetFieldListCreateView,
+    ProductSheetUrlCreateView,
+    ProductSheetUrlDeleteView,
+    ProductUpdateView,
+    SupplierDeleteView,
+    SupplierListCreateView,
+)
+from core.webviews.admin.reviews import (
+    AdminReviewApproveView,
+    AdminReviewModerationView,
+    AdminReviewRejectView,
+)
+from core.webviews.admin.sales import (
+    AdminOrderDeleteView,
+    AdminOrderUpdateView,
+    SaleCreateView,
+    SaleDeleteView,
+    SaleDetailView,
+    SaleListView,
+    SaleUpdateView,
+)
+from core.webviews.admin.surveys import (
+    AdminSurveyCreateView,
+    AdminSurveyDeleteView,
+    AdminSurveyInfoView,
+    AdminSurveyListView,
+    AdminSurveyUpdateView,
+)
+from core.webviews.admin.system import AdminSystemView
+from core.webviews.admin.users import (
+    AdminUserBalanceAdjustView,
+    AdminUserCreateView,
+    AdminUserDeleteView,
+    AdminUserInfoView,
+    AdminUserListCreateView,
+    AdminUserPurchaseHistoryView,
+    AdminUserStrikesView,
+    AdminUserUpdateView,
+)
+from core.webviews.auth.pages import DashboardView, LoginPageView, logout_view
+from core.webviews.user.balance import UserBalanceRequestListCreateView
+from core.webviews.user.dashboard import UserDashboardView
+from core.webviews.user.events import (
+    UserEventCommentCreateView,
+    UserEventDetailView,
+    UserEventRegisterView,
+    UserEventUnregisterView,
+)
+from core.webviews.user.gamifications import UserGamificationDetailView
+from core.webviews.user.orders import (
+    UserOrderCreateView,
+    UserOrderDetailView,
+    UserOrderListView,
+    UserOrderRepeatView,
+    UserSaleDetailView,
+    UserOrderUpdateView,
+    UserPurchaseHistoryView,
+)
+from core.webviews.user.products import (
+    UserCartAddView,
+    UserCartClearView,
+    UserCartDetailView,
+    UserCartRemoveView,
+    UserCartSubmitOrderView,
+    UserCartUpdateView,
+    UserProductCatalogView,
+    UserProductDetailView,
+    UserProductReviewCreateView,
+)
+from core.webviews.user.profile import ProfileEditView
+from core.webviews.user.surveys import UserSurveyDetailView, UserSurveySubmitView
+
+urlpatterns = [
+    path('', LoginPageView.as_view(), name='login'),
+    path('login/', LoginPageView.as_view(), name='login_page'),
+    path('dashboard/', DashboardView.as_view(), name='dashboard'),
+    path('user/dashboard/', UserDashboardView.as_view(), name='user_dashboard'),
+    path('user/profile/', ProfileEditView.as_view(), name='profile_edit'),
+    path('user/balance/', UserBalanceRequestListCreateView.as_view(), name='user_balance_requests'),
+    path('user/orders/', UserOrderListView.as_view(), name='user_orders'),
+    path('user/orders/create/', UserOrderCreateView.as_view(), name='user_order_create'),
+    path('user/orders/<int:pk>/', UserOrderDetailView.as_view(), name='user_order_detail'),
+    path('user/orders/<int:pk>/repeat/', UserOrderRepeatView.as_view(), name='user_order_repeat'),
+    path('user/orders/<int:pk>/edit/', UserOrderUpdateView.as_view(), name='user_order_update'),
+    path('user/events/<int:pk>/', UserEventDetailView.as_view(), name='user_event_detail'),
+    path('user/events/<int:pk>/comments/', UserEventCommentCreateView.as_view(), name='user_event_comment_create'),
+    path('user/surveys/<int:pk>/', UserSurveyDetailView.as_view(), name='user_survey_detail'),
+    path('user/surveys/<int:pk>/submit/', UserSurveySubmitView.as_view(), name='user_survey_submit'),
+    path('user/gamifications/<int:pk>/', UserGamificationDetailView.as_view(), name='user_gamification_detail'),
+    path('user/events/<int:pk>/register/', UserEventRegisterView.as_view(), name='user_event_register'),
+    path('user/events/<int:pk>/unregister/', UserEventUnregisterView.as_view(), name='user_event_unregister'),
+    path('user/sales/<int:pk>/', UserSaleDetailView.as_view(), name='user_sale_detail'),
+    path('user/purchase-history/', UserPurchaseHistoryView.as_view(), name='user_purchase_history'),
+    path('user/products/', UserProductCatalogView.as_view(), name='user_products_catalog'),
+    path('user/products/cart/', UserCartDetailView.as_view(), name='user_cart_detail'),
+    path('user/products/cart/add/', UserCartAddView.as_view(), name='user_cart_add'),
+    path('user/products/cart/update/', UserCartUpdateView.as_view(), name='user_cart_update'),
+    path('user/products/cart/remove/', UserCartRemoveView.as_view(), name='user_cart_remove'),
+    path('user/products/cart/clear/', UserCartClearView.as_view(), name='user_cart_clear'),
+    path('user/products/cart/submit/', UserCartSubmitOrderView.as_view(), name='user_cart_submit'),
+    path('user/products/<int:product_id>/', UserProductDetailView.as_view(), name='user_product_detail'),
+    path(
+        'user/products/<int:product_id>/review/',
+        UserProductReviewCreateView.as_view(),
+        name='user_product_review',
+    ),
+    path('admin-panel/dashboard/', AdminDashboardView.as_view(), name='admin_dashboard'),
+    path('admin-panel/notices/', AdminNoticeListView.as_view(), name='admin_notices'),
+    path('admin-panel/events/', AdminEventListView.as_view(), name='admin_events'),
+    path('admin-panel/surveys/', AdminSurveyListView.as_view(), name='admin_surveys'),
+    path('admin-panel/gamifications/', AdminGamificationListView.as_view(), name='admin_gamifications'),
+    path(
+        'admin-panel/gamifications/completions/',
+        AdminGamificationCompletedUsersView.as_view(),
+        name='admin_gamification_completions',
+    ),
+    path('admin-panel/actions/', AdminActionsView.as_view(), name='admin_actions'),
+    path('admin-panel/notices/create/', AdminNoticeCreateView.as_view(), name='admin_notice_create'),
+    path('admin-panel/notices/<int:pk>/edit/', AdminNoticeUpdateView.as_view(), name='admin_notice_update'),
+    path('admin-panel/notices/<int:pk>/delete/', AdminNoticeDeleteView.as_view(), name='admin_notice_delete'),
+    path('admin-panel/events/create/', AdminEventCreateView.as_view(), name='admin_event_create'),
+    path('admin-panel/surveys/create/', AdminSurveyCreateView.as_view(), name='admin_survey_create'),
+    path(
+        'admin-panel/gamifications/create/',
+        AdminGamificationCreateView.as_view(),
+        name='admin_gamification_create',
+    ),
+    path('admin-panel/events/<int:pk>/info/', AdminEventInfoView.as_view(), name='admin_event_info'),
+    path('admin-panel/surveys/<int:pk>/info/', AdminSurveyInfoView.as_view(), name='admin_survey_info'),
+    path(
+        'admin-panel/events/<int:pk>/comments/<int:comment_id>/reply/',
+        AdminEventCommentReplyView.as_view(),
+        name='admin_event_comment_reply',
+    ),
+    path(
+        'admin-panel/events/comments/<int:comment_id>/ignore/',
+        AdminEventCommentIgnoreView.as_view(),
+        name='admin_event_comment_ignore',
+    ),
+    path(
+        'admin-panel/gamifications/<int:pk>/edit/',
+        AdminGamificationUpdateView.as_view(),
+        name='admin_gamification_update',
+    ),
+    path(
+        'admin-panel/gamifications/<int:pk>/delete/',
+        AdminGamificationDeleteView.as_view(),
+        name='admin_gamification_delete',
+    ),
+    path(
+        'admin-panel/gamifications/completions/<int:user_id>/<int:gamification_id>/reward/',
+        AdminGamificationRewardCompleteView.as_view(),
+        name='admin_gamification_complete_reward',
+    ),
+    path(
+        'admin-panel/events/<int:pk>/registrations/<int:registration_id>/remove/',
+        AdminEventRegistrationRemoveView.as_view(),
+        name='admin_event_registration_remove',
+    ),
+    path('admin-panel/events/<int:pk>/edit/', AdminEventUpdateView.as_view(), name='admin_event_update'),
+    path('admin-panel/surveys/<int:pk>/edit/', AdminSurveyUpdateView.as_view(), name='admin_survey_update'),
+    path('admin-panel/events/<int:pk>/delete/', AdminEventDeleteView.as_view(), name='admin_event_delete'),
+    path('admin-panel/surveys/<int:pk>/delete/', AdminSurveyDeleteView.as_view(), name='admin_survey_delete'),
+    path('admin-panel/charts/', AdminChartsView.as_view(), name='admin_charts'),
+    path('admin-panel/system/', AdminSystemView.as_view(), name='admin_system'),
+    path('admin-panel/products/', ProductListView.as_view(), name='product_list'),
+    path('admin-panel/categories/', CategoryListCreateView.as_view(), name='category_list'),
+    path('admin-panel/categories/<int:pk>/edit/', CategoryUpdateView.as_view(), name='category_update'),
+    path('admin-panel/categories/<int:pk>/delete/', CategoryDeleteView.as_view(), name='category_delete'),
+    path('admin-panel/suppliers/', SupplierListCreateView.as_view(), name='supplier_list'),
+    path('admin-panel/suppliers/<int:pk>/delete/', SupplierDeleteView.as_view(), name='supplier_delete'),
+    path('admin-panel/products/create/', ProductCreateView.as_view(), name='product_create'),
+    path('admin-panel/products/<int:pk>/info/', ProductInfoView.as_view(), name='product_info'),
+    path('admin-panel/products/<int:pk>/sheet/', ProductSheetFieldListCreateView.as_view(), name='product_sheet'),
+    path(
+        'admin-panel/products/<int:pk>/sheet/<int:field_id>/delete/',
+        ProductSheetFieldDeleteView.as_view(),
+        name='product_sheet_delete',
+    ),
+    path(
+        'admin-panel/products/<int:pk>/sheet/url/create/',
+        ProductSheetUrlCreateView.as_view(),
+        name='product_sheet_url_create',
+    ),
+    path(
+        'admin-panel/products/<int:pk>/sheet/url/<int:url_id>/delete/',
+        ProductSheetUrlDeleteView.as_view(),
+        name='product_sheet_url_delete',
+    ),
+    path('admin-panel/products/<int:pk>/stock/', ProductStockAdjustView.as_view(), name='product_stock_adjust'),
+    path('admin-panel/products/<int:pk>/edit/', ProductUpdateView.as_view(), name='product_update'),
+    path('admin-panel/products/<int:pk>/delete/', ProductDeleteView.as_view(), name='product_delete'),
+    path('admin-panel/sales/', SaleListView.as_view(), name='sale_list'),
+    path('admin-panel/sales/create/', SaleCreateView.as_view(), name='sale_create'),
+    path('admin-panel/sales/<int:pk>/', SaleDetailView.as_view(), name='sale_detail'),
+    path('admin-panel/sales/<int:pk>/edit/', SaleUpdateView.as_view(), name='sale_update'),
+    path('admin-panel/sales/<int:pk>/delete/', SaleDeleteView.as_view(), name='sale_delete'),
+    path('admin-panel/users/', AdminUserListCreateView.as_view(), name='admin_user_list'),
+    path('admin-panel/users/create/', AdminUserCreateView.as_view(), name='admin_user_create'),
+    path('admin-panel/users/<int:user_id>/edit/', AdminUserUpdateView.as_view(), name='admin_user_edit'),
+    path('admin-panel/users/<int:user_id>/delete/', AdminUserDeleteView.as_view(), name='admin_user_delete'),
+    path('admin-panel/users/<int:user_id>/info/', AdminUserInfoView.as_view(), name='admin_user_info'),
+    path(
+        'admin-panel/users/<int:user_id>/balance-adjust/',
+        AdminUserBalanceAdjustView.as_view(),
+        name='admin_user_balance_adjust',
+    ),
+    path(
+        'admin-panel/users/<int:user_id>/purchase-history/',
+        AdminUserPurchaseHistoryView.as_view(),
+        name='admin_user_purchase_history',
+    ),
+    path('admin-panel/users/<int:user_id>/strikes/', AdminUserStrikesView.as_view(), name='admin_user_strikes'),
+    path('admin-panel/orders/', RedirectView.as_view(pattern_name='admin_actions', permanent=False), name='admin_orders'),
+    path('admin-panel/orders/<int:pk>/', AdminOrderApprovalView.as_view(), name='admin_order_approval'),
+    path('admin-panel/orders/<int:pk>/edit/', AdminOrderUpdateView.as_view(), name='admin_order_update'),
+    path('admin-panel/orders/<int:pk>/delete/', AdminOrderDeleteView.as_view(), name='admin_order_delete'),
+    path('admin-panel/reviews/', AdminReviewModerationView.as_view(), name='admin_reviews'),
+    path(
+        'admin-panel/reviews/<int:review_id>/approve/',
+        AdminReviewApproveView.as_view(),
+        name='admin_review_approve',
+    ),
+    path(
+        'admin-panel/reviews/<int:review_id>/reject/',
+        AdminReviewRejectView.as_view(),
+        name='admin_review_reject',
+    ),
+    path('admin-panel/balance-requests/', AdminBalanceRequestListView.as_view(), name='admin_balance_requests'),
+    path('admin-panel/monthly-fee/', AdminMonthlyFeeSettingsView.as_view(), name='admin_monthly_fee'),
+    path(
+        'admin-panel/monthly-fee/late-users/',
+        AdminMonthlyFeeLateUsersView.as_view(),
+        name='admin_monthly_fee_late_users',
+    ),
+    path(
+        'admin-panel/monthly-fee/late-users/<int:user_id>/charge/',
+        AdminMonthlyFeeLateUsersView.as_view(),
+        name='admin_monthly_fee_late_user_charge',
+    ),
+    path('admin-panel/balance-logs/', AdminBalanceLogListView.as_view(), name='admin_balance_logs'),
+    path(
+        'admin-panel/balance-requests/<int:request_id>/approve/',
+        AdminBalanceRequestApproveView.as_view(),
+        name='admin_balance_request_approve',
+    ),
+    path(
+        'admin-panel/balance-requests/<int:request_id>/reject/',
+        AdminBalanceRequestRejectView.as_view(),
+        name='admin_balance_request_reject',
+    ),
+    path('logout/', logout_view, name='logout'),
+]

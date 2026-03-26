@@ -1,0 +1,326 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Surveys' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Surveys' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Create and manage user surveys' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-primary text-white" href="{% url 'admin_survey_create' %}">{% trans 'New survey' %}</a>
+{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <style>
+    .survey-grid {
+      --bs-gutter-x: 1rem;
+      --bs-gutter-y: 1rem;
+    }
+
+    .survey-card {
+      border: 1px solid rgb(15 23 42 / 0.08);
+      box-shadow: 0 10px 20px -16px rgb(15 23 42 / 0.38);
+      border-radius: 16px !important;
+      background: linear-gradient(180deg, rgb(255 255 255 / 1) 0%, rgb(248 250 252 / 0.98) 100%);
+      height: 100%;
+      transition: transform .18s ease, box-shadow .22s ease, border-color .22s ease;
+    }
+
+    .survey-card:hover {
+      transform: translateY(-3px);
+      border-color: #bae6fd;
+      box-shadow: 0 18px 26px -22px rgb(15 23 42 / 0.55);
+    }
+
+    .survey-card .card-body {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      min-height: 420px;
+    }
+
+    .survey-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.65rem;
+    }
+
+    .survey-title {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.2;
+    }
+
+    .survey-badges {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .survey-description {
+      margin: 0;
+      color: #475569;
+      font-size: 0.88rem;
+      line-height: 1.42;
+    }
+
+    .survey-kpi-strip {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+
+    .survey-kpi {
+      border: 1px solid #dbeafe;
+      background: #f8fbff;
+      border-radius: 10px;
+      padding: 0.45rem 0.55rem;
+    }
+
+    .survey-kpi-label {
+      font-size: 0.66rem;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin: 0;
+    }
+
+    .survey-kpi-value {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0.08rem 0 0;
+      line-height: 1.1;
+    }
+
+    .survey-chart-wrap {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+      padding: 0.7rem;
+      min-height: 190px;
+      display: grid;
+      place-items: center;
+    }
+
+    .survey-chart-empty {
+      color: #64748b;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .survey-chart {
+      width: 100% !important;
+      max-width: 220px;
+      max-height: 220px;
+      aspect-ratio: 1/1;
+    }
+
+    .survey-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+      margin: 0;
+    }
+
+    .survey-meta-item {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 0.45rem 0.55rem;
+    }
+
+    .survey-meta-item dt {
+      margin: 0;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .survey-meta-item dd {
+      margin: 0.15rem 0 0;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #111827;
+      line-height: 1.25;
+    }
+
+    .survey-actions {
+      margin-top: auto;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.45rem;
+    }
+
+    .survey-empty-state {
+      border: 1px dashed #d1d5db;
+      border-radius: 14px;
+      padding: 1.25rem;
+      text-align: center;
+      color: #6b7280;
+      background: #f9fafb;
+      font-weight: 600;
+    }
+
+    @media (max-width: 575.98px) {
+      .survey-meta {
+        grid-template-columns: 1fr;
+      }
+
+      .survey-card .card-body {
+        min-height: 380px;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="row survey-grid">
+    {% for survey in surveys %}
+      <div class="col-12 col-md-6 col-xl-4 grid-margin stretch-card">
+        <div class="card card-rounded survey-card">
+          <div class="card-body">
+            <div class="survey-head">
+              <h6 class="survey-title">{{ survey.title }}</h6>
+              <div class="survey-badges">
+                {% if survey.selection_type == 'checkbox' %}
+                  <span class="badge badge-opacity-primary">{% trans 'Checkbox (multiple)' %}</span>
+                {% else %}
+                  <span class="badge badge-opacity-primary">{% trans 'Radio (single)' %}</span>
+                {% endif %}
+                {% if survey.is_active %}
+                  <span class="badge badge-opacity-success">{% trans 'Active' %}</span>
+                {% else %}
+                  <span class="badge badge-opacity-secondary">{% trans 'Inactive' %}</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <p class="survey-description">{% if survey.description %}{{ survey.description|truncatechars:130 }}{% else %}-{% endif %}</p>
+
+            <div class="survey-kpi-strip">
+              <div class="survey-kpi">
+                <p class="survey-kpi-label">{% trans 'Responses' %}</p>
+                <p class="survey-kpi-value">{{ survey.responses_count }}</p>
+              </div>
+              <div class="survey-kpi">
+                <p class="survey-kpi-label">{% trans 'Options' %}</p>
+                <p class="survey-kpi-value">{{ survey.options.count }}</p>
+              </div>
+            </div>
+
+            <div class="survey-chart-wrap">
+              {% with active_options=survey.options.all %}
+                {% if survey.responses_count and active_options %}
+                  <canvas
+                    class="survey-chart"
+                    id="survey-chart-{{ survey.id }}"
+                    data-labels="{% for option in active_options %}{{ option.label|escape }}{% if not forloop.last %}|{% endif %}{% endfor %}"
+                    data-values="{% for option in active_options %}{{ option.selected_count|default:0 }}{% if not forloop.last %}|{% endif %}{% endfor %}"
+                  ></canvas>
+                {% else %}
+                  <div class="survey-chart-empty">{% trans 'No responses yet.' %}</div>
+                {% endif %}
+              {% endwith %}
+            </div>
+
+            <dl class="survey-meta">
+              <div class="survey-meta-item">
+                <dt>{% trans 'Responses' %}</dt>
+                <dd>{{ survey.responses_count }}</dd>
+              </div>
+              <div class="survey-meta-item">
+                <dt>{% trans 'Created by' %}</dt>
+                <dd>{{ survey.created_by.username|default:'-' }}</dd>
+              </div>
+            </dl>
+
+            <div class="survey-actions">
+              <a class="btn btn-sm btn-light" href="{% url 'admin_survey_info' survey.id %}">{% trans 'Information' %}</a>
+              <a class="btn btn-sm btn-light" href="{% url 'admin_survey_update' survey.id %}">{% trans 'Edit' %}</a>
+              <form method="post" action="{% url 'admin_survey_delete' survey.id %}" class="d-inline" onsubmit="return confirm('{% trans 'Are you sure you want to delete this survey?' %}');">
+                {% csrf_token %}
+                <button class="btn btn-sm btn-outline-danger" type="submit">{% trans 'Delete' %}</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12">
+        <div class="survey-empty-state">{% trans 'No surveys created yet.' %}</div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  {{ block.super }}
+  <script>
+    (function () {
+      if (typeof window.Chart === 'undefined') {
+        return;
+      }
+
+      const palette = ['#4B49AC', '#0EA5E9', '#10B981', '#F59E0B', '#F43F5E', '#6366F1', '#14B8A6', '#8B5CF6'];
+
+      document.querySelectorAll('.survey-chart').forEach(function (canvas) {
+        const labelsRaw = canvas.dataset.labels || '';
+        const valuesRaw = canvas.dataset.values || '';
+        const labels = labelsRaw.split('|').filter(Boolean);
+        const values = valuesRaw.split('|').map((value) => Number(value || 0));
+        const total = values.reduce((acc, value) => acc + value, 0);
+        if (!labels.length || !total) {
+          return;
+        }
+
+        new window.Chart(canvas, {
+          type: 'doughnut',
+          data: {
+            labels: labels,
+            datasets: [{
+              data: values,
+              backgroundColor: labels.map((_, index) => palette[index % palette.length]),
+              borderColor: '#fff',
+              borderWidth: 2,
+            }],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '56%',
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: {
+                  boxWidth: 10,
+                  boxHeight: 10,
+                  padding: 10,
+                  font: { size: 11 },
+                },
+              },
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    const value = context.parsed || 0;
+                    const percentage = total ? Math.round((value / total) * 100) : 0;
+                    return `${context.label}: ${value} (${percentage}%)`;
+                  },
+                },
+              },
+            },
+          },
+        });
+      });
+    })();
+  </script>
+{% endblock %}

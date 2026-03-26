@@ -1,0 +1,149 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Products' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Products' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Manage your catalog and stock levels' %}{% endblock %}
+{% block page_actions %}
+  <div class="d-flex gap-2">
+    <a class="btn btn-light" href="{% url 'category_list' %}"><i class="icon-tag"></i> {% trans 'Categories' %}</a>
+    <a class="btn btn-light" href="{% url 'supplier_list' %}" target="_blank" rel="noopener noreferrer"><i class="icon-briefcase"></i> {% trans 'Suppliers' %}</a>
+    <a class="btn btn-primary text-white me-0" href="{% url 'product_create' %}"><i class="icon-plus"></i> {% trans 'Create product' %}</a>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="row g-4 mb-4">
+    <div class="col-md-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title mb-0">{% trans 'Total products' %}</p>
+            <i class="mdi mdi-package-variant text-primary fs-4"></i>
+          </div>
+          <h3 class="rate-percentage mb-2">{{ products_total }}</h3>
+          <p class="text-primary mb-0">{% trans 'Catalog size' %}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title mb-0">{% trans 'Low stock alerts' %}</p>
+            <i class="mdi mdi-alert text-danger fs-4"></i>
+          </div>
+          <h3 class="rate-percentage mb-2">{{ products_low_stock }}</h3>
+          <p class="text-danger mb-0">{% trans 'Needs attention' %}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title mb-0">{% trans 'Active products' %}</p>
+            <i class="mdi mdi-check-circle text-success fs-4"></i>
+          </div>
+          <h3 class="rate-percentage mb-2">{{ products_active }}</h3>
+          <p class="text-success mb-0">{% trans 'Ready to sell' %}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h4 class="card-title card-title-dash mb-3">{% trans 'Product list' %}</h4>
+          <form method="get" class="row g-2 mb-3">
+            <div class="col-md-4">
+              <select name="category" class="form-select">
+                <option value="">{% trans 'All categories' %}</option>
+                {% for category in categories %}
+                  <option value="{{ category.id }}" {% if filter_category == category.id|stringformat:'s' %}selected{% endif %}>{{ category.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-2">
+              <button class="btn btn-primary text-white w-100" type="submit">{% trans 'Filter' %}</button>
+            </div>
+          </form>
+          <div class="table-responsive">
+            <table class="table select-table">
+              <thead>
+                <tr>
+                  <th>{% trans 'Name' %}</th>
+                  <th>{% trans 'Category' %}</th>
+                  <th>{% trans 'Supplier' %}</th>
+                  <th>SKU</th>
+                  <th>{% trans 'Rating' %}</th>
+                  <th>{% trans 'Price' %}</th>
+                  <th>{% trans 'Stock' %}</th>
+                  <th>{% trans 'Minimum stock' %}</th>
+                  <th>{% trans 'Unit' %}</th>
+                  <th>{% trans 'Visibility' %}</th>
+                  <th>{% trans 'Status' %}</th>
+                  <th class="text-end">{% trans 'Actions' %}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for product in products %}
+                  <tr>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.category.name|default:'-' }}</td>
+                    <td>{{ product.supplier.name|default:'-' }}</td>
+                    <td>{{ product.sku }}</td>
+                    <td>{% if product.approved_avg_rating %}{{ product.approved_avg_rating|floatformat:1 }} / 5{% else %}-{% endif %}</td>
+                    <td>€ {{ product.price }}</td>
+                    <td>
+                      {{ product.stock }}
+                      {% if product.is_below_min_stock %}
+                        <div class="badge badge-opacity-warning">{% trans 'Low' %}</div>
+                      {% endif %}
+                    </td>
+                    <td>{{ product.min_stock }}</td>
+                    <td>{{ product.unit_display_name }}</td>
+                    <td>
+                      {% if product.is_public_listing %}
+                        <div class="badge badge-opacity-success">{% trans 'Public' %}</div>
+                      {% else %}
+                        <div class="badge badge-opacity-dark">{% trans 'Private' %}</div>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if product.is_active %}
+                        <div class="badge badge-opacity-success">{% trans 'Active' %}</div>
+                      {% else %}
+                        <div class="badge badge-opacity-danger">{% trans 'Inactive' %}</div>
+                      {% endif %}
+                    </td>
+                    <td class="text-end">
+                      <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          {% trans 'Actions' %}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                          <li><a class="dropdown-item" href="{% url 'product_stock_adjust' product.pk %}">{% trans 'Stock' %}</a></li>
+                          <li><a class="dropdown-item" href="{% url 'product_update' product.pk %}">{% trans 'Edit' %}</a></li>
+                          <li><a class="dropdown-item text-danger" href="{% url 'product_delete' product.pk %}">{% trans 'Delete' %}</a></li>
+                        </ul>
+                      </div>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="12" class="text-center py-4 text-muted">{% trans 'No products yet.' %}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

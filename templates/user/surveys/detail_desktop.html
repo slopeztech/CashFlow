@@ -1,0 +1,92 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{{ survey.title }} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Survey' %}{% endblock %}
+{% block page_subtitle %}{{ survey.title }}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'user_dashboard' %}"><i class="icon-arrow-left"></i> {% trans 'Back to dashboard' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="card card-rounded">
+    <div class="card-body">
+      {% if survey.description %}
+        <p class="survey-question mb-3">{{ survey.description|linebreaksbr }}</p>
+      {% endif %}
+
+      {% if has_answered %}
+        <div class="alert alert-success mb-3">{% trans 'You already answered this survey.' %}</div>
+      {% endif %}
+
+      {% if not has_available_options %}
+        <div class="alert alert-warning mb-0">{% trans 'This survey has no active options yet.' %}</div>
+      {% else %}
+        <form method="post" action="{% url 'user_survey_submit' survey.id %}">
+          {% csrf_token %}
+
+          {% if survey.selection_type == 'radio' %}
+            <div class="d-flex flex-column gap-2 mb-3">
+              {% for survey_option in survey_options_for_display %}
+                <label class="survey-option border rounded p-2 d-flex align-items-center gap-2 {% if survey_option.id in selected_option_ids %}survey-option-selected{% endif %}" for="survey_option_{{ survey_option.id }}">
+                  <input
+                    id="survey_option_{{ survey_option.id }}"
+                    type="radio"
+                    name="selected_option"
+                    value="{{ survey_option.id }}"
+                    {% if survey_option.id in selected_option_ids %}checked{% endif %}
+                  >
+                  <span>{{ survey_option.label }}</span>
+                </label>
+              {% endfor %}
+            </div>
+            {% if response_form.selected_option.errors %}
+              <div class="text-danger small mb-2">{{ response_form.selected_option.errors }}</div>
+            {% endif %}
+          {% else %}
+            <div class="d-flex flex-column gap-2 mb-3">
+              {% for survey_option in survey_options_for_display %}
+                <label class="survey-option border rounded p-2 d-flex align-items-center gap-2 {% if survey_option.id in selected_option_ids %}survey-option-selected{% endif %}" for="survey_option_{{ survey_option.id }}">
+                  <input
+                    id="survey_option_{{ survey_option.id }}"
+                    type="checkbox"
+                    name="selected_options"
+                    value="{{ survey_option.id }}"
+                    {% if survey_option.id in selected_option_ids %}checked{% endif %}
+                  >
+                  <span>{{ survey_option.label }}</span>
+                </label>
+              {% endfor %}
+            </div>
+            {% if response_form.selected_options.errors %}
+              <div class="text-danger small mb-2">{{ response_form.selected_options.errors }}</div>
+            {% endif %}
+          {% endif %}
+
+          <button type="submit" class="btn btn-primary text-white">{% if has_answered %}{% trans 'Edit survey' %}{% else %}{% trans 'Submit response' %}{% endif %}</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <style>
+    .survey-question {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: #111827;
+      line-height: 1.35;
+    }
+
+    .survey-option {
+      transition: background-color .15s ease, border-color .15s ease;
+    }
+
+    .survey-option.survey-option-selected {
+      background: #ecfdf5;
+      border-color: #22c55e !important;
+    }
+  </style>
+{% endblock %}

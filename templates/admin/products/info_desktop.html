@@ -1,0 +1,124 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Product information' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Product information' %}{% endblock %}
+{% block page_subtitle %}{{ product.name }}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'product_list' %}"><i class="icon-arrow-left"></i> {% trans 'Back to products' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card card-rounded h-100">
+        <div class="card-body">
+          <p class="text-muted mb-1">{% trans 'Total quantity sold' %}</p>
+          <h4 class="mb-0">{{ sold_quantity_total }}</h4>
+          <small class="text-muted">{% trans 'Sales:' %} {{ sold_quantity_sales }} · {% trans 'Approved orders:' %} {{ sold_quantity_orders }}</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card card-rounded h-100">
+        <div class="card-body">
+          <p class="text-muted mb-1">{% trans 'Total revenue generated' %}</p>
+          <h4 class="mb-0">€ {{ total_revenue|truncate_2 }}</h4>
+          <small class="text-muted">{% trans 'Average per user:' %} {{ avg_quantity_per_user|floatformat:1 }}</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card card-rounded h-100">
+        <div class="card-body">
+          <p class="text-muted mb-1">{% trans 'Users who tried it' %}</p>
+          <h4 class="mb-0">{{ users_tried_count }}</h4>
+          <small class="text-muted">{% trans 'Tried but not reviewed:' %} {{ users_without_review_count }}</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card card-rounded h-100">
+        <div class="card-body">
+          <p class="text-muted mb-1">{% trans 'Rating' %}</p>
+          <h4 class="mb-0">{% if avg_rating %}★ {{ avg_rating|floatformat:1 }}{% else %}-{% endif %}</h4>
+          <small class="text-muted">{% trans 'Approved:' %} {{ reviews_approved_count }} · {% trans 'Pending:' %} {{ reviews_pending_count }}</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-lg-6">
+      <div class="card card-rounded h-100">
+        <div class="card-body">
+          <h5 class="card-title">{% trans 'Operational info' %}</h5>
+          <p class="mb-2"><strong>{% trans 'Current stock:' %}</strong> {{ product.stock }}</p>
+          <p class="mb-2"><strong>{% trans 'Minimum stock:' %}</strong> {{ product.min_stock }}</p>
+          <p class="mb-2"><strong>{% trans 'Last movement:' %}</strong> {% if last_movement_at %}{{ last_movement_at|date:'Y/m/d H:i' }}{% else %}-{% endif %}</p>
+          <p class="mb-0"><strong>{% trans 'Visibility:' %}</strong> {% if product.is_public_listing %}{% trans 'Public' %}{% else %}{% trans 'Private' %}{% endif %}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card card-rounded h-100">
+        <div class="card-body">
+          <h5 class="card-title">{% trans 'Top buyers' %}</h5>
+          {% if top_buyers %}
+            <ul class="mb-0 ps-3">
+              {% for buyer in top_buyers %}
+                <li>{{ buyer.user.username }} — {{ buyer.quantity }} {% trans 'units' %}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-muted mb-0">{% trans 'No buyer data yet.' %}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-rounded">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="card-title mb-0">{% trans 'User reviews' %}</h5>
+        <span class="badge badge-opacity-primary">{{ reviews_total }} {% trans 'reviews' %}</span>
+      </div>
+
+      {% if reviews %}
+        <div class="table-responsive">
+          <table class="table select-table align-middle">
+            <thead>
+              <tr>
+                <th>{% trans 'Date' %}</th>
+                <th>{% trans 'User' %}</th>
+                <th>{% trans 'Rating' %}</th>
+                <th>{% trans 'Status' %}</th>
+                <th>{% trans 'Message' %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for review in reviews %}
+                <tr>
+                  <td>{{ review.created_at|date:'Y/m/d H:i' }}</td>
+                  <td>{{ review.user.username }}</td>
+                  <td>★ {{ review.rating }}/5</td>
+                  <td>
+                    {% if review.is_approved %}
+                      <span class="badge badge-opacity-success">{% trans 'Approved' %}</span>
+                    {% else %}
+                      <span class="badge badge-opacity-warning">{% trans 'Pending' %}</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ review.message|default:'-' }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">{% trans 'No reviews yet for this product.' %}</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

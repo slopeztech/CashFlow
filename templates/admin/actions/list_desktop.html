@@ -1,0 +1,467 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Actions' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Actions' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Pending tasks for orders, reviews, balance requests and gamification' %}{% endblock %}
+
+{% block content %}
+  <div class="row g-3 action-board-grid" data-live-region="admin-actions-board">
+    <div class="col-lg-6" style="order: {{ action_card_order.orders|default:1 }};">
+      <div class="card card-rounded mb-0 action-board-card h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <h4 class="card-title card-title-dash mb-0">{% trans 'Approve orders' %}</h4>
+            <span class="action-board-icon action-board-icon-primary"><i class="mdi mdi-clipboard-check"></i></span>
+          </div>
+          {% if pending_orders %}
+            <div class="action-card-scroller{% if pending_orders|length == 1 %} action-card-scroller--single{% endif %}">
+              {% for order in pending_orders %}
+                <div class="action-card action-card-scroll-item action-card-clickable p-3" data-href="{% url 'admin_order_approval' order.pk %}">
+                  <h6 class="mb-1">#{% trans 'Order' %} {{ order.id }} · {{ order.created_by.username }}</h6>
+                  <p class="mb-2 text-muted">{% trans 'Total' %}: € {{ order.total_amount|truncate_2 }} · {{ order.created_at }}</p>
+                  {% if order.items.all %}
+                    <div class="order-breakdown mb-2">
+                      {% for item in order.items.all %}
+                        <div class="order-breakdown-row">
+                          <span>{{ item.quantity }}x {{ item.product.name }}</span>
+                          <strong>€ {{ item.subtotal|truncate_2 }}</strong>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                  <div class="d-flex gap-2 flex-wrap">
+                    <form method="post" action="{% url 'admin_order_approval' order.pk %}" data-confirm-approve="{% trans 'Are you sure you want to approve this item?' %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="approve">
+                      <input type="hidden" name="next" value="admin_actions">
+                      <button class="btn btn-sm btn-success" type="submit">{% trans 'Approve' %}</button>
+                    </form>
+                    <form method="post" action="{% url 'admin_order_approval' order.pk %}" class="d-flex gap-2 align-items-center reject-inline-form">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="reject">
+                      <input type="hidden" name="next" value="admin_actions">
+                      <input class="form-control form-control-sm" type="text" name="rejection_reason" placeholder="{% trans 'Reason:' %}">
+                      <button class="btn btn-sm btn-danger" type="submit">{% trans 'Reject' %}</button>
+                    </form>
+                    <details class="reject-spoiler d-sm-none">
+                      <summary class="btn btn-sm btn-outline-danger">{% trans 'Reject' %}</summary>
+                      <form method="post" action="{% url 'admin_order_approval' order.pk %}" class="d-flex flex-column gap-2 mt-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="reject">
+                        <input type="hidden" name="next" value="admin_actions">
+                        <input class="form-control form-control-sm" type="text" name="rejection_reason" placeholder="{% trans 'Reason:' %}">
+                        <button class="btn btn-sm btn-danger" type="submit">{% trans 'Reject' %}</button>
+                      </form>
+                    </details>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="text-muted mb-0">{% trans 'No pending orders.' %}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6" style="order: {{ action_card_order.reviews|default:2 }};">
+      <div class="card card-rounded mb-0 action-board-card h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <h4 class="card-title card-title-dash mb-0">{% trans 'Moderate reviews' %}</h4>
+            <span class="action-board-icon action-board-icon-warning"><i class="mdi mdi-message-draw"></i></span>
+          </div>
+          {% if pending_reviews %}
+            <div class="action-card-scroller{% if pending_reviews|length == 1 %} action-card-scroller--single{% endif %}">
+              {% for review in pending_reviews %}
+                <div class="action-card action-card-scroll-item p-3">
+                  <h6 class="mb-1">{{ review.product.name }} · {{ review.user.username }}</h6>
+                  <p class="mb-2 text-muted">{{ review.rating }}/5 · {{ review.message|truncatechars:90 }}</p>
+                  <div class="d-flex gap-2">
+                    <form method="post" action="{% url 'admin_review_approve' review.id %}" data-confirm-approve="{% trans 'Are you sure you want to approve this item?' %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="next" value="admin_actions">
+                      <button class="btn btn-sm btn-success" type="submit">{% trans 'Approve' %}</button>
+                    </form>
+                    <form method="post" action="{% url 'admin_review_reject' review.id %}" class="reject-inline-form">
+                      {% csrf_token %}
+                      <input type="hidden" name="next" value="admin_actions">
+                      <button class="btn btn-sm btn-danger" type="submit">{% trans 'Reject' %}</button>
+                    </form>
+                    <details class="reject-spoiler d-sm-none">
+                      <summary class="btn btn-sm btn-outline-danger">{% trans 'Reject' %}</summary>
+                      <form method="post" action="{% url 'admin_review_reject' review.id %}" class="d-flex flex-column gap-2 mt-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="admin_actions">
+                        <button class="btn btn-sm btn-danger" type="submit">{% trans 'Reject' %}</button>
+                      </form>
+                    </details>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="text-muted mb-0">{% trans 'No pending reviews.' %}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6" style="order: {{ action_card_order.balance|default:3 }};">
+      <div class="card card-rounded mb-0 action-board-card h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <h4 class="card-title card-title-dash mb-0">{% trans 'Balance requests' %}</h4>
+            <span class="action-board-icon action-board-icon-success"><i class="mdi mdi-wallet"></i></span>
+          </div>
+          {% if pending_balance_requests %}
+            <div class="action-card-scroller{% if pending_balance_requests|length == 1 %} action-card-scroller--single{% endif %}">
+              {% for req in pending_balance_requests %}
+                <div class="action-card action-card-scroll-item p-3">
+                  <h6 class="mb-1">{{ req.user.username }}</h6>
+                  <p class="mb-2 text-muted">{% trans 'Amount' %}: € {{ req.amount|truncate_2 }} · {{ req.created_at }}</p>
+                  <div class="d-flex gap-2 flex-wrap">
+                    <form method="post" action="{% url 'admin_balance_request_approve' req.id %}" data-confirm-approve="{% trans 'Are you sure you want to approve this item?' %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="next" value="admin_actions">
+                      <button class="btn btn-sm btn-success" type="submit">{% trans 'Approve' %}</button>
+                    </form>
+                    <form method="post" action="{% url 'admin_balance_request_reject' req.id %}" class="d-flex gap-2 align-items-center reject-inline-form">
+                      {% csrf_token %}
+                      <input type="hidden" name="next" value="admin_actions">
+                      <input class="form-control form-control-sm" type="text" name="rejection_reason" placeholder="{% trans 'Reason:' %}">
+                      <button class="btn btn-sm btn-danger" type="submit">{% trans 'Reject' %}</button>
+                    </form>
+                    <details class="reject-spoiler d-sm-none">
+                      <summary class="btn btn-sm btn-outline-danger">{% trans 'Reject' %}</summary>
+                      <form method="post" action="{% url 'admin_balance_request_reject' req.id %}" class="d-flex flex-column gap-2 mt-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="admin_actions">
+                        <input class="form-control form-control-sm" type="text" name="rejection_reason" placeholder="{% trans 'Reason:' %}">
+                        <button class="btn btn-sm btn-danger" type="submit">{% trans 'Reject' %}</button>
+                      </form>
+                    </details>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="text-muted mb-0">{% trans 'No pending balance requests.' %}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6" style="order: {{ action_card_order.gamification_validations|default:4 }};">
+      <div class="card card-rounded mb-0 action-board-card h-100">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <h4 class="card-title card-title-dash mb-0">{% trans 'Gamification validations' %}</h4>
+            <span class="action-board-icon action-board-icon-info"><i class="mdi mdi-trophy-award"></i></span>
+          </div>
+          {% if pending_gamification_rows %}
+            <div class="action-card-scroller{% if pending_gamification_rows|length == 1 %} action-card-scroller--single{% endif %}">
+              {% for row in pending_gamification_rows %}
+                <div class="action-card action-card-scroll-item p-3">
+                  <h6 class="mb-1">{{ row.user.username }}</h6>
+                  <p class="mb-2 text-muted">{{ row.gamification.title }}</p>
+                  <p class="mb-2 text-muted">{% trans 'Progress' %}: {{ row.status.current_value }}/{{ row.status.target_value }}</p>
+                  <div class="d-flex gap-2">
+                    <form method="post" action="{% url 'admin_gamification_complete_reward' row.user.id row.gamification.id %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                      <button class="btn btn-sm btn-success text-white" type="submit">{% trans 'Complete reward' %}</button>
+                    </form>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="text-muted mb-0">{% trans 'No pending gamification validations.' %}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+      <div class="col-lg-6" style="order: {{ action_card_order.event_comments|default:5 }};">
+        <div class="card card-rounded mb-0 action-board-card h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h4 class="card-title card-title-dash mb-0">{% trans 'Event comments' %}</h4>
+              <span class="action-board-icon action-board-icon-info"><i class="mdi mdi-comment-text-multiple"></i></span>
+            </div>
+            {% if pending_event_comments %}
+              <div class="action-card-scroller{% if pending_event_comments|length == 1 %} action-card-scroller--single{% endif %}">
+                {% for comment in pending_event_comments %}
+                  <div class="action-card action-card-scroll-item action-card-clickable p-3" data-href="{% url 'admin_event_info' comment.event.id %}">
+                    <h6 class="mb-1">{{ comment.event.name }}</h6>
+                    <p class="mb-2 text-muted">{{ comment.user.username }} · {{ comment.created_at }}</p>
+                    <p class="mb-3">{{ comment.content|truncatechars:150 }}</p>
+                    <div class="d-flex gap-2">
+                      <a class="btn btn-sm btn-outline-primary" href="{% url 'admin_event_info' comment.event.id %}">{% trans 'Reply' %}</a>
+                      <form method="post" action="{% url 'admin_event_comment_ignore' comment.id %}" onsubmit="return confirm('{% trans 'Ignore this comment? It will disappear from pending actions.' %}');">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-outline-secondary" type="submit">{% trans 'Ignore comment' %}</button>
+                      </form>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="text-muted mb-0">{% trans 'No pending event comments.' %}</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6" style="order: {{ action_card_order.monthly_fee_late|default:6 }};">
+        <div class="card card-rounded mb-0 action-board-card h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h4 class="card-title card-title-dash mb-0">{% trans 'Monthly fee' %}</h4>
+              <span class="action-board-icon action-board-icon-warning"><i class="mdi mdi-cash-multiple"></i></span>
+            </div>
+            {% if monthly_late_users %}
+              <div class="action-card-scroller{% if monthly_late_users|length == 1 %} action-card-scroller--single{% endif %}">
+                {% for late in monthly_late_users %}
+                  <div class="action-card action-card-scroll-item p-3">
+                    <h6 class="mb-1">{{ late.user.username }}</h6>
+                    <p class="mb-2 text-muted">{% trans 'Pending months' %}: {{ late.due_months }} · {% trans 'Balance' %}: € {{ late.balance|truncate_2 }}</p>
+                    <p class="mb-3 text-muted">{% trans 'Estimated total due' %}: € {{ late.total_due|truncate_2 }}</p>
+                    <div class="d-flex gap-2 flex-wrap">
+                      <form method="post" action="{% url 'admin_monthly_fee_late_user_charge' late.user.id %}" onsubmit="return confirm('{% trans 'Charge this user now? This action will apply all pending monthly fees.' %}');">
+                        {% csrf_token %}
+                        <input type="hidden" name="security_answer" value="COBRAR">
+                        <button class="btn btn-sm btn-warning text-white" type="submit">{% trans 'Charge' %}</button>
+                      </form>
+                      <a class="btn btn-sm btn-outline-primary" href="{% url 'admin_monthly_fee_late_users' %}">{% trans 'View detail' %}</a>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="text-muted mb-0">{% trans 'No users with pending monthly fees.' %}</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+  </div>
+
+{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <style>
+    .action-board-grid {
+      --bs-gutter-y: 0.75rem;
+    }
+
+    .action-board-card {
+      border: 1px solid rgb(15 23 42 / 0.08);
+      box-shadow: 0 10px 22px -16px rgb(15 23 42 / 0.32);
+      background: linear-gradient(180deg, #fff 0%, rgb(248 250 252 / 0.95) 100%);
+      border-radius: 16px !important;
+    }
+
+    .action-board-icon {
+      width: 2rem;
+      height: 2rem;
+      min-width: 2rem;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid transparent;
+      font-size: 1.08rem;
+    }
+
+    .action-board-icon-primary {
+      color: #3346bf;
+      background: rgb(51 70 191 / 0.11);
+      border-color: rgb(51 70 191 / 0.2);
+    }
+
+    .action-board-icon-warning {
+      color: #dca406;
+      background: rgb(220 164 6 / 0.12);
+      border-color: rgb(220 164 6 / 0.22);
+    }
+
+    .action-board-icon-success {
+      color: #4f9a52;
+      background: rgb(79 154 82 / 0.11);
+      border-color: rgb(79 154 82 / 0.2);
+    }
+
+    .action-board-icon-info {
+      color: #2f9fb0;
+      background: rgb(47 159 176 / 0.12);
+      border-color: rgb(47 159 176 / 0.24);
+    }
+
+    .action-card {
+      border: 1px solid #E5E7EB;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+      animation: action-card-enter 0.32s ease-out both;
+    }
+
+    .action-card-scroller {
+      display: flex;
+      gap: 0.75rem;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 0.35rem;
+      scroll-behavior: smooth;
+      scroll-snap-type: x proximity;
+    }
+
+    .action-card-scroll-item {
+      flex: 0 0 min(25rem, 85vw);
+      scroll-snap-align: start;
+    }
+
+    .action-card-scroller--single .action-card-scroll-item {
+      flex-basis: 100%;
+      max-width: none;
+    }
+
+    .action-card-scroller::-webkit-scrollbar {
+      height: 7px;
+    }
+
+    .action-card-scroller::-webkit-scrollbar-thumb {
+      background: rgb(148 163 184 / 0.55);
+      border-radius: 999px;
+    }
+
+    .action-card-scroller::-webkit-scrollbar-track {
+      background: rgb(226 232 240 / 0.45);
+      border-radius: 999px;
+    }
+
+    .action-card-clickable {
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .action-card-clickable:hover {
+      box-shadow: 0 8px 16px -4px rgb(0 0 0 / 0.14);
+      transform: translateY(-2px);
+    }
+
+    @keyframes action-card-enter {
+      from {
+        opacity: 0;
+        transform: translateX(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .action-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+      border: 1px solid #E5E7EB;
+      border-radius: 12px;
+      padding: 0.8rem;
+      background: #fff;
+    }
+
+    .order-breakdown {
+      border-top: 1px solid #E5E7EB;
+      padding-top: .5rem;
+    }
+
+    .order-breakdown-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      color: #6B7280;
+      font-size: .86rem;
+      padding: .1rem 0;
+    }
+
+    .order-breakdown-row strong {
+      color: #111827;
+      white-space: nowrap;
+      font-weight: 700;
+    }
+
+    .reject-spoiler summary {
+      list-style: none;
+    }
+
+    .reject-spoiler summary::-webkit-details-marker {
+      display: none;
+    }
+
+    @media (max-width: 576px) {
+      .action-board-grid {
+        --bs-gutter-y: 0.65rem;
+      }
+
+      .action-card-scroller {
+        padding-right: 0.5rem;
+      }
+
+      .action-card-scroll-item {
+        flex: 0 0 86%;
+        max-width: 20rem;
+      }
+
+      .action-card .d-flex.gap-2 {
+        flex-direction: column;
+        align-items: stretch !important;
+      }
+
+      .reject-inline-form {
+        display: none !important;
+      }
+
+      .reject-spoiler {
+        width: 100%;
+      }
+
+      .reject-spoiler summary {
+        width: 100%;
+      }
+
+      .action-card .btn {
+        width: 100%;
+      }
+
+      .reject-inline-form .form-control {
+        width: 100%;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block extra_js %}
+  {{ block.super }}
+  <script>
+    (function () {
+      document.querySelectorAll('.action-card-clickable').forEach(function (card) {
+        card.addEventListener('click', function (event) {
+          if (event.target.closest('a, button, form, input, textarea, select, label, summary, details')) {
+            return;
+          }
+          const href = card.getAttribute('data-href');
+          if (href) {
+            window.location.href = href;
+          }
+        });
+      });
+    })();
+  </script>
+{% endblock %}

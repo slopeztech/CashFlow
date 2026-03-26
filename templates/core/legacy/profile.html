@@ -1,0 +1,35 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Profile' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'My profile' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Your account and balance information' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'dashboard' %}"><i class="icon-arrow-left"></i> {% trans 'Back to dashboard' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="card card-rounded">
+    <div class="card-body">
+      <h4 class="card-title card-title-dash mb-3">{% trans 'Account details' %}</h4>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label text-muted">{% trans 'Username' %}</label>
+          <p class="mb-0 fw-semibold">{{ request.user.username }}</p>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label text-muted">{% trans 'Email' %}</label>
+          <p class="mb-0 fw-semibold">{{ request.user.email|default:'-' }}</p>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label text-muted">{% trans 'Current balance' %}</label>
+          <p class="mb-0 fw-semibold">€ {% if profile %}{{ profile.current_balance }}{% else %}0.00{% endif %}</p>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label text-muted">{% trans 'Phone' %}</label>
+          <p class="mb-0 fw-semibold">{% if profile and profile.phone %}{{ profile.phone }}{% else %}-{% endif %}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

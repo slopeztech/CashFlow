@@ -1,0 +1,19 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Delete product' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Delete product' %}{% endblock %}
+{% block page_subtitle %}{% trans 'This action cannot be undone' %}{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <div class="card-body">
+      <p>{% trans 'Are you sure you want to delete' %} <strong>{{ object.name }}</strong>?</p>
+      <form method="post" class="d-flex gap-2">
+        {% csrf_token %}
+        <button class="btn btn-danger" type="submit">{% trans 'Delete' %}</button>
+        <a class="btn btn-outline-secondary" href="{% url 'product_list' %}">{% trans 'Cancel' %}</a>
+      </form>
+    </div>
+  </div>
+{% endblock %}

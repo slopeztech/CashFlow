@@ -1,0 +1,21 @@
+Receta instalación CF en SBC debian/ubuntu
+
+sudo apt-update
+sudo apt-upgrade
+
+sudo hostnamectl set-hostname cashflow
+
+sudo nano /etc/hosts
+127.0.0.1 localhost
+127.0.1.1 cashflow
+
+sudo reboot
+
+---
+
+sudo apt install -y git nginx avahi-daemon
+
+sudo systemctl enable avahi-daemon
+sudo systemctl start avahi-daemon
+
+(en este punto se puede acceder al servidor como cashflow.local en red local)

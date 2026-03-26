@@ -1,0 +1,62 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n core_numbers %}
+
+{% block title %}{% trans 'Order Detail' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Order' %} #{{ object.id }}{% endblock %}
+{% block page_subtitle %}{% trans 'Order status and requested items' %}{% endblock %}
+{% block page_actions %}
+  {% if object.status != 'pending' %}
+    <form method="post" action="{% url 'user_order_repeat' object.pk %}" class="d-inline-block me-2">
+      {% csrf_token %}
+      <button class="btn btn-primary text-white" type="submit">{% trans 'Repeat order' %}</button>
+    </form>
+  {% endif %}
+  {% if object.status == 'pending' %}
+    <a class="btn btn-outline-primary" href="{% url 'user_order_update' object.pk %}">{% trans 'Edit order' %}</a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <div data-live-region="user-order-detail-main">
+  <div class="card card-rounded mb-3">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-3"><strong>{% trans 'Status:' %}</strong> {{ object.get_status_display }}</div>
+        <div class="col-md-3"><strong>{% trans 'Total:' %}</strong> € {{ object.total_amount|truncate_2 }}</div>
+        <div class="col-md-3"><strong>{% trans 'Created:' %}</strong> {{ object.created_at }}</div>
+        <div class="col-md-3"><strong>{% trans 'Approved by:' %}</strong> {{ object.approved_by|default:'-' }}</div>
+      </div>
+      {% if object.rejection_reason %}
+        <div class="alert alert-warning mt-3 mb-0">{% trans 'Reason:' %} {{ object.rejection_reason }}</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card card-rounded">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table select-table">
+          <thead>
+            <tr>
+              <th>{% trans 'Product' %}</th>
+              <th>{% trans 'Quantity' %}</th>
+              <th>{% trans 'Unit price' %}</th>
+              <th>{% trans 'Subtotal' %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in object.items.all %}
+              <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity|trim_zeros }}</td>
+                <td>€ {{ item.unit_price|truncate_2 }}</td>
+                <td>€ {{ item.subtotal|truncate_2 }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  </div>
+{% endblock %}

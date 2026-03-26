@@ -1,0 +1,66 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{{ gamification.title }} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Gamification details' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Track your progress and reward eligibility' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'user_dashboard' %}"><i class="icon-arrow-left"></i> {% trans 'Back to dashboard' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="card card-rounded">
+    <div class="card-body">
+      <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+        <h3 class="mb-0">{{ gamification.title }}</h3>
+        {% if status.achieved %}
+          <span class="badge badge-opacity-success">{% trans 'Completed' %}</span>
+        {% else %}
+          <span class="badge badge-opacity-warning">{% trans 'In progress' %}</span>
+        {% endif %}
+      </div>
+
+      <p class="text-muted mb-3">{{ gamification.description|linebreaksbr }}</p>
+
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <div class="border rounded p-3 h-100">
+            <h6 class="mb-1">{% trans 'Start' %}</h6>
+            <div>{{ gamification.start_at|date:"Y/m/d H:i" }}</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="border rounded p-3 h-100">
+            <h6 class="mb-1">{% trans 'End' %}</h6>
+            <div>{{ gamification.end_at|date:"Y/m/d H:i" }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-md-6">
+          <div class="border rounded p-3 h-100">
+            <h6 class="mb-1">{% trans 'Type' %}</h6>
+            <div>{{ gamification.get_gamification_type_display }}</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="border rounded p-3 h-100">
+            <h6 class="mb-1">{% trans 'Reward' %}</h6>
+            <div>{{ gamification.reward }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="border rounded p-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="mb-0">{% trans 'Your progress' %}</h6>
+          <strong>{{ status.current_value }}/{{ status.target_value }}</strong>
+        </div>
+        <div class="progress" style="height: 10px;">
+          <div class="progress-bar {% if status.achieved %}bg-success{% else %}bg-warning{% endif %}" role="progressbar" style="width: {{ status.progress_percentage }}%;" aria-valuenow="{{ status.progress_percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

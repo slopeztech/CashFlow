@@ -1,0 +1,337 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n user_display %}
+
+{% block title %}{{ event.name }} | CashFlow{% endblock %}
+{% block page_title %}{{ event.name }}{% endblock %}
+{% block page_subtitle %}{% trans 'Event details' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'user_dashboard' %}"><i class="icon-arrow-left"></i> {% trans 'Back' %}</a>
+{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <style>
+    .event-registration-form .event-registration-panel {
+      margin-top: 0.5rem;
+      padding: 1rem;
+      border: 1px solid #d7dce5;
+      border-radius: 0.75rem;
+      background: #f7f9fc;
+    }
+
+    .event-registration-form .event-registration-fields {
+      margin-bottom: 0.75rem;
+    }
+
+    .event-registration-form .event-registration-actions {
+      margin-top: 1.5rem !important;
+      padding-top: 0.5rem !important;
+    }
+
+    .event-registration-form .event-radio-group-title {
+      margin-bottom: 0.25rem;
+      font-weight: 600;
+    }
+
+    .event-registration-form .event-radio-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+    }
+
+    .event-registration-form .event-radio-options .event-radio-option {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin: 0;
+      padding: 0;
+      min-height: 0;
+      line-height: 1.15;
+    }
+
+    .event-registration-form .event-radio-options .event-radio-option input[type='radio'] {
+      margin: 0;
+      margin-top: 0;
+      position: static;
+      float: none;
+      flex-shrink: 0;
+    }
+
+    .event-registration-form .event-radio-options .event-radio-option-label {
+      margin: 0;
+      line-height: 1.15;
+    }
+
+    .event-comments-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .event-comment-item,
+    .event-comment-reply-item {
+      border: 1px solid #dfe3ec;
+      border-radius: 0.65rem;
+      padding: 0.85rem;
+    }
+
+    .event-comment-item {
+      background: #f3f5f8;
+    }
+
+    .event-comment-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.45rem;
+    }
+
+    .event-comment-avatar {
+      width: 34px !important;
+      height: 34px !important;
+      min-width: 34px !important;
+      min-height: 34px !important;
+      max-width: 34px !important;
+      max-height: 34px !important;
+      border-radius: 999px !important;
+      object-fit: cover;
+      border: 1px solid #d9dee8;
+      background: #f1f4fa;
+      flex-shrink: 0;
+      display: block;
+    }
+
+    .event-comment-meta {
+      line-height: 1.2;
+    }
+
+    .event-comment-meta .event-comment-user {
+      font-weight: 600;
+    }
+
+    .event-comment-meta .event-comment-date {
+      font-size: 0.8rem;
+      color: #6f7787;
+    }
+
+    .event-comment-replies {
+      margin-top: 0.6rem;
+      margin-left: 1.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .event-comment-reply-item {
+      background: #ffffff;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  {% if event_images %}
+    <div class="card card-rounded mb-3">
+      <div class="card-body">
+        <h4 class="card-title card-title-dash mb-3">{% trans 'Event photos' %}</h4>
+        <div id="eventImagesCarousel" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-indicators">
+            {% for image in event_images %}
+              <button type="button" data-bs-target="#eventImagesCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" {% if forloop.first %}aria-current="true"{% endif %} aria-label="{% blocktrans with number=forloop.counter %}Slide {{ number }}{% endblocktrans %}"></button>
+            {% endfor %}
+          </div>
+          <div class="carousel-inner rounded">
+            {% for image in event_images %}
+              <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                <img src="{{ image.image.url }}" class="d-block w-100" alt="{{ event.name }}" style="height: 320px; object-fit: cover;">
+              </div>
+            {% endfor %}
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#eventImagesCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">{% trans 'Previous' %}</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#eventImagesCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">{% trans 'Next' %}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="card card-rounded mb-3">
+    <div class="card-body">
+      <div class="d-flex justify-content-between flex-wrap gap-2 mb-3">
+        <span class="badge badge-opacity-primary">{{ event.start_at|date:"Y/m/d H:i" }} → {{ event.end_at|date:"Y/m/d H:i" }}</span>
+        {% if event.requires_registration %}
+          {% if is_full %}
+            <span class="badge badge-opacity-danger">{% trans 'Full capacity' %}</span>
+          {% elif is_registered %}
+            <span class="badge badge-opacity-success">{% trans 'Registered' %}</span>
+          {% else %}
+            <span class="badge badge-opacity-warning">{% trans 'Registration required' %}</span>
+          {% endif %}
+          {% if event.is_paid_event %}
+            <span class="badge badge-opacity-warning">{% trans 'Paid event' %} · € {{ event.registration_fee|truncate_2 }}</span>
+          {% endif %}
+        {% else %}
+          <span class="badge badge-opacity-secondary">{% trans 'Open event' %}</span>
+        {% endif %}
+      </div>
+
+      <p class="mb-3">{{ event.description|linebreaksbr }}</p>
+
+      {% if event_links %}
+        <div class="mb-3">
+          <h6 class="mb-2">{% trans 'Links' %}</h6>
+          <ul class="mb-0">
+            {% for link in event_links %}
+              <li><a href="{{ link }}" target="_blank" rel="noopener noreferrer">{{ link }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      {% if event.requires_registration %}
+        <p class="mb-3 text-muted">{% trans 'Registered users:' %} {{ registrations_count }}{% if event.capacity %}/{{ event.capacity }}{% endif %}</p>
+        {% if event.is_paid_event %}
+          <p class="mb-3 text-muted">{% trans 'Registration fee' %}: € {{ event.registration_fee|truncate_2 }}</p>
+        {% endif %}
+        {% if can_register %}
+          <form method="post" action="{% url 'user_event_register' event.pk %}" class="js-event-confirm-form event-registration-form" data-confirm-message="{% if event.is_paid_event %}{% blocktrans with fee=event.registration_fee|truncate_2 %}Are you sure you want to register for this event? This registration will deduct € {{ fee }} from your balance.{% endblocktrans %}{% else %}{% trans 'Are you sure you want to register for this event?' %}{% endif %}">
+            {% csrf_token %}
+            {% if registration_form.notice_fields %}
+              <div class="mb-3">
+                {% for notice in registration_form.notice_fields %}
+                  <div class="alert alert-info mb-2">
+                    <strong>{{ notice.label }}</strong>
+                    {% if notice.help_text %}
+                      <div class="small mt-1">{{ notice.help_text|linebreaksbr }}</div>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            <div class="event-registration-panel">
+              {% if registration_form.input_fields %}
+                <div class="event-registration-fields row g-3">
+                  {% for field in registration_form %}
+                    <div class="col-12">
+                      {% if field.field.widget.input_type == 'radio' %}
+                        <div class="event-radio-group-title">{{ field.label }}{% if field.field.required %} *{% endif %}</div>
+                        {% if field.help_text %}<small class="text-muted d-block mb-2">{{ field.help_text }}</small>{% endif %}
+                        <div class="event-radio-options">
+                          {% for option in field %}
+                            <div class="event-radio-option">
+                              {{ option.tag }}
+                              <label class="event-radio-option-label" for="{{ option.id_for_label }}">{{ option.choice_label }}</label>
+                            </div>
+                          {% endfor %}
+                        </div>
+                      {% elif field.field.widget.input_type == 'checkbox' %}
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+                        <div class="form-check">
+                          {{ field }}
+                          {% if field.help_text %}<small class="text-muted d-block">{{ field.help_text }}</small>{% endif %}
+                        </div>
+                      {% else %}
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+                        {{ field }}
+                        {% if field.help_text %}<small class="text-muted d-block">{{ field.help_text }}</small>{% endif %}
+                      {% endif %}
+                      {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors }}</div>{% endif %}
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+              <div class="event-registration-actions mt-4 pt-2">
+                <button class="btn btn-primary text-white btn-lg w-100 d-block" style="min-height: 54px; font-size: 1.1rem; font-weight: 600;" type="submit">{% trans 'Register' %}</button>
+              </div>
+            </div>
+          </form>
+        {% elif is_registered %}
+          <form method="post" action="{% url 'user_event_unregister' event.pk %}" class="js-event-confirm-form" data-confirm-message="{% if event.is_paid_event %}{% blocktrans with fee=event.registration_fee|truncate_2 %}Are you sure you want to cancel your registration? If you cancel now, € {{ fee }} will be refunded to your balance.{% endblocktrans %}{% else %}{% trans 'Are you sure you want to cancel your registration?' %}{% endif %}">
+            {% csrf_token %}
+            <button class="btn btn-outline-danger" type="submit">{% trans 'Cancel registration' %}</button>
+          </form>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card card-rounded mb-3">
+    <div class="card-body">
+      <h5 class="card-title mb-3">{% trans 'Comments' %}</h5>
+
+      <form method="post" action="{% url 'user_event_comment_create' event.pk %}" class="mb-4">
+        {% csrf_token %}
+        {{ comment_form.content }}
+        {% if comment_form.errors.content %}
+          <div class="text-danger small mt-1">{{ comment_form.errors.content }}</div>
+        {% endif %}
+        <button class="btn btn-outline-primary mt-2" type="submit">{% trans 'Post comment' %}</button>
+      </form>
+
+      {% if event_comments %}
+        <div class="event-comments-list">
+          {% for comment in event_comments %}
+            <article class="event-comment-item">
+              <div class="event-comment-header">
+                {% if comment.profile_image_url %}
+                  <img class="event-comment-avatar" src="{{ comment.profile_image_url }}" alt="{{ comment.user.username }}">
+                {% else %}
+                  <div class="event-comment-avatar"></div>
+                {% endif %}
+                <div class="event-comment-meta">
+                  <div class="event-comment-user">{{ comment.user|public_name }}</div>
+                  <div class="event-comment-date">{{ comment.created_at|date:'d/m/Y H:i' }}</div>
+                </div>
+              </div>
+              <p class="mb-0">{{ comment.content|linebreaksbr }}</p>
+
+              {% if comment.replies.all %}
+                <div class="event-comment-replies">
+                  {% for reply in comment.replies.all %}
+                    <article class="event-comment-reply-item">
+                      <div class="event-comment-header">
+                        {% if reply.profile_image_url %}
+                          <img class="event-comment-avatar" src="{{ reply.profile_image_url }}" alt="{{ reply.user.username }}">
+                        {% else %}
+                          <div class="event-comment-avatar"></div>
+                        {% endif %}
+                        <div class="event-comment-meta">
+                          <div class="event-comment-user">{{ reply.user|public_name }}</div>
+                          <div class="event-comment-date">{{ reply.created_at|date:'d/m/Y H:i' }}</div>
+                        </div>
+                      </div>
+                      <p class="mb-0">{{ reply.content|linebreaksbr }}</p>
+                    </article>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">{% trans 'No comments yet. Be the first to comment.' %}</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  {{ block.super }}
+  <script>
+    (function () {
+      document.querySelectorAll('.js-event-confirm-form').forEach((form) => {
+        form.addEventListener('submit', (event) => {
+          const message = form.dataset.confirmMessage || '';
+          if (!window.confirm(message)) {
+            event.preventDefault();
+          }
+        });
+      });
+    })();
+  </script>
+{% endblock %}

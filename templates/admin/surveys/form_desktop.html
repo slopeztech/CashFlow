@@ -1,0 +1,145 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% if mode == 'edit' %}{% trans 'Edit survey' %}{% else %}{% trans 'New survey' %}{% endif %} | CashFlow{% endblock %}
+{% block page_title %}{% if mode == 'edit' %}{% trans 'Edit survey' %}{% else %}{% trans 'New survey' %}{% endif %}{% endblock %}
+{% block page_subtitle %}{% trans 'Configure title, type and options' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'admin_surveys' %}"><i class="icon-arrow-left"></i> {% trans 'Back to surveys' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="card card-rounded">
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="row g-3">
+          <div class="col-md-8">
+            <label class="form-label" for="id_title">{% trans 'Title' %}</label>
+            {{ form.title }}
+            {% if form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors }}</div>{% endif %}
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label" for="id_selection_type">{% trans 'Input type' %}</label>
+            {{ form.selection_type }}
+            {% if form.selection_type.errors %}<div class="text-danger small mt-1">{{ form.selection_type.errors }}</div>{% endif %}
+          </div>
+
+          <div class="col-12">
+            <label class="form-label" for="id_description">{% trans 'Description' %}</label>
+            {{ form.description }}
+            {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors }}</div>{% endif %}
+          </div>
+
+          <div class="col-12">
+            <div class="form-check">
+              {{ form.is_active }}
+              <label class="form-check-label" for="id_is_active">{% trans 'Survey active for users' %}</label>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <hr>
+            <h5 class="mb-3">{% trans 'Options' %}</h5>
+
+            {{ formset.management_form }}
+            {% if formset.non_form_errors %}
+              <div class="alert alert-danger">{{ formset.non_form_errors }}</div>
+            {% endif %}
+
+            <div class="table-responsive">
+              <table class="table table-sm align-middle" id="survey-options-table">
+                <thead>
+                  <tr>
+                    <th>{% trans 'Label' %}</th>
+                    <th>{% trans 'Order' %}</th>
+                    <th>{% trans 'Active' %}</th>
+                    <th>{% trans 'Delete' %}</th>
+                  </tr>
+                </thead>
+                <tbody id="survey-options-body">
+                  {% for option_form in formset.forms %}
+                    <tr>
+                      <td>
+                        {{ option_form.id }}
+                        {{ option_form.label }}
+                        {% if option_form.label.errors %}<div class="text-danger small">{{ option_form.label.errors }}</div>{% endif %}
+                      </td>
+                      <td>{{ option_form.sort_order }}</td>
+                      <td class="text-center">{{ option_form.is_active }}</td>
+                      <td class="text-center">{{ option_form.DELETE }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <button type="button" class="btn btn-sm btn-outline-primary" id="add-survey-option-btn">{% trans 'Add option' %}</button>
+
+            <template id="survey-option-empty-row">
+              <tr>
+                <td>__ID_FIELD__ __LABEL_FIELD__</td>
+                <td>__ORDER_FIELD__</td>
+                <td class="text-center">__ACTIVE_FIELD__</td>
+                <td class="text-center">__DELETE_FIELD__</td>
+              </tr>
+            </template>
+          </div>
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+          <button class="btn btn-primary text-white" type="submit">{% if mode == 'edit' %}{% trans 'Save changes' %}{% else %}{% trans 'Create survey' %}{% endif %}</button>
+          <a class="btn btn-light" href="{% url 'admin_surveys' %}">{% trans 'Cancel' %}</a>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  {{ block.super }}
+  <script>
+    (function () {
+      const addButton = document.getElementById('add-survey-option-btn');
+      const totalForms = document.getElementById('id_survey_options-TOTAL_FORMS');
+      const container = document.getElementById('survey-options-body');
+      const template = document.getElementById('survey-option-empty-row');
+      if (!addButton || !totalForms || !container || !template) {
+        return;
+      }
+
+      const emptyPrototype = '{{ formset.empty_form.as_p|escapejs }}';
+
+      addButton.addEventListener('click', function () {
+        const formIndex = Number(totalForms.value);
+        const parser = new DOMParser();
+        const doc = parser.parseFromString('<div>' + emptyPrototype.replace(/__prefix__/g, formIndex) + '</div>', 'text/html');
+        const fields = doc.querySelectorAll('input, textarea, select');
+        const byName = {};
+        fields.forEach(function (field) {
+          byName[field.name] = field.outerHTML;
+        });
+
+        const rowHtml = template.innerHTML
+          .replace('__ID_FIELD__', byName['survey_options-' + formIndex + '-id'] || '')
+          .replace('__LABEL_FIELD__', byName['survey_options-' + formIndex + '-label'] || '')
+          .replace('__ORDER_FIELD__', byName['survey_options-' + formIndex + '-sort_order'] || '')
+          .replace('__ACTIVE_FIELD__', byName['survey_options-' + formIndex + '-is_active'] || '')
+          .replace('__DELETE_FIELD__', byName['survey_options-' + formIndex + '-DELETE'] || '');
+
+        container.insertAdjacentHTML('beforeend', rowHtml);
+        const activeInput = container.querySelector('input[name="survey_options-' + formIndex + '-is_active"]');
+        if (activeInput) {
+          activeInput.checked = true;
+        }
+        totalForms.value = String(formIndex + 1);
+      });
+    })();
+  </script>
+{% endblock %}

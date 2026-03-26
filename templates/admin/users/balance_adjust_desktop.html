@@ -1,0 +1,39 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Adjust balance' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Adjust balance' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Apply manual balance changes for a user' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'admin_user_list' %}"><i class="icon-arrow-left"></i> {% trans 'Back to users' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="card card-rounded">
+    <div class="card-body">
+      <h4 class="card-title mb-2">{{ target_user.username }}</h4>
+      <p class="text-muted mb-3">{% trans 'Current balance:' %} <strong>€ {{ current_balance|truncate_2 }}</strong></p>
+
+      <form method="post" class="forms-sample">
+        {% csrf_token %}
+        {{ form.user_id }}
+
+        <div class="form-group mb-3">
+          <label class="form-label" for="id_amount">{% trans 'Amount (+/-)' %}</label>
+          {{ form.amount }}
+          {% if form.amount.help_text %}
+            <small class="form-text text-muted">{{ form.amount.help_text }}</small>
+          {% endif %}
+          {% if form.amount.errors %}
+            <div class="text-danger small mt-1">{{ form.amount.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary text-white" type="submit">{% trans 'Apply adjustment' %}</button>
+          <a class="btn btn-light" href="{% url 'admin_user_list' %}">{% trans 'Cancel' %}</a>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

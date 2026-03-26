@@ -1,0 +1,257 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Stock adjustment' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Stock adjustment' %}{% endblock %}
+{% block page_subtitle %}{{ product.name }}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'product_list' %}"><i class="icon-arrow-left"></i> {% trans 'Back to products' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-lg-6 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <style>
+            .stock-adjust-header {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              gap: .75rem;
+              margin-bottom: .35rem;
+            }
+
+            .stock-product-name {
+              font-weight: 700;
+              color: #0F172A;
+              margin-bottom: .9rem;
+            }
+
+            .stock-badge {
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              border-radius: 999px;
+              padding: .2rem .7rem;
+              font-weight: 700;
+              border: 1px solid transparent;
+              white-space: nowrap;
+            }
+
+            .stock-badge-ok {
+              color: #166534;
+              background: #DCFCE7;
+              border-color: #86EFAC;
+            }
+
+            .stock-badge-low {
+              color: #92400E;
+              background: #FEF3C7;
+              border-color: #FCD34D;
+            }
+
+            .stock-badge-empty {
+              color: #991B1B;
+              background: #FEE2E2;
+              border-color: #FCA5A5;
+            }
+
+            .stock-badge-min {
+              color: #334155;
+              background: #F1F5F9;
+              border-color: #CBD5E1;
+            }
+
+            .stock-sim-box {
+              margin-top: .75rem;
+              padding: .65rem .8rem;
+              border: 1px solid #E2E8F0;
+              border-radius: 12px;
+              background: #F8FAFC;
+            }
+
+            .stock-sim-row {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              gap: .6rem;
+            }
+
+            .stock-history-item {
+              border: 1px solid #E2E8F0;
+              border-radius: 10px;
+              padding: .6rem .7rem;
+              background: #FFFFFF;
+              margin-bottom: .5rem;
+            }
+
+            .stock-history-top {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              gap: .6rem;
+              margin-bottom: .3rem;
+            }
+
+            .stock-delta-positive {
+              color: #166534;
+              font-weight: 700;
+            }
+
+            .stock-delta-negative {
+              color: #B91C1C;
+              font-weight: 700;
+            }
+
+            .stock-delta-neutral {
+              color: #334155;
+              font-weight: 700;
+            }
+          </style>
+
+          <div class="stock-adjust-header">
+            <h4 class="card-title card-title-dash mb-0">{{ product.name }}</h4>
+            <span
+              id="current-stock-badge"
+              class="stock-badge {% if product.stock <= 0 %}stock-badge-empty{% elif product.stock < product.min_stock %}stock-badge-low{% elif product.stock > product.min_stock %}stock-badge-ok{% else %}stock-badge-min{% endif %}"
+            >
+              {% trans 'Current' %}: {{ product.stock }}
+            </span>
+          </div>
+          <p class="text-muted small mb-2">{% trans 'Adjust stock' %}</p>
+          <p class="text-muted small">{% trans 'Enter a value like 20, +20 or -30.' %}</p>
+
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label" for="id_stock_delta">{% trans 'Adjustment' %}</label>
+              <input id="id_stock_delta" type="text" class="form-control" name="stock_delta" value="{{ stock_delta|default:'' }}" required>
+
+              <div
+                class="stock-sim-box"
+                id="stock-sim-box"
+                data-current-stock="{{ product.stock }}"
+                data-min-stock="{{ product.min_stock }}"
+              >
+                <div class="stock-sim-row">
+                  <span class="text-muted small mb-0">{% trans 'Stock simulation' %}</span>
+                  <span id="sim-stock-badge" class="stock-badge stock-badge-min">{{ product.stock }}</span>
+                </div>
+                <p id="sim-stock-note" class="small text-muted mb-0 mt-2">{% trans 'Enter an adjustment to preview the resulting stock.' %}</p>
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-primary text-white" type="submit">{% trans 'Update stock' %}</button>
+              <a class="btn btn-light" href="{% url 'product_list' %}">{% trans 'Cancel' %}</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h4 class="card-title card-title-dash mb-3">{% trans 'Stock adjustment history' %}</h4>
+
+          {% for log in stock_adjustment_logs %}
+            <div class="stock-history-item">
+              <div class="stock-history-top">
+                <span class="small text-muted">{{ log.created_at|date:'d/m/Y H:i' }}</span>
+                <span class="small {% if log.adjustment > 0 %}stock-delta-positive{% elif log.adjustment < 0 %}stock-delta-negative{% else %}stock-delta-neutral{% endif %}">
+                  {% if log.adjustment > 0 %}+{% endif %}{{ log.adjustment }}
+                </span>
+              </div>
+              <div class="small text-muted mb-1">
+                {% trans 'User' %}: {{ log.adjusted_by.username|default:'-' }}
+              </div>
+              <div class="small text-muted">
+                {% trans 'Before' %}: {{ log.previous_stock }}
+                <span class="mx-1">→</span>
+                {% trans 'After' %}: {{ log.new_stock }}
+              </div>
+            </div>
+          {% empty %}
+            <p class="text-muted small mb-0">{% trans 'No stock adjustments yet.' %}</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  {{ block.super }}
+  <script>
+    (function () {
+      var input = document.getElementById('id_stock_delta');
+      var box = document.getElementById('stock-sim-box');
+      var badge = document.getElementById('sim-stock-badge');
+      var note = document.getElementById('sim-stock-note');
+
+      if (!input || !box || !badge || !note) {
+        return;
+      }
+
+      var current = parseFloat((box.dataset.currentStock || '0').replace(',', '.'));
+      var minStock = parseFloat((box.dataset.minStock || '0').replace(',', '.'));
+      var msgEnterPreview = '{% trans "Enter an adjustment to preview the resulting stock." %}';
+      var msgInvalid = '{% trans "Invalid stock adjustment value." %}';
+      var msgNegative = '{% trans "Stock cannot be negative." %}';
+      var msgResult = '{% trans "Resulting stock after update." %}';
+
+      function setBadgeClass(stockValue) {
+        badge.classList.remove('stock-badge-ok', 'stock-badge-low', 'stock-badge-empty', 'stock-badge-min');
+
+        if (stockValue <= 0) {
+          badge.classList.add('stock-badge-empty');
+          return;
+        }
+        if (stockValue < minStock) {
+          badge.classList.add('stock-badge-low');
+          return;
+        }
+        if (stockValue > minStock) {
+          badge.classList.add('stock-badge-ok');
+          return;
+        }
+        badge.classList.add('stock-badge-min');
+      }
+
+      function updateSimulation() {
+        var raw = (input.value || '').trim().replace(',', '.');
+
+        if (!raw) {
+          badge.textContent = current;
+          badge.classList.remove('stock-badge-ok', 'stock-badge-low', 'stock-badge-empty');
+          badge.classList.add('stock-badge-min');
+          note.textContent = msgEnterPreview;
+          return;
+        }
+
+        var delta = Number(raw);
+        if (!Number.isFinite(delta)) {
+          badge.textContent = '--';
+          badge.classList.remove('stock-badge-ok', 'stock-badge-low', 'stock-badge-empty');
+          badge.classList.add('stock-badge-min');
+          note.textContent = msgInvalid;
+          return;
+        }
+
+        var simulated = current + delta;
+        badge.textContent = simulated;
+        setBadgeClass(simulated);
+
+        if (simulated < 0) {
+          note.textContent = msgNegative;
+        } else {
+          note.textContent = msgResult;
+        }
+      }
+
+      input.addEventListener('input', updateSimulation);
+      updateSimulation();
+    })();
+  </script>
+{% endblock %}

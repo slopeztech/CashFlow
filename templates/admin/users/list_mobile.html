@@ -1,0 +1,403 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans 'Manage Users' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Manage users' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Users table and account operations' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-primary text-white" href="{% url 'admin_user_create' %}"><i class="icon-plus"></i> {% trans 'Add user' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="row flex-grow">
+    <div class="col-12 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center flex-wrap users-header-row mb-2">
+            <div>
+              <h5 class="card-title mb-1">{% trans 'Active sessions' %}</h5>
+            </div>
+            <span class="active-users-count">{{ active_users_count }}</span>
+          </div>
+          {% if active_users %}
+            <div class="row g-2 mt-1">
+              {% for active_user in active_users %}
+                <div class="col-12">
+                  <div class="active-user-card">
+                    <button
+                      type="button"
+                      class="active-user-trigger"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#active-user-actions-{{ active_user.id }}"
+                      aria-expanded="false"
+                      aria-controls="active-user-actions-{{ active_user.id }}"
+                    >
+                      <div class="d-flex align-items-center gap-2">
+                        {% if active_user.store_profile and active_user.store_profile.profile_image %}
+                          <img src="{{ active_user.store_profile.profile_image.url }}" alt="{{ active_user.username }}" class="rounded-circle active-user-avatar">
+                        {% else %}
+                          <img src="{% static 'vendor/staradmin2/assets/images/faces/face8.jpg' %}" alt="{{ active_user.username }}" class="rounded-circle active-user-avatar">
+                        {% endif %}
+                        <div class="flex-grow-1 text-start">
+                          <div class="active-user-name">{{ active_user.username }}</div>
+                          <div class="active-user-meta">
+                            {% if active_user.last_seen_at %}
+                              {% trans 'Last activity' %}: {{ active_user.last_seen_at|date:'H:i' }}
+                            {% endif %}
+                          </div>
+                        </div>
+                        <span class="active-user-dot {% if active_user.last_seen_at and active_user.last_seen_at < recent_activity_cutoff %}active-user-dot--inactive{% endif %}" aria-hidden="true"></span>
+                      </div>
+                    </button>
+                    <div id="active-user-actions-{{ active_user.id }}" class="collapse active-user-actions-panel">
+                      <ul class="list-unstyled mb-0 mt-2">
+                        {% include 'admin/users/_user_action_items.html' with action_user=active_user link_class='active-user-action-link' %}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="text-muted mb-0">{% trans 'No users with recent activity.' %}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row flex-grow">
+    <div class="col-12 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center users-header-row mb-2">
+            <div class="users-header-title">
+              <h4 class="card-title card-title-dash">{% trans 'Users' %}</h4>
+            </div>
+            <details class="users-filter-spoiler ms-auto" id="users-filter-toggle">
+              <summary>{% trans 'Filter users' %}</summary>
+            </details>
+          </div>
+
+          <div id="users-filter-panel" class="users-filter-panel d-none mb-3">
+            <input
+              id="users-name-filter"
+              type="text"
+              class="form-control"
+              placeholder="{% trans 'Type a username...' %}"
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="users-list-wrap mt-1">
+        <table class="table select-table">
+          <tbody>
+            {% for user in users %}
+              <tr class="js-user-row {% if user.strikes_count %}user-has-strikes {% endif %}{% if user.is_staff %}user-is-admin{% endif %}" data-username="{{ user.username|lower }}">
+                <td class="p-0" colspan="3">
+                  <button
+                    type="button"
+                    class="users-row-trigger"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#user-actions-{{ user.id }}"
+                    aria-expanded="false"
+                    aria-controls="user-actions-{{ user.id }}"
+                  >
+                    <div class="d-flex align-items-center gap-2 flex-grow-1">
+                      {% if user.store_profile and user.store_profile.profile_image %}
+                        <img src="{{ user.store_profile.profile_image.url }}" alt="{{ user.username }}" class="rounded-circle" style="width:36px;height:36px;object-fit:cover;">
+                      {% else %}
+                        <img src="{% static 'vendor/staradmin2/assets/images/faces/face8.jpg' %}" alt="{{ user.username }}" class="rounded-circle" style="width:36px;height:36px;object-fit:cover;">
+                      {% endif %}
+                      <div class="text-start">
+                        <h6 class="mb-0">{{ user.username }}</h6>
+                        <p class="mb-0 text-muted small">{% if user.is_staff %}{% trans 'Admin' %}{% else %}{% trans 'User' %}{% endif %}</p>
+                      </div>
+                    </div>
+                    <div class="users-balance-wrap">
+                      <h6 class="mb-0 text-end">{% if user.store_profile %}€ {{ user.store_profile.current_balance|truncate_2 }}{% else %}€ 0.00{% endif %}</h6>
+                    </div>
+                    <span class="users-row-chevron" aria-hidden="true"></span>
+                  </button>
+                </td>
+              </tr>
+              <tr class="js-user-actions-row">
+                <td colspan="3" class="p-0 border-0">
+                  <div id="user-actions-{{ user.id }}" class="collapse users-actions-panel">
+                    <ul class="list-unstyled mb-0 mt-1 p-2">
+                      {% include 'admin/users/_user_action_items.html' with action_user=user link_class='users-row-action-link' %}
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="3" class="text-center text-muted py-3">{% trans 'No users found.' %}</td></tr>
+            {% endfor %}
+            <tr id="users-filter-empty-row" class="d-none">
+              <td colspan="3" class="text-center text-muted py-3">{% trans 'No users found.' %}</td>
+            </tr>
+          </tbody>
+        </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <style>
+    .active-users-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 2.2rem;
+      height: 2.2rem;
+      border-radius: 999px;
+      border: 2px solid #4b49ac;
+      background: #fff;
+      color: #4b49ac;
+      font-weight: 700;
+      padding: 0 0.65rem;
+    }
+
+    .active-user-card {
+      display: block;
+      border: 1px solid rgb(75 73 172 / 0.2);
+      border-radius: 12px;
+      background: linear-gradient(180deg, #fff 0%, #f8f9ff 100%);
+      padding: 0.45rem 0.55rem;
+      transition: all 0.2s ease;
+    }
+
+    .active-user-card:hover {
+      border-color: rgb(75 73 172 / 0.45);
+      box-shadow: 0 6px 16px rgb(75 73 172 / 0.15);
+      transform: translateY(-1px);
+    }
+
+    .active-user-avatar {
+      width: 36px;
+      height: 36px;
+      object-fit: cover;
+      border: 2px solid rgb(75 73 172 / 0.15);
+      flex-shrink: 0;
+    }
+
+    .active-user-name {
+      color: #1f2937;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .active-user-trigger {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      padding: 0.25rem;
+      cursor: pointer;
+    }
+
+    .active-user-actions-panel {
+      border-top: 1px solid rgb(75 73 172 / 0.2);
+      padding: 0.35rem 0.25rem 0.2rem;
+      margin-top: 0.25rem;
+    }
+
+    .active-user-action-link {
+      display: block;
+      padding: 0.4rem 0.55rem;
+      color: #1f2937;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.85rem;
+    }
+
+    .active-user-action-link:hover {
+      background: rgb(75 73 172 / 0.12);
+      color: #2f2b8f;
+    }
+
+    .active-user-meta {
+      color: #6b7280;
+      font-size: 0.75rem;
+      line-height: 1.2;
+      margin-top: 2px;
+    }
+
+    .active-user-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 3px rgb(34 197 94 / 0.18);
+      flex-shrink: 0;
+    }
+
+    .active-user-dot--inactive {
+      background: #9ca3af;
+      box-shadow: 0 0 0 3px rgb(156 163 175 / 0.2);
+    }
+
+    .table.select-table tbody tr.user-has-strikes {
+      background: linear-gradient(90deg, #fff 0%, rgb(239 68 68 / 0.18) 100%) !important;
+    }
+
+    .table.select-table tbody tr.user-is-admin {
+      background: linear-gradient(90deg, #fff 0%, rgb(34 197 94 / 0.18) 100%) !important;
+    }
+
+    .table.select-table tbody tr.user-has-strikes > td,
+    .table.select-table tbody tr.user-is-admin > td {
+      background: transparent !important;
+    }
+
+    .table.select-table tbody tr.user-has-strikes:hover {
+      background: linear-gradient(90deg, #fff 0%, rgb(239 68 68 / 0.24) 100%) !important;
+    }
+
+    .table.select-table tbody tr.user-is-admin:hover {
+      background: linear-gradient(90deg, #fff 0%, rgb(34 197 94 / 0.24) 100%) !important;
+    }
+
+    .users-row-trigger {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      padding: 0.65rem 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      min-width: 0;
+      overflow: hidden;
+      flex-wrap: nowrap;
+    }
+
+    .users-list-wrap {
+      overflow-x: hidden;
+    }
+
+    .users-row-trigger .text-start {
+      min-width: 0;
+    }
+
+    .users-row-trigger .text-start h6 {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+
+    .users-balance-wrap {
+      margin-left: auto;
+      text-align: right;
+      min-width: 0;
+      flex-shrink: 1;
+      white-space: nowrap;
+    }
+
+    .users-row-chevron {
+      width: 0.55rem;
+      height: 0.55rem;
+      border-right: 2px solid #6b7280;
+      border-bottom: 2px solid #6b7280;
+      transform: rotate(45deg);
+      margin-top: -2px;
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .users-row-trigger[aria-expanded='true'] .users-row-chevron {
+      transform: rotate(225deg);
+      margin-top: 2px;
+    }
+
+    .users-actions-panel {
+      border-top: 1px solid rgb(75 73 172 / 0.2);
+      background: rgb(75 73 172 / 0.04);
+    }
+
+    .users-row-action-link {
+      display: block;
+      padding: 0.45rem 0.55rem;
+      color: #1f2937;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.85rem;
+    }
+
+    .users-row-action-link:hover {
+      background: rgb(75 73 172 / 0.12);
+      color: #2f2b8f;
+    }
+
+    @media (max-width: 575.98px) {
+      .users-row-trigger {
+        gap: 0.5rem;
+      }
+    }
+
+    .users-filter-spoiler > summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: #4b49ac;
+      user-select: none;
+    }
+
+    .users-filter-spoiler {
+      margin-left: auto;
+    }
+
+    .users-filter-panel {
+      width: 100%;
+    }
+
+    .users-filter-spoiler > summary::marker {
+      color: #4b49ac;
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var filterInput = document.getElementById('users-name-filter');
+      if (!filterInput) {
+        return;
+      }
+
+      var userRows = Array.prototype.slice.call(document.querySelectorAll('tr.js-user-row'));
+      var emptyRow = document.getElementById('users-filter-empty-row');
+      var filterToggle = document.getElementById('users-filter-toggle');
+      var filterPanel = document.getElementById('users-filter-panel');
+
+      if (filterToggle && filterPanel) {
+        var syncPanel = function () {
+          filterPanel.classList.toggle('d-none', !filterToggle.open);
+        };
+        filterToggle.addEventListener('toggle', syncPanel);
+        syncPanel();
+      }
+
+      function applyFilter() {
+        var term = (filterInput.value || '').trim().toLowerCase();
+        var visibleCount = 0;
+
+        userRows.forEach(function (row) {
+          var username = (row.getAttribute('data-username') || '').toLowerCase();
+          var visible = term === '' || username.indexOf(term) !== -1;
+          row.classList.toggle('d-none', !visible);
+          if (visible) {
+            visibleCount += 1;
+          }
+        });
+
+        if (emptyRow) {
+          emptyRow.classList.toggle('d-none', visibleCount !== 0);
+        }
+      }
+
+      filterInput.addEventListener('input', applyFilter);
+    });
+  </script>
+{% endblock %}

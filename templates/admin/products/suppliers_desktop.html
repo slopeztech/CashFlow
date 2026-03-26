@@ -1,0 +1,76 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Suppliers' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Suppliers' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Create and manage product suppliers' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'product_list' %}"><i class="icon-arrow-left"></i> {% trans 'Back to products' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h4 class="card-title card-title-dash mb-3">{% trans 'New supplier' %}</h4>
+          <form method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+            <div class="mb-3">
+              <label class="form-label" for="id_name">{% trans 'Name' %}</label>
+              {{ form.name }}
+              {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors }}</div>{% endif %}
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="id_description">{% trans 'Description' %}</label>
+              {{ form.description }}
+              {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors }}</div>{% endif %}
+            </div>
+            <button class="btn btn-primary text-white" type="submit">{% trans 'Create supplier' %}</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h4 class="card-title card-title-dash mb-3">{% trans 'Suppliers' %}</h4>
+          <div class="table-responsive">
+            <table class="table select-table">
+              <thead>
+                <tr>
+                  <th>{% trans 'Name' %}</th>
+                  <th>{% trans 'Description' %}</th>
+                  <th>{% trans 'Products' %}</th>
+                  <th class="text-end">{% trans 'Actions' %}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for supplier in suppliers %}
+                  <tr>
+                    <td>{{ supplier.name }}</td>
+                    <td>{{ supplier.description|default:'-' }}</td>
+                    <td>{{ supplier.products_count }}</td>
+                    <td class="text-end">
+                      <form method="post" action="{% url 'supplier_delete' supplier.id %}" class="d-inline">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-outline-danger" type="submit">{% trans 'Delete' %}</button>
+                      </form>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="4" class="text-center text-muted py-3">{% trans 'No suppliers yet.' %}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <small class="text-muted">{% trans 'Suppliers can only be deleted when no products are associated.' %}</small>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Sales' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Sales' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Track and manage all transactions' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-primary text-white me-0" href="{% url 'sale_create' %}"><i class="icon-plus"></i> {% trans 'Create sale' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="row g-4 mb-4">
+    <div class="col-md-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title mb-0">{% trans 'Total sales' %}</p>
+            <i class="mdi mdi-swap-horizontal text-primary fs-4"></i>
+          </div>
+          <h3 class="rate-percentage mb-2">{{ sales_total_count }}</h3>
+          <p class="text-primary mb-0">{% trans 'Transactions' %}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title mb-0">{% trans 'Latest ticket' %}</p>
+            <i class="mdi mdi-receipt text-info fs-4"></i>
+          </div>
+          <h3 class="rate-percentage mb-2">{% if sales_latest_id %}#{{ sales_latest_id }}{% else %}-{% endif %}</h3>
+          <p class="text-info mb-0">{% trans 'Recent activity' %}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title mb-0">{% trans 'Total revenue' %}</p>
+            <i class="mdi mdi-cash text-success fs-4"></i>
+          </div>
+          <h3 class="rate-percentage mb-2">€ {{ sales_total_revenue }}</h3>
+          <p class="text-success mb-0">{% trans 'Gross amount' %}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h4 class="card-title card-title-dash mb-3">{% trans 'Sales history' %}</h4>
+          <div class="table-responsive">
+            <table class="table select-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>{% trans 'Date' %}</th>
+                  <th>{% trans 'Seller' %}</th>
+                  <th>{% trans 'Customer' %}</th>
+                  <th>{% trans 'Total' %}</th>
+                  <th class="text-end">{% trans 'Actions' %}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for sale in sales %}
+                  <tr>
+                    <td>#{{ sale.id }}</td>
+                    <td>{{ sale.created_at }}</td>
+                    <td>{{ sale.seller.username }}</td>
+                    <td>{% if sale.customer %}{{ sale.customer.username }}{% else %}{{ sale.customer_name|default:'-' }}{% endif %}</td>
+                    <td>€ {{ sale.total_amount }}</td>
+                    <td class="text-end">
+                      <a class="btn btn-sm btn-outline-secondary" href="{% url 'sale_detail' sale.pk %}">{% trans 'View' %}</a>
+                      <a class="btn btn-sm btn-outline-primary" href="{% url 'sale_update' sale.pk %}">{% trans 'Edit' %}</a>
+                      <a class="btn btn-sm btn-outline-danger" href="{% url 'sale_delete' sale.pk %}">{% trans 'Delete' %}</a>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">{% trans 'No sales yet.' %}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

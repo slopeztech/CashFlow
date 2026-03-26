@@ -1,0 +1,501 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Product Detail' %} | CashFlow{% endblock %}
+{% block page_title %}{{ product.name }}{% endblock %}
+{% block page_subtitle %}{% trans 'Product details and approved ratings' %}{% endblock %}
+{% block extra_head %}
+  {{ block.super }}
+  <style>
+    .product-info-card {
+      border: 1px solid #dbe4ef;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      box-shadow: 0 14px 30px -24px rgba(15, 23, 42, 0.5);
+      overflow: hidden;
+    }
+
+    .product-info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: .75rem;
+    }
+
+    .product-info-item {
+      border: 1px solid #e5edf7;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: .7rem .8rem;
+    }
+
+    .product-info-item-wide {
+      grid-column: 1 / -1;
+    }
+
+    .product-info-label {
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      font-weight: 700;
+      color: #64748b;
+      margin-bottom: .25rem;
+      display: flex;
+      align-items: center;
+      gap: .35rem;
+    }
+
+    .product-info-label i {
+      color: #475569;
+      font-size: .95rem;
+    }
+
+    .product-info-value {
+      font-size: .95rem;
+      font-weight: 600;
+      color: #0f172a;
+      line-height: 1.35;
+    }
+
+    .product-info-price {
+      color: #1e3a8a;
+      font-size: 1.02rem;
+      font-weight: 800;
+    }
+
+    .pending-review-card {
+      border: 1px solid #fcd34d;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%);
+      box-shadow: 0 12px 24px -24px rgba(161, 98, 7, 0.65);
+    }
+
+    .pending-review-title {
+      font-size: .95rem;
+      font-weight: 800;
+      color: #92400e;
+      margin-bottom: .2rem;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+
+    .pending-review-copy {
+      color: #78350f;
+      margin: 0;
+      font-weight: 500;
+    }
+
+    @media (max-width: 991.98px) {
+      .product-info-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .product-info-item-wide {
+        grid-column: auto;
+      }
+    }
+
+    .rating-stars {
+      position: relative;
+      display: inline-block;
+      font-size: 1rem;
+      line-height: 1;
+      letter-spacing: 1px;
+      color: #d9d9d9;
+      white-space: nowrap;
+    }
+    .rating-stars-fill {
+      position: absolute;
+      inset: 0 auto 0 0;
+      overflow: hidden;
+      white-space: nowrap;
+      color: #ffc107;
+    }
+    .reviews-table {
+      table-layout: fixed;
+      width: 100%;
+    }
+    .reviews-table td {
+      white-space: normal !important;
+      vertical-align: top;
+    }
+    .reviews-rating-cell {
+      width: 104px;
+      min-width: 104px;
+      white-space: nowrap !important;
+      padding-right: .75rem !important;
+    }
+    .review-message {
+      white-space: normal !important;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      line-height: 1.45;
+      max-width: 100%;
+      padding-left: .25rem !important;
+    }
+    @media (max-width: 767.98px) {
+      .reviews-responsive {
+        overflow-x: visible !important;
+      }
+      .reviews-table {
+        table-layout: fixed;
+      }
+      .reviews-rating-cell {
+        width: 104px;
+        min-width: 104px;
+      }
+    }
+
+    .cart-mode-tabs {
+      border-bottom: 1px solid #E5E7EB;
+      gap: .55rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      flex-wrap: nowrap !important;
+    }
+
+    .cart-mode-tabs .nav-item {
+      min-width: 0;
+      width: 100%;
+    }
+
+    .cart-mode-tabs .nav-link {
+      width: 100%;
+      border: 1px solid #E5E7EB;
+      border-bottom-color: #E5E7EB;
+      border-radius: 16px;
+      color: #374151;
+      font-weight: 600;
+      font-size: 1rem;
+      text-align: center;
+      padding: .62rem .9rem;
+      background: #ffffff;
+      transition: all .15s ease;
+    }
+
+    .cart-mode-tabs .nav-link.active {
+      background: #E0E7FF;
+      border-color: #C7D2FE;
+      color: #1E3A8A;
+      border-radius: 18px;
+      box-shadow: 0 12px 26px rgba(30, 58, 138, 0.22);
+    }
+
+    .cart-modal-title {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .cart-modal-title i {
+      color: #1D4ED8;
+    }
+  </style>
+{% endblock %}
+{% block page_actions %}
+  <div class="d-flex gap-2">
+    <a class="btn btn-light" href="{% url 'user_products_catalog' %}"><i class="icon-arrow-left"></i> {% trans 'Back' %}</a>
+    <button
+      class="btn btn-outline-primary js-add-cart d-inline-flex align-items-center justify-content-center"
+      style="width: 42px !important; min-width: 42px !important; max-width: 42px !important;"
+      type="button"
+      data-bs-toggle="modal"
+      data-bs-target="#addToCartModal"
+      data-product-id="{{ product.id }}"
+      data-product-name="{{ product.name }}"
+      data-unit-price="{{ product.price|truncate_2 }}"
+      data-purchase-options="{{ product.purchase_options }}"
+      aria-label="{% trans 'Add to cart' %}"
+      title="{% trans 'Add to cart' %}"
+    >
+      <i class="mdi mdi-cart"></i>
+    </button>
+    {% if can_review %}
+      <a class="btn btn-light d-inline-flex align-items-center justify-content-center" style="width: 42px !important; min-width: 42px !important; max-width: 42px !important;" href="{% url 'user_product_review' product.id %}" aria-label="{% trans 'Rate product' %}" title="{% trans 'Rate product' %}"><i class="mdi mdi-star text-warning"></i></a>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block content %}
+  {% if product.images.all %}
+    <div class="card card-rounded mb-3">
+      <div class="card-body">
+        <h4 class="card-title card-title-dash mb-3">{% trans 'Product images' %}</h4>
+        <div id="productImagesCarousel" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-indicators">
+            {% for image in product.images.all %}
+              <button type="button" data-bs-target="#productImagesCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" {% if forloop.first %}aria-current="true"{% endif %} aria-label="Slide {{ forloop.counter }}"></button>
+            {% endfor %}
+          </div>
+          <div class="carousel-inner rounded">
+            {% for image in product.images.all %}
+              <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                <img src="{{ image.image.url }}" class="d-block w-100" alt="{{ product.name }}" style="height: 320px; object-fit: cover;">
+              </div>
+            {% endfor %}
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#productImagesCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">{% trans 'Previous' %}</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#productImagesCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">{% trans 'Next' %}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="card card-rounded mb-3 product-info-card">
+    <div class="card-body">
+      <h4 class="card-title card-title-dash mb-3">{% trans 'Product information' %}</h4>
+      <div class="product-info-grid">
+        <div class="product-info-item">
+          <div class="product-info-label"><i class="mdi mdi-shape-outline"></i>{% trans 'Category' %}</div>
+          <div class="product-info-value">{{ product.category.name|default:'-' }}</div>
+        </div>
+        <div class="product-info-item">
+          <div class="product-info-label"><i class="mdi mdi-truck-delivery-outline"></i>{% trans 'Supplier' %}</div>
+          <div class="product-info-value">{{ product.supplier.name|default:'-' }}</div>
+        </div>
+        <div class="product-info-item">
+          <div class="product-info-label"><i class="mdi mdi-currency-eur"></i>{% trans 'Price' %}</div>
+          <div class="product-info-value product-info-price">€ {{ product.price|truncate_2 }}</div>
+        </div>
+        <div class="product-info-item product-info-item-wide">
+          <div class="product-info-label"><i class="mdi mdi-text-box-outline"></i>{% trans 'Description' %}</div>
+          <div class="product-info-value">{{ product.description|default:'-' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if show_pending_review_card %}
+    <div class="card card-rounded mb-3 pending-review-card">
+      <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+          <h5 class="pending-review-title"><i class="mdi mdi-star-circle-outline"></i>¿Qué te pareció este producto?</h5>
+          <p class="pending-review-copy">Lo has probado y aún no has dejado tu valoración.</p>
+        </div>
+        <a class="btn btn-warning text-dark fw-bold" href="{% url 'user_product_review' product.id %}">{% trans 'Rate product' %}</a>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if has_product_sheet %}
+  <div class="card card-rounded mb-3">
+    <div class="card-body">
+      <h4 class="card-title card-title-dash mb-3">{% trans 'Product sheet' %}</h4>
+      <div class="table-responsive">
+        <table class="table select-table">
+          <tbody>
+            {% for field in product_sheet_fields %}
+              <tr>
+                <td>{{ field.field_key }}</td>
+                <td>{{ field.field_value }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if product_sheet_urls %}
+        <div class="mt-3">
+          <ul class="mb-0 ps-3">
+            {% for sheet_url in product_sheet_urls %}
+              <li><a href="{{ sheet_url.url }}" target="_blank" rel="noopener noreferrer">{{ sheet_url.url }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="card card-rounded">
+    <div class="card-body">
+      <h4 class="card-title card-title-dash mb-3">{% trans 'Reviews' %}</h4>
+      <div class="table-responsive reviews-responsive">
+        <table class="table select-table reviews-table">
+          <tbody>
+            {% for review in approved_reviews %}
+              <tr>
+                <td class="reviews-rating-cell">
+                  <span class="rating-stars" aria-label="{{ review.rating }} / 5">
+                    <span>★★★★★</span>
+                    <span class="rating-stars-fill" style="width: {% widthratio review.rating 5 100 %}%">★★★★★</span>
+                  </span>
+                </td>
+                <td class="review-message">{{ review.message }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="2" class="text-center text-muted py-3">{% trans 'No approved reviews for this product yet.' %}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="addToCartModal" tabindex="-1" aria-labelledby="addToCartModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="post" action="{% url 'user_cart_add' %}">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title cart-modal-title" id="addToCartModalLabel"><i class="mdi mdi-cart-outline"></i> <span id="cartModalProductName">{{ product.name }}</span></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" name="product_id" id="cartProductId" value="{{ product.id }}">
+            <input type="hidden" name="purchase_mode" id="cartPurchaseMode" value="units">
+            <input type="hidden" name="quantity" id="cartFinalQuantity" value="1">
+            <ul class="nav nav-tabs cart-mode-tabs mb-3" id="cartModeTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="units-tab" data-bs-toggle="tab" data-bs-target="#units-pane" type="button" role="tab" aria-controls="units-pane" aria-selected="true">{% trans 'Units' %}</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="amount-tab" data-bs-toggle="tab" data-bs-target="#amount-pane" type="button" role="tab" aria-controls="amount-pane" aria-selected="false">{% trans 'Amount' %}</button>
+              </li>
+            </ul>
+            <div class="tab-content" id="cartModeTabsContent">
+              <div class="tab-pane fade show active" id="units-pane" role="tabpanel" aria-labelledby="units-tab" tabindex="0">
+                <div class="mb-3">
+                  <label class="form-label" for="cartQuantity">{% trans 'Quantity' %}</label>
+                  <input class="form-control" type="number" min="0.01" step="0.01" value="1" id="cartQuantity">
+                </div>
+              </div>
+              <div class="tab-pane fade" id="amount-pane" role="tabpanel" aria-labelledby="amount-tab" tabindex="0">
+                <div class="mb-3">
+                  <label class="form-label" for="cartAmount">{% trans 'Amount' %}</label>
+                  <input class="form-control" type="number" min="0.01" step="0.01" value="" name="amount" id="cartAmount" placeholder="0.00">
+                </div>
+                <p class="mb-2"><strong>{% trans 'Calculated units' %}:</strong> <span id="cartAmountUnits">0</span></p>
+              </div>
+            </div>
+            <p class="mb-0"><strong>{% trans 'Total' %}:</strong> € <span id="cartTotalPreview">{{ product.price|truncate_2 }}</span></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
+            <button type="submit" class="btn btn-primary text-white">{% trans 'Add to cart' %}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  {{ block.super }}
+  <script>
+    (function () {
+      const addButton = document.querySelector('.js-add-cart');
+      const purchaseModeInput = document.getElementById('cartPurchaseMode');
+      const finalQuantityInput = document.getElementById('cartFinalQuantity');
+      const quantityInput = document.getElementById('cartQuantity');
+      const amountInput = document.getElementById('cartAmount');
+      const amountUnitsEl = document.getElementById('cartAmountUnits');
+      const totalPreviewEl = document.getElementById('cartTotalPreview');
+      const addToCartForm = document.querySelector('#addToCartModal form');
+      const tabsContainer = document.getElementById('cartModeTabs');
+      const unitsTabButton = document.getElementById('units-tab');
+      const amountTabButton = document.getElementById('amount-tab');
+      const unitsPane = document.getElementById('units-pane');
+      const amountPane = document.getElementById('amount-pane');
+      const unitPrice = parseFloat(addButton ? addButton.dataset.unitPrice : '{{ product.price|truncate_2 }}');
+      const purchaseOptions = addButton ? (addButton.dataset.purchaseOptions || 'both') : 'both';
+      let currentMode = 'units';
+
+      const formatQuantity = (value) => {
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric)) {
+          return '0';
+        }
+        return numeric.toFixed(2).replace(/\.00$/, '').replace(/(\.\d*?)0+$/, '$1');
+      };
+
+      const truncate2 = (value) => {
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric)) {
+          return 0;
+        }
+        return Math.floor(numeric * 100) / 100;
+      };
+
+      const syncUnitsMode = () => {
+        const quantity = parseFloat((quantityInput.value || '1').replace(',', '.'));
+        const safeQuantity = Number.isNaN(quantity) || quantity <= 0 ? 0.01 : quantity;
+        purchaseModeInput.value = 'units';
+        finalQuantityInput.value = formatQuantity(safeQuantity);
+        totalPreviewEl.textContent = (safeQuantity * unitPrice).toFixed(2);
+      };
+
+      const syncAmountMode = () => {
+        const amountValue = parseFloat((amountInput.value || '0').replace(',', '.'));
+        const safeAmount = Number.isNaN(amountValue) || amountValue <= 0 ? 0 : amountValue;
+        const units = unitPrice > 0 ? truncate2(safeAmount / unitPrice) : 0;
+        const total = truncate2(units * unitPrice);
+        purchaseModeInput.value = 'amount';
+        finalQuantityInput.value = formatQuantity(units);
+        amountUnitsEl.textContent = formatQuantity(units);
+        totalPreviewEl.textContent = total.toFixed(2);
+      };
+
+      const applyPurchaseOptionsMode = (mode) => {
+        const showBoth = mode === 'both';
+        tabsContainer.classList.toggle('d-none', !showBoth);
+
+        if (showBoth) {
+          unitsPane.classList.add('show', 'active');
+          amountPane.classList.remove('show', 'active');
+          currentMode = 'units';
+          purchaseModeInput.value = 'units';
+          return;
+        }
+
+        if (mode === 'amount_only') {
+          currentMode = 'amount';
+          purchaseModeInput.value = 'amount';
+          unitsPane.classList.remove('show', 'active');
+          amountPane.classList.add('show', 'active');
+          unitsTabButton.classList.remove('active');
+          amountTabButton.classList.add('active');
+        } else {
+          currentMode = 'units';
+          purchaseModeInput.value = 'units';
+          amountPane.classList.remove('show', 'active');
+          unitsPane.classList.add('show', 'active');
+          amountTabButton.classList.remove('active');
+          unitsTabButton.classList.add('active');
+        }
+      };
+
+      const refreshByMode = () => {
+        if (currentMode === 'amount') {
+          syncAmountMode();
+        } else {
+          syncUnitsMode();
+        }
+      };
+
+      document.querySelectorAll('#cartModeTabs button[data-bs-toggle="tab"]').forEach((tabButton) => {
+        tabButton.addEventListener('shown.bs.tab', (event) => {
+          currentMode = event.target.id === 'amount-tab' ? 'amount' : 'units';
+          refreshByMode();
+        });
+      });
+
+      quantityInput.addEventListener('input', syncUnitsMode);
+      amountInput.addEventListener('input', syncAmountMode);
+
+      addToCartForm.addEventListener('submit', () => {
+        refreshByMode();
+      });
+
+      applyPurchaseOptionsMode(purchaseOptions);
+      refreshByMode();
+    })();
+  </script>
+{% endblock %}

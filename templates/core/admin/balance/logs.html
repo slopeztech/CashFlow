@@ -1,0 +1,65 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Balance Logs' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Balance logs' %}{% endblock %}
+{% block page_subtitle %}{% trans 'All registered balance changes' %}{% endblock %}
+
+{% block content %}
+  <div class="card card-rounded">
+    <div class="card-body">
+      <form method="get" class="row g-2 mb-3">
+        <div class="col-md-5">
+          <input type="text" name="q" class="form-control" value="{{ query }}" placeholder="{% trans 'Search user, admin or note' %}">
+        </div>
+        <div class="col-md-3">
+          <select name="source" class="form-select">
+            <option value="">{% trans 'All types' %}</option>
+            <option value="manual_adjustment" {% if filter_source == 'manual_adjustment' %}selected{% endif %}>{% trans 'Manual adjustment' %}</option>
+            <option value="balance_request_approval" {% if filter_source == 'balance_request_approval' %}selected{% endif %}>{% trans 'Balance request approval' %}</option>
+            <option value="order_approval" {% if filter_source == 'order_approval' %}selected{% endif %}>{% trans 'Order approval' %}</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <input type="number" name="user_id" class="form-control" value="{{ filter_user_id }}" placeholder="{% trans 'User ID' %}">
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+          <button class="btn btn-primary text-white w-100" type="submit">{% trans 'Filter' %}</button>
+        </div>
+      </form>
+
+      <div class="table-responsive">
+        <table class="table select-table">
+          <thead>
+            <tr>
+              <th>{% trans 'Date' %}</th>
+              <th>{% trans 'User' %}</th>
+              <th>{% trans 'Type' %}</th>
+              <th>{% trans 'Delta' %}</th>
+              <th>{% trans 'Before' %}</th>
+              <th>{% trans 'After' %}</th>
+              <th>{% trans 'By' %}</th>
+              <th>{% trans 'Note' %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in logs %}
+              <tr>
+                <td>{{ log.created_at }}</td>
+                <td>{{ log.user.username }}</td>
+                <td>{{ log.get_source_display }}</td>
+                <td>€ {{ log.amount_delta }}</td>
+                <td>€ {{ log.balance_before }}</td>
+                <td>€ {{ log.balance_after }}</td>
+                <td>{% if log.changed_by %}{{ log.changed_by }}{% else %}{% trans 'System' %}{% endif %}</td>
+                <td>{{ log.note|default:'-' }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="8" class="text-center text-muted py-3">{% trans 'No logs found.' %}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}

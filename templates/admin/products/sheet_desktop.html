@@ -1,0 +1,136 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Product sheet' %} | CashFlow{% endblock %}
+{% block page_title %}{{ product.name }}{% endblock %}
+{% block page_subtitle %}{% trans 'Manage custom product fields' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'product_list' %}"><i class="icon-arrow-left"></i> {% trans 'Back' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h4 class="card-title card-title-dash mb-3">
+            {% if editing_field %}{% trans 'Edit field' %}{% else %}{% trans 'Add field' %}{% endif %}
+          </h4>
+          <form method="post">
+            {% csrf_token %}
+            {% if editing_field %}
+              <input type="hidden" name="field_id" value="{{ editing_field.id }}">
+            {% endif %}
+            <div class="mb-3">
+              <label class="form-label" for="id_field_key">{% trans 'Key' %}</label>
+              {{ form.field_key }}
+              {% if form.field_key.errors %}<div class="text-danger small mt-1">{{ form.field_key.errors }}</div>{% endif %}
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="id_field_value">{% trans 'Value' %}</label>
+              {{ form.field_value }}
+              {% if form.field_value.errors %}<div class="text-danger small mt-1">{{ form.field_value.errors }}</div>{% endif %}
+            </div>
+            <button class="btn btn-primary text-white" type="submit">
+              {% if editing_field %}{% trans 'Update' %}{% else %}{% trans 'Add' %}{% endif %}
+            </button>
+            {% if editing_field %}
+              <a class="btn btn-light" href="{% url 'product_sheet' product.pk %}">{% trans 'Cancel' %}</a>
+            {% endif %}
+          </form>
+        </div>
+      </div>
+
+      <div class="card card-rounded mt-3">
+        <div class="card-body">
+          <h4 class="card-title card-title-dash mb-3">{% trans 'Add URL' %}</h4>
+          <form method="post" action="{% url 'product_sheet_url_create' product.pk %}">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label" for="id_url">{% trans 'URL' %}</label>
+              {{ url_form.url }}
+              {% if url_form.url.errors %}<div class="text-danger small mt-1">{{ url_form.url.errors }}</div>{% endif %}
+            </div>
+            <button class="btn btn-primary text-white" type="submit">{% trans 'Add' %}</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h4 class="card-title card-title-dash mb-3">{% trans 'Product sheet' %}</h4>
+          <div class="table-responsive">
+            <table class="table select-table">
+              <thead>
+                <tr>
+                  <th>{% trans 'Key' %}</th>
+                  <th>{% trans 'Value' %}</th>
+                  <th class="text-end"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for field in sheet_fields %}
+                  <tr>
+                    <td>{{ field.field_key }}</td>
+                    <td>{{ field.field_value }}</td>
+                    <td class="text-end">
+                      <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          {% trans 'Actions' %}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                          <li><a class="dropdown-item" href="{% url 'product_sheet' product.pk %}?edit={{ field.id }}">{% trans 'Edit' %}</a></li>
+                          <li>
+                            <form method="post" action="{% url 'product_sheet_delete' product.pk field.id %}">
+                              {% csrf_token %}
+                              <button type="submit" class="dropdown-item text-danger">{% trans 'Delete' %}</button>
+                            </form>
+                          </li>
+                        </ul>
+                      </div>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="3" class="text-center text-muted py-3">{% trans 'No product sheet fields yet.' %}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-rounded mt-3">
+        <div class="card-body">
+          <h4 class="card-title card-title-dash mb-3">{% trans 'URLs' %}</h4>
+          <div class="table-responsive">
+            <table class="table select-table">
+              <thead>
+                <tr>
+                  <th>{% trans 'URL' %}</th>
+                  <th class="text-end"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for sheet_url in sheet_urls %}
+                  <tr>
+                    <td><a href="{{ sheet_url.url }}" target="_blank" rel="noopener noreferrer">{{ sheet_url.url }}</a></td>
+                    <td class="text-end">
+                      <form method="post" action="{% url 'product_sheet_url_delete' product.pk sheet_url.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger">{% trans 'Delete' %}</button>
+                      </form>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="2" class="text-center text-muted py-3">{% trans 'No URLs yet.' %}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

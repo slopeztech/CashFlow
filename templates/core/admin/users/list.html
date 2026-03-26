@@ -1,0 +1,95 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n static %}
+
+{% block title %}{% trans 'Manage Users' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Manage users' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Users table and account operations' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-primary text-white" href="{% url 'admin_user_create' %}"><i class="icon-plus"></i> {% trans 'Add user' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="row flex-grow">
+    <div class="col-12 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-sm-flex justify-content-between align-items-start mb-2">
+            <div>
+              <h4 class="card-title card-title-dash">{% trans 'Users' %}</h4>
+              <p class="card-subtitle card-subtitle-dash">{% trans 'Users table and account operations' %}</p>
+            </div>
+            <div>
+              <a class="btn btn-primary btn-lg text-white mb-0 me-0" href="{% url 'admin_user_create' %}"><i class="mdi mdi-account-plus"></i>{% trans 'Add user' %}</a>
+            </div>
+          </div>
+
+          <div class="table-responsive mt-1">
+        <table class="table select-table">
+          <thead>
+            <tr>
+              <th>{% trans 'User' %}</th>
+              <th>{% trans 'Account details' %}</th>
+              <th>{% trans 'Balance' %}</th>
+              <th>{% trans 'Adjust balance' %}</th>
+              <th class="text-end">{% trans 'Actions' %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    {% if user.store_profile and user.store_profile.profile_image %}
+                      <img src="{{ user.store_profile.profile_image.url }}" alt="{{ user.username }}" class="rounded-circle" style="width:36px;height:36px;object-fit:cover;">
+                    {% else %}
+                      <img src="{% static 'vendor/staradmin2/assets/images/faces/face8.jpg' %}" alt="{{ user.username }}" class="rounded-circle" style="width:36px;height:36px;object-fit:cover;">
+                    {% endif %}
+                    <div>
+                      <h6 class="mb-0">{{ user.username }}</h6>
+                      <p class="mb-0 text-muted small">{% if user.is_staff %}{% trans 'Admin' %}{% else %}{% trans 'User' %}{% endif %}</p>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <h6 class="mb-0">{{ user.email|default:'-' }}</h6>
+                  <p class="mb-0 text-muted small">{% if user.store_profile %}{{ user.store_profile.phone|default:'-' }}{% else %}-{% endif %}</p>
+                </td>
+                <td>
+                  <h6 class="mb-0">{% if user.store_profile %}€ {{ user.store_profile.current_balance }}{% else %}€ 0.00{% endif %}</h6>
+                </td>
+                <td>
+                  {% if not user.is_staff %}
+                    <form method="post" action="{% url 'admin_user_balance_adjust' user.id %}" class="d-flex gap-2 align-items-center">
+                      {% csrf_token %}
+                      <input type="hidden" name="user_id" value="{{ user.id }}">
+                      <input type="number" name="amount" class="form-control form-control-sm" step="0.01" placeholder="+ / -">
+                      <button class="btn btn-sm btn-outline-success" type="submit">{% trans 'Apply' %}</button>
+                    </form>
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td class="text-end">
+                  <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      {% trans 'Actions' %}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                      <li><a class="dropdown-item" href="{% url 'admin_user_edit' user.id %}">{% trans 'Edit' %}</a></li>
+                      <li><a class="dropdown-item" href="{% url 'admin_user_purchase_history' user.id %}">{% trans 'View purchases' %}</a></li>
+                      <li><a class="dropdown-item" href="{% url 'admin_balance_logs' %}?user_id={{ user.id }}">{% trans 'Logs' %}</a></li>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5" class="text-center text-muted py-3">{% trans 'No users found.' %}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

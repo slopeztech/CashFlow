@@ -1,0 +1,119 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Product form' %} | CashFlow{% endblock %}
+{% block page_title %}{% if object %}{% trans 'Edit product' %}{% else %}{% trans 'Create product' %}{% endif %}{% endblock %}
+{% block page_subtitle %}{% trans 'Create or update product catalog records' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'product_list' %}"><i class="icon-arrow-left"></i> {% trans 'Back to products' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-lg-12 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="card-title card-title-dash mb-0">{% if object %}{% trans 'Update product' %}{% else %}{% trans 'New product' %}{% endif %}</h4>
+            <span class="badge badge-opacity-primary">{% trans 'Catalog' %}</span>
+          </div>
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label" for="id_name">{% trans 'Name' %}</label>
+                {{ form.name }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="id_sku">SKU</label>
+                {{ form.sku }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="id_category">{% trans 'Category' %}</label>
+                {{ form.category }}
+                {% if form.category.errors %}<div class="text-danger small mt-1">{{ form.category.errors }}</div>{% endif %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="id_supplier">{% trans 'Supplier' %}</label>
+                {{ form.supplier }}
+                {% if form.supplier.errors %}<div class="text-danger small mt-1">{{ form.supplier.errors }}</div>{% endif %}
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="id_description">{% trans 'Description' %}</label>
+                {{ form.description }}
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="id_price">{% trans 'Price' %}</label>
+                {{ form.price }}
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="id_stock">{% trans 'Stock' %}</label>
+                {{ form.stock }}
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="id_min_stock">{% trans 'Minimum stock' %}</label>
+                {{ form.min_stock }}
+              </div>
+              <div class="col-md-4">
+                <label class="form-label" for="id_unit_type">{% trans 'Stock unit type' %}</label>
+                {{ form.unit_type }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="id_measure_label">{% trans 'Measure label (only for measure)' %}</label>
+                {{ form.measure_label }}
+                {% if form.measure_label.errors %}<div class="text-danger small mt-1">{{ form.measure_label.errors }}</div>{% endif %}
+              </div>
+              <div class="col-md-3 d-flex align-items-end">
+                <div class="form-check">
+                  {{ form.is_public_listing }}
+                  <label class="form-check-label" for="id_is_public_listing">{% trans 'Visible in user catalog' %}</label>
+                </div>
+              </div>
+              <div class="col-md-3 d-flex align-items-end">
+                <div class="form-check">
+                  {{ form.is_active }}
+                  <label class="form-check-label" for="id_is_active">{% trans 'Active product' %}</label>
+                </div>
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="id_new_images">{% trans 'Product images' %}</label>
+                {{ form.new_images }}
+                {% if form.new_images.errors %}<div class="text-danger small mt-1">{{ form.new_images.errors }}</div>{% endif %}
+                <small class="text-muted d-block mt-1">{% trans 'You can upload multiple JPG, PNG or WEBP images.' %}</small>
+              </div>
+
+              {% if object and product_images %}
+                <div class="col-12">
+                  <label class="form-label">{% trans 'Current images' %}</label>
+                  <div class="row g-3">
+                    {% for product_image in product_images %}
+                      <div class="col-md-3 col-sm-6">
+                        <div class="border rounded p-2">
+                          <img src="{{ product_image.image.url }}" alt="{{ object.name }}" class="img-fluid rounded mb-2" style="height: 120px; width: 100%; object-fit: cover;">
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="remove_images" value="{{ product_image.id }}" id="remove_image_{{ product_image.id }}">
+                            <label class="form-check-label" for="remove_image_{{ product_image.id }}">{% trans 'Delete image' %}</label>
+                          </div>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+              <button class="btn btn-primary text-white" type="submit"><i class="icon-check"></i> {% trans 'Save product' %}</button>
+              <a class="btn btn-light" href="{% url 'product_list' %}">{% trans 'Cancel' %}</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

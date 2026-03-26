@@ -1,0 +1,118 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Moderate Reviews' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Moderate reviews' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Approve or hide user product reviews' %}{% endblock %}
+
+{% block content %}
+  <div class="row g-4 mb-4">
+    <div class="col-md-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title mb-0">{% trans 'Pending' %}</p>
+            <i class="mdi mdi-timer-sand text-warning fs-4"></i>
+          </div>
+          <h3 class="rate-percentage mb-2">{{ pending_count }}</h3>
+          <p class="text-warning mb-0">{% trans 'Pending' %}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title mb-0">{% trans 'Approved' %}</p>
+            <i class="mdi mdi-check-circle text-success fs-4"></i>
+          </div>
+          <h3 class="rate-percentage mb-2">{{ approved_count }}</h3>
+          <p class="text-success mb-0">{% trans 'Approved' %}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title mb-0">{% trans 'Avg approved rating' %}</p>
+            <i class="mdi mdi-star text-primary fs-4"></i>
+          </div>
+          <h3 class="rate-percentage mb-2">{% if avg_rating %}{{ avg_rating|floatformat:1 }}{% else %}-{% endif %}</h3>
+          <p class="text-primary mb-0">{% trans 'Avg approved rating' %}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-rounded">
+    <div class="card-body">
+      <div class="mb-3 d-flex gap-2">
+        <a class="btn btn-sm {% if filter_status == 'pending' %}btn-primary text-white{% else %}btn-light{% endif %}" href="{% url 'admin_reviews' %}?status=pending">{% trans 'Pending' %}</a>
+        <a class="btn btn-sm {% if filter_status == 'approved' %}btn-primary text-white{% else %}btn-light{% endif %}" href="{% url 'admin_reviews' %}?status=approved">{% trans 'Approved' %}</a>
+        <a class="btn btn-sm {% if filter_status == 'all' %}btn-primary text-white{% else %}btn-light{% endif %}" href="{% url 'admin_reviews' %}?status=all">{% trans 'All' %}</a>
+      </div>
+
+      <form method="get" class="row g-2 mb-3">
+        <input type="hidden" name="status" value="{{ filter_status }}">
+        <div class="col-md-6">
+          <input type="text" name="q" class="form-control" value="{{ query }}" placeholder="{% trans 'Search by product, user or message' %}">
+        </div>
+        <div class="col-md-3">
+          <select name="rating" class="form-select">
+            <option value="">{% trans 'All ratings' %}</option>
+            <option value="5" {% if filter_rating == '5' %}selected{% endif %}>5 {% trans 'stars' %}</option>
+            <option value="4" {% if filter_rating == '4' %}selected{% endif %}>4 {% trans 'stars' %}</option>
+            <option value="3" {% if filter_rating == '3' %}selected{% endif %}>3 {% trans 'stars' %}</option>
+            <option value="2" {% if filter_rating == '2' %}selected{% endif %}>2 {% trans 'stars' %}</option>
+            <option value="1" {% if filter_rating == '1' %}selected{% endif %}>1 {% trans 'star' %}</option>
+          </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+          <button class="btn btn-primary text-white w-100" type="submit">{% trans 'Filter' %}</button>
+          <a class="btn btn-light w-100" href="{% url 'admin_reviews' %}?status={{ filter_status }}">{% trans 'Reset' %}</a>
+        </div>
+      </form>
+
+      <div class="table-responsive">
+        <table class="table select-table">
+          <thead>
+            <tr>
+              <th>{% trans 'Product' %}</th>
+              <th>{% trans 'User' %}</th>
+              <th>{% trans 'Rating' %}</th>
+              <th>{% trans 'Message' %}</th>
+              <th>{% trans 'Status' %}</th>
+              <th class="text-end">{% trans 'Actions' %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for review in reviews %}
+              <tr>
+                <td>{{ review.product.name }}</td>
+                <td>{{ review.user.username }}</td>
+                <td>{{ review.rating }} / 5</td>
+                <td>{{ review.message }}</td>
+                <td>{% if review.is_approved %}<span class="badge badge-opacity-success">{% trans 'Approved' %}</span>{% else %}<span class="badge badge-opacity-warning">{% trans 'Pending' %}</span>{% endif %}</td>
+                <td class="text-end d-flex justify-content-end gap-2">
+                  <form method="post" action="{% url 'admin_review_approve' review.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-success" type="submit">{% trans 'Approve' %}</button>
+                  </form>
+                  <form method="post" action="{% url 'admin_review_reject' review.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-danger" type="submit">{% trans 'Hide' %}</button>
+                  </form>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="6" class="text-center text-muted py-3">{% trans 'No reviews found.' %}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}

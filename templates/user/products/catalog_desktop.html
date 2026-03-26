@@ -1,0 +1,776 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n core_numbers %}
+
+{% block title %}{% trans 'Available Products' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Available products' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Public products and approved ratings' %}{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    .catalog-page {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .catalog-section-title {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .catalog-support-text {
+      font-size: 14px;
+      color: #6B7280;
+      font-weight: 400;
+    }
+
+    .rating-stars {
+      position: relative;
+      display: inline-block;
+      line-height: 1;
+      font-size: 0.95rem;
+      letter-spacing: 1px;
+      color: #d6d6d6;
+    }
+
+    .rating-stars-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      color: #f6c343;
+    }
+
+    .category-products-list {
+      display: flex;
+      flex-direction: column;
+      gap: .7rem;
+    }
+
+    .cart-highlight-card {
+      border: 1px solid #93c5fd !important;
+      border-radius: 16px;
+      background: linear-gradient(120deg, #dbeafe 0%, #eff6ff 48%, #ffffff 100%);
+      box-shadow: 0 16px 34px -24px rgba(30, 64, 175, 0.55);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .cart-highlight-card::after {
+      content: '';
+      position: absolute;
+      inset: auto -30px -30px auto;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, rgba(59, 130, 246, 0.18) 0%, rgba(59, 130, 246, 0) 72%);
+      pointer-events: none;
+    }
+
+    .cart-highlight-title {
+      font-size: 1.08rem;
+      font-weight: 800;
+      color: #1e3a8a;
+      margin-bottom: .2rem;
+    }
+
+    .cart-highlight-meta {
+      color: #334155;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .cart-highlight-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #1d4ed8;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(147, 197, 253, 0.85);
+      box-shadow: 0 8px 18px -14px rgba(30, 64, 175, 0.7);
+      font-size: 1.45rem;
+      flex: 0 0 auto;
+    }
+
+    .product-item {
+      border: 1px solid #dbe4ef;
+      border-radius: 14px;
+      padding: .8rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .8rem;
+      transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease;
+      cursor: pointer;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      box-shadow: 0 10px 24px -22px rgba(15, 23, 42, 0.45);
+    }
+
+    .product-item.product-item-featured {
+      border-color: #fdba74;
+      background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
+    }
+
+    .product-item.product-item-new {
+      border-color: #86efac;
+      background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+    }
+
+    .product-item.product-item-untried {
+      border-color: #a5b4fc;
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.12);
+    }
+
+    .product-item:active,
+    .product-item:hover {
+      transform: translateY(-2px);
+      border-color: #bfdbfe;
+      box-shadow: 0 16px 30px -22px rgba(30, 64, 175, 0.48);
+    }
+
+    .product-thumb,
+    .product-thumb-placeholder {
+      width: 62px;
+      height: 62px;
+      border-radius: 12px;
+      object-fit: cover;
+      flex: 0 0 auto;
+      border: 1px solid #E5E7EB;
+    }
+
+    .product-thumb-placeholder {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #EFF6FF 0%, #E0E7FF 100%);
+      color: #6B7280;
+      font-size: 1.28rem;
+    }
+
+    .product-main {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .product-name {
+      font-weight: 700;
+      color: #111827;
+      line-height: 1.2;
+      margin-bottom: .2rem;
+    }
+
+    .product-flags {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: .35rem;
+      margin-bottom: .3rem;
+    }
+
+    .product-flag {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: .14rem .52rem;
+      font-size: .67rem;
+      font-weight: 700;
+      letter-spacing: .01em;
+      border: 1px solid transparent;
+      text-transform: uppercase;
+      line-height: 1.2;
+    }
+
+    .product-flag-featured {
+      background: #E0F2FE;
+      border-color: #7DD3FC;
+      color: #0C4A6E;
+    }
+
+    .product-flag-new {
+      background: #EEF2FF;
+      border-color: #C7D2FE;
+      color: #312E81;
+    }
+
+    .product-flag-untried {
+      background: #DCFCE7;
+      border-color: #86EFAC;
+      color: #166534;
+    }
+
+    .spotlight-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: .85rem;
+      margin-bottom: 1rem;
+    }
+
+    .spotlight-card {
+      border: 1px solid #dfe7f2;
+      border-radius: 16px;
+      padding: .85rem;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      box-shadow: 0 14px 28px -24px rgba(15, 23, 42, 0.45);
+    }
+
+    .spotlight-card-featured {
+      border-color: #fed7aa;
+      background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
+    }
+
+    .spotlight-card-new {
+      border-color: #bbf7d0;
+      background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
+    }
+
+    .spotlight-card-untried {
+      border-color: #c7d2fe;
+      background: linear-gradient(180deg, #eef2ff 0%, #ffffff 100%);
+    }
+
+    .spotlight-heading {
+      margin: 0 0 .6rem;
+      font-size: .88rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: .45rem;
+      color: #111827;
+    }
+
+    .spotlight-heading i {
+      width: 24px;
+      height: 24px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .85rem;
+    }
+
+    .spotlight-icon-featured {
+      background: #ffedd5;
+      color: #c2410c;
+    }
+
+    .spotlight-icon-new {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .spotlight-icon-untried {
+      background: #e0e7ff;
+      color: #3730a3;
+    }
+
+    .spotlight-card ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+    }
+
+    .spotlight-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .6rem;
+      width: 100%;
+      text-decoration: none;
+      color: #111827;
+      padding: .35rem .45rem;
+      border-radius: 10px;
+      border: 1px solid transparent;
+    }
+
+    .spotlight-link:hover {
+      background: #F8FAFC;
+      border-color: #E2E8F0;
+    }
+
+    .spotlight-badge {
+      font-size: .68rem;
+      font-weight: 700;
+      padding: .1rem .46rem;
+      border-radius: 999px;
+      border: 1px solid #E2E8F0;
+      color: #475569;
+      white-space: nowrap;
+    }
+
+    .spotlight-price {
+      border-color: #bfdbfe;
+      color: #1e3a8a;
+      background: #eff6ff;
+    }
+
+    .spotlight-rating {
+      border-color: #c7d2fe;
+      color: #312e81;
+      background: #eef2ff;
+    }
+
+    .product-price {
+      font-size: 1.08rem;
+      font-weight: 800;
+      color: #1E3A8A;
+      line-height: 1.15;
+      margin-bottom: .2rem;
+    }
+
+    .add-btn {
+      border-radius: 12px;
+      width: 44px;
+      height: 44px;
+      min-height: 44px;
+      min-width: 44px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      border: 1px solid #cbd5e1;
+      color: #334155;
+      box-shadow: 0 8px 18px -14px rgba(15, 23, 42, 0.55);
+    }
+
+    .add-btn:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+      color: #0f172a;
+    }
+
+    .add-btn:focus-visible {
+      box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.35);
+      border-color: #64748b;
+    }
+
+    .add-btn-icon {
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    @media (max-width: 767.98px) {
+      .add-btn {
+        min-width: 88px;
+      }
+
+      .spotlight-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .cart-mode-tabs {
+      border-bottom: 1px solid #E5E7EB;
+      gap: .55rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      flex-wrap: nowrap !important;
+    }
+
+    .cart-mode-tabs .nav-item {
+      min-width: 0;
+      width: 100%;
+    }
+
+    .cart-mode-tabs .nav-link {
+      width: 100%;
+      border: 1px solid #E5E7EB;
+      border-bottom-color: #E5E7EB;
+      border-radius: 16px;
+      color: #374151;
+      font-weight: 600;
+      font-size: 1rem;
+      text-align: center;
+      padding: .62rem .9rem;
+      background: #ffffff;
+      transition: all .15s ease;
+    }
+
+    .cart-mode-tabs .nav-link.active {
+      background: #E0E7FF;
+      border-color: #C7D2FE;
+      color: #1E3A8A;
+      border-radius: 18px;
+      box-shadow: 0 12px 26px rgba(30, 58, 138, 0.22);
+    }
+
+    .cart-modal-title {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .cart-modal-title i {
+      color: #1D4ED8;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="catalog-page">
+  {% if cart_total_quantity > 0 %}
+    <a href="{% url 'user_cart_detail' %}" class="text-decoration-none">
+      <div class="card card-rounded mb-3 cart-highlight-card">
+        <div class="card-body d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="cart-highlight-title">{% trans 'Cart' %}</h5>
+            <p class="cart-highlight-meta">{{ cart_total_quantity|trim_zeros }} {% trans 'items' %} · € {{ cart_total_amount|truncate_2 }}</p>
+          </div>
+          <span class="cart-highlight-icon"><i class="mdi mdi-cart"></i></span>
+        </div>
+      </div>
+    </a>
+  {% endif %}
+
+  {% if featured_products or new_products or has_untried_products %}
+    <div class="spotlight-grid">
+      <div class="spotlight-card spotlight-card-featured">
+        <h6 class="spotlight-heading"><i class="mdi mdi-fire spotlight-icon-featured"></i>{% trans 'Featured products' %}</h6>
+        {% if featured_products %}
+          <ul>
+            {% for product in featured_products %}
+              <li>
+                <a class="spotlight-link" href="{% url 'user_product_detail' product.id %}">
+                  <span>{{ product.name }}</span>
+                  <span class="spotlight-badge spotlight-price">€ {{ product.price|truncate_2 }}</span>
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="catalog-support-text mb-0">{% trans 'No featured products at the moment.' %}</p>
+        {% endif %}
+      </div>
+
+      <div class="spotlight-card spotlight-card-new">
+        <h6 class="spotlight-heading"><i class="mdi mdi-sparkles spotlight-icon-new"></i>{% trans 'New products' %}</h6>
+        {% if new_products %}
+          <ul>
+            {% for product in new_products %}
+              <li>
+                <a class="spotlight-link" href="{% url 'user_product_detail' product.id %}">
+                  <span>{{ product.name }}</span>
+                  <span class="spotlight-badge spotlight-price">€ {{ product.price|truncate_2 }}</span>
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="catalog-support-text mb-0">{% trans 'No new products at the moment.' %}</p>
+        {% endif %}
+      </div>
+
+      {% if untried_products %}
+      <div class="spotlight-card spotlight-card-untried">
+        <h6 class="spotlight-heading"><i class="mdi mdi-thumb-up-outline spotlight-icon-untried"></i>{% trans 'Try these' %}</h6>
+          <ul>
+            {% for product in untried_products %}
+              <li>
+                <a class="spotlight-link" href="{% url 'user_product_detail' product.id %}">
+                  <span>{{ product.name }}</span>
+                  <span class="spotlight-badge spotlight-rating">
+                    {% if product.approved_avg_rating_others %}★ {{ product.approved_avg_rating_others|floatformat:1 }}{% else %}-{% endif %}
+                  </span>
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+      </div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <div class="card card-rounded mb-3">
+    <div class="card-body">
+      <button class="btn btn-light w-100 d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#catalogFilters" aria-expanded="false" aria-controls="catalogFilters">
+        <span>{% trans 'Filters' %}</span>
+        <i class="mdi mdi-chevron-down"></i>
+      </button>
+
+      <div class="collapse mt-3" id="catalogFilters">
+        <form method="get" class="row g-2">
+          <div class="col-md-6">
+            <input type="text" name="q" class="form-control" value="{{ query }}" placeholder="{% trans 'Search products' %}">
+          </div>
+          <div class="col-md-4">
+            <select name="category" class="form-select">
+              <option value="">{% trans 'All categories' %}</option>
+              {% for category in categories %}
+                <option value="{{ category.id }}" {% if filter_category == category.id|stringformat:'s' %}selected{% endif %}>{{ category.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-2 d-flex gap-2">
+            <button class="btn btn-primary text-white w-100" type="submit">{% trans 'Filter' %}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  {% for group in grouped_products %}
+    <div class="card card-rounded mb-3">
+      <div class="card-body">
+        <h4 class="card-title card-title-dash mb-3 catalog-section-title">{{ group.category_name }}</h4>
+        <div class="category-products-list">
+          {% for product in group.products %}
+            <div class="product-item js-product-row {% if product.is_featured %}product-item-featured{% endif %} {% if product.is_new %}product-item-new{% endif %} {% if product.is_untried_for_user %}product-item-untried{% endif %}" data-detail-url="{% url 'user_product_detail' product.id %}">
+              {% if product.images.all.0 %}
+                <img src="{{ product.images.all.0.image.url }}" alt="{{ product.name }}" class="product-thumb">
+              {% else %}
+                <span class="product-thumb-placeholder" aria-hidden="true"><i class="mdi mdi-image-outline"></i></span>
+              {% endif %}
+
+              <div class="product-main">
+                <div class="product-flags">
+                  {% if product.is_featured %}
+                    <span class="product-flag product-flag-featured">{% trans 'Featured' %}</span>
+                  {% endif %}
+                  {% if product.is_new %}
+                    <span class="product-flag product-flag-new">{% trans 'New' %}</span>
+                  {% endif %}
+                  {% if product.is_untried_for_user %}
+                    <span class="product-flag product-flag-untried">{% trans 'Untried' %}</span>
+                  {% endif %}
+                </div>
+                <div class="product-name">{{ product.name }}</div>
+                <div class="product-price">€ {{ product.price|truncate_2 }}</div>
+                <div>
+                  {% if product.approved_avg_rating %}
+                    {% widthratio product.approved_avg_rating 5 100 as rating_percent %}
+                    <span class="rating-stars" aria-label="{% trans 'Rating' %}">
+                      ★★★★★
+                      <span class="rating-stars-fill" style="width: {{ rating_percent }}%;">★★★★★</span>
+                    </span>
+                  {% else %}
+                    <span class="rating-stars" aria-label="{% trans 'No approved reviews' %}">☆☆☆☆☆</span>
+                  {% endif %}
+                </div>
+              </div>
+
+              <button
+                class="btn add-btn js-add-cart"
+                type="button"
+                data-bs-toggle="modal"
+                data-bs-target="#addToCartModal"
+                data-product-id="{{ product.id }}"
+                data-product-name="{{ product.name }}"
+                data-unit-price="{{ product.price|truncate_2 }}"
+                data-purchase-options="{{ product.purchase_options }}"
+                title="{% trans 'Add to cart' %}"
+                aria-label="{% trans 'Add to cart' %}"
+              >
+                <span class="add-btn-icon" aria-hidden="true"><i class="mdi mdi-cart-plus"></i></span>
+                <span class="visually-hidden">{% trans 'Add to cart' %}</span>
+              </button>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="card card-rounded">
+      <div class="card-body text-center text-muted py-4">{% trans 'No public products available.' %}</div>
+    </div>
+  {% endfor %}
+
+  <div class="modal fade" id="addToCartModal" tabindex="-1" aria-labelledby="addToCartModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form method="post" action="{% url 'user_cart_add' %}">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title cart-modal-title" id="addToCartModalLabel"><i class="mdi mdi-cart-outline"></i> <span id="cartModalProductName">-</span></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" name="product_id" id="cartProductId">
+            <input type="hidden" name="purchase_mode" id="cartPurchaseMode" value="units">
+            <input type="hidden" name="quantity" id="cartFinalQuantity" value="1">
+            <ul class="nav nav-tabs cart-mode-tabs mb-3" id="cartModeTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="units-tab" data-bs-toggle="tab" data-bs-target="#units-pane" type="button" role="tab" aria-controls="units-pane" aria-selected="true">{% trans 'Units' %}</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="amount-tab" data-bs-toggle="tab" data-bs-target="#amount-pane" type="button" role="tab" aria-controls="amount-pane" aria-selected="false">{% trans 'Amount' %}</button>
+              </li>
+            </ul>
+            <div class="tab-content" id="cartModeTabsContent">
+              <div class="tab-pane fade show active" id="units-pane" role="tabpanel" aria-labelledby="units-tab" tabindex="0">
+                <div class="mb-3">
+                  <label class="form-label" for="cartQuantity">{% trans 'Quantity' %}</label>
+                  <input class="form-control" type="number" min="0.01" step="0.01" value="1" id="cartQuantity">
+                </div>
+              </div>
+              <div class="tab-pane fade" id="amount-pane" role="tabpanel" aria-labelledby="amount-tab" tabindex="0">
+                <div class="mb-3">
+                  <label class="form-label" for="cartAmount">{% trans 'Amount' %}</label>
+                  <input class="form-control" type="number" min="0.01" step="0.01" value="" name="amount" id="cartAmount" placeholder="0.00">
+                </div>
+                <p class="mb-2"><strong>{% trans 'Calculated units' %}:</strong> <span id="cartAmountUnits">0</span></p>
+              </div>
+            </div>
+            <p class="mb-0"><strong>{% trans 'Total' %}:</strong> € <span id="cartTotalPreview">0.00</span></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">{% trans 'Cancel' %}</button>
+            <button type="submit" class="btn btn-primary text-white">{% trans 'Add to cart' %}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  {{ block.super }}
+  <script>
+    (function () {
+      const productIdInput = document.getElementById('cartProductId');
+      const modalProductNameEl = document.getElementById('cartModalProductName');
+      const purchaseModeInput = document.getElementById('cartPurchaseMode');
+      const finalQuantityInput = document.getElementById('cartFinalQuantity');
+      const quantityInput = document.getElementById('cartQuantity');
+      const amountInput = document.getElementById('cartAmount');
+      const amountUnitsEl = document.getElementById('cartAmountUnits');
+      const totalPreviewEl = document.getElementById('cartTotalPreview');
+      const addToCartForm = document.querySelector('#addToCartModal form');
+      const tabsContainer = document.getElementById('cartModeTabs');
+      const unitsTabButton = document.getElementById('units-tab');
+      const amountTabButton = document.getElementById('amount-tab');
+      const unitsPane = document.getElementById('units-pane');
+      const amountPane = document.getElementById('amount-pane');
+      let currentUnitPrice = 0;
+      let currentMode = 'units';
+
+      const formatQuantity = (value) => {
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric)) {
+          return '0';
+        }
+        return numeric.toFixed(2).replace(/\.00$/, '').replace(/(\.\d*?)0+$/, '$1');
+      };
+
+      const truncate2 = (value) => {
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric)) {
+          return 0;
+        }
+        return Math.floor(numeric * 100) / 100;
+      };
+
+      const syncUnitsMode = () => {
+        const quantity = parseFloat((quantityInput.value || '1').replace(',', '.'));
+        const safeQuantity = Number.isNaN(quantity) || quantity <= 0 ? 0.01 : quantity;
+        purchaseModeInput.value = 'units';
+        finalQuantityInput.value = formatQuantity(safeQuantity);
+        totalPreviewEl.textContent = (safeQuantity * currentUnitPrice).toFixed(2);
+      };
+
+      const syncAmountMode = () => {
+        const amountValue = parseFloat((amountInput.value || '0').replace(',', '.'));
+        const safeAmount = Number.isNaN(amountValue) || amountValue <= 0 ? 0 : amountValue;
+        const units = currentUnitPrice > 0 ? truncate2(safeAmount / currentUnitPrice) : 0;
+        const total = truncate2(units * currentUnitPrice);
+        purchaseModeInput.value = 'amount';
+        finalQuantityInput.value = formatQuantity(units);
+        amountUnitsEl.textContent = formatQuantity(units);
+        totalPreviewEl.textContent = total.toFixed(2);
+      };
+
+      const applyPurchaseOptionsMode = (purchaseOptions) => {
+        const mode = purchaseOptions || 'both';
+        const showBoth = mode === 'both';
+
+        tabsContainer.classList.toggle('d-none', !showBoth);
+
+        if (showBoth) {
+          unitsPane.classList.add('show', 'active');
+          amountPane.classList.remove('show', 'active');
+          currentMode = 'units';
+          purchaseModeInput.value = 'units';
+          return;
+        }
+
+        if (mode === 'amount_only') {
+          currentMode = 'amount';
+          purchaseModeInput.value = 'amount';
+          unitsPane.classList.remove('show', 'active');
+          amountPane.classList.add('show', 'active');
+          unitsTabButton.classList.remove('active');
+          amountTabButton.classList.add('active');
+        } else {
+          currentMode = 'units';
+          purchaseModeInput.value = 'units';
+          amountPane.classList.remove('show', 'active');
+          unitsPane.classList.add('show', 'active');
+          amountTabButton.classList.remove('active');
+          unitsTabButton.classList.add('active');
+        }
+      };
+
+      const refreshByMode = () => {
+        if (currentMode === 'amount') {
+          syncAmountMode();
+        } else {
+          syncUnitsMode();
+        }
+      };
+
+      document.querySelectorAll('.js-add-cart').forEach((button) => {
+        button.addEventListener('click', () => {
+          productIdInput.value = button.dataset.productId;
+          modalProductNameEl.textContent = button.dataset.productName;
+          quantityInput.value = '1';
+          amountInput.value = '';
+          amountUnitsEl.textContent = '0';
+          applyPurchaseOptionsMode(button.dataset.purchaseOptions || 'both');
+          currentUnitPrice = parseFloat(button.dataset.unitPrice || '0');
+          if (tabsContainer && !tabsContainer.classList.contains('d-none')) {
+            bootstrap.Tab.getOrCreateInstance(unitsTabButton).show();
+          }
+          refreshByMode();
+        });
+
+        button.addEventListener('click', (event) => {
+          event.stopPropagation();
+        });
+      });
+
+      document.querySelectorAll('.js-product-row').forEach((row) => {
+        row.addEventListener('click', () => {
+          const detailUrl = row.dataset.detailUrl;
+          if (detailUrl) {
+            window.location.href = detailUrl;
+          }
+        });
+      });
+
+      quantityInput.addEventListener('input', syncUnitsMode);
+      amountInput.addEventListener('input', syncAmountMode);
+
+      document.querySelectorAll('#cartModeTabs button[data-bs-toggle="tab"]').forEach((tabButton) => {
+        tabButton.addEventListener('shown.bs.tab', (event) => {
+          currentMode = event.target.id === 'amount-tab' ? 'amount' : 'units';
+          refreshByMode();
+        });
+      });
+
+      addToCartForm.addEventListener('submit', () => {
+        refreshByMode();
+      });
+    })();
+  </script>
+{% endblock %}

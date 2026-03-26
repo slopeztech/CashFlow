@@ -1,0 +1,429 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'My Dashboard' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'My dashboard' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Your personal activity timeline' %}{% endblock %}
+
+{% block content %}
+  {% if show_password_change_modal %}
+    <div class="modal fade" id="passwordChangeReminderModal" tabindex="-1" aria-labelledby="passwordChangeReminderTitle" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header border-0 pb-1">
+            <h5 class="modal-title" id="passwordChangeReminderTitle">{% trans 'Security reminder' %}</h5>
+          </div>
+          <div class="modal-body pt-1">
+            <p class="mb-2">{% trans 'For security reasons, please change your password before continuing to use your account.' %}</p>
+            <p class="text-muted small mb-0">{% trans 'This message appears only until you update your password.' %}</p>
+          </div>
+          <div class="modal-footer border-0 pt-0">
+            <a class="btn btn-primary text-white" href="{{ password_change_url }}">{% trans 'Change password now' %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="row g-4" data-live-region="user-dashboard-main">
+    <div class="col-lg-4">
+      <a class="text-decoration-none" href="{% url 'user_balance_requests' %}">
+        <div class="card card-rounded balance-card {% if current_balance > 0 %}balance-card-positive{% elif current_balance < 0 %}balance-card-negative{% else %}balance-card-zero{% endif %}">
+          <div class="card-header balance-card-header">
+            <h4 class="card-title card-title-dash mb-0 balance-title">{% trans 'Current balance' %}</h4>
+          </div>
+          <div class="card-body">
+            <h2 class="rate-percentage balance-amount mb-0"><span class="balance-currency">€</span> {{ current_balance|truncate_2 }}</h2>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <div class="col-lg-8">
+      {% if active_notices %}
+        <div class="d-flex flex-column gap-3 mb-4">
+          {% for notice in active_notices %}
+            <div class="card card-rounded notice-card">
+              <div class="card-header notice-card-header {% if notice.notice_type == 'warning' %}notice-card-header-warning{% elif notice.notice_type == 'danger' %}notice-card-header-danger{% elif notice.notice_type == 'success' %}notice-card-header-success{% else %}notice-card-header-info{% endif %}">
+                <div class="d-flex justify-content-between align-items-start gap-2">
+                  <h6 class="notice-title mb-0 d-flex align-items-center gap-2"><span class="timeline-event-icon timeline-icon-notice"><i class="mdi mdi-bell-outline"></i></span>{{ notice.title }}</h6>
+                  <small class="notice-date">{{ notice.start_at|date:"d/m/Y" }}</small>
+                </div>
+              </div>
+              <div class="card-body">
+                <p class="notice-description mb-0">{{ notice.description|linebreaksbr }}</p>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div id="timeline">
+        {% if priority_events or highlighted_product_events or recent_activity_events %}
+          {% if priority_events %}
+            <div class="timeline-section mb-3">
+              <div class="timeline-list d-flex flex-column gap-3">
+                {% for event in priority_events %}
+                  {% include 'user/dashboard/_timeline_event_card.html' with event=event %}
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+          {% if highlighted_product_events %}
+            <div class="timeline-section mb-3">
+              <div class="timeline-list d-flex flex-column gap-3">
+                {% for event in highlighted_product_events %}
+                  {% include 'user/dashboard/_timeline_event_card.html' with event=event %}
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+          {% if recent_activity_events %}
+            <div class="timeline-section">
+              <div class="timeline-list d-flex flex-column gap-3">
+                {% for event in recent_activity_events %}
+                  {% include 'user/dashboard/_timeline_event_card.html' with event=event %}
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+          {% if timeline_has_more %}
+            <div class="text-center mt-3">
+              <a class="timeline-load-more-text" href="?timeline_page={{ timeline_next_page }}#timeline">- Ver más -</a>
+            </div>
+          {% endif %}
+        {% else %}
+          <p class="text-muted mb-0">{% trans 'No timeline events yet.' %}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <style>
+    .balance-card {
+      border: 1px solid #dbe4ef !important;
+      border-radius: 16px;
+      box-shadow: 0 10px 24px -18px rgba(15, 23, 42, 0.35) !important;
+      overflow: hidden;
+      background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+    }
+
+    .balance-amount {
+      text-align: center;
+      font-weight: 700;
+      color: #ffffff;
+      font-size: 2rem;
+    }
+
+    .balance-currency {
+      font-size: 1.2rem;
+      font-weight: 600;
+      opacity: .9;
+    }
+
+    .balance-title {
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .balance-card-header {
+      border-bottom: 1px solid rgba(255,255,255,.24);
+      background: transparent;
+      padding: 1.1rem 1.4rem;
+    }
+
+    .balance-card .card-body {
+      padding: 1.45rem 1.4rem;
+    }
+
+    .timeline-event-card {
+      border: 1px solid #e3e8ef;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+      box-shadow: 0 10px 24px -18px rgba(15, 23, 42, 0.28);
+      -webkit-box-shadow: 0 10px 24px -18px rgba(15, 23, 42, 0.28);
+      transition: transform .16s ease, box-shadow .16s ease;
+      border-left-width: 4px;
+      padding: 1rem 1.1rem !important;
+    }
+
+    .timeline-event-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.10);
+    }
+
+    .timeline-event-link {
+      display: block;
+      color: inherit;
+    }
+
+    .timeline-load-more-text {
+      color: #9ca3af;
+      font-size: .9rem;
+      text-decoration: none;
+      letter-spacing: .01em;
+    }
+
+    .timeline-load-more-text:hover {
+      color: #6b7280;
+      text-decoration: none;
+    }
+
+    .timeline-event-notice { border-left-color: #4B49AC; }
+    .timeline-event-purchase { border-left-color: #1F3BB3; }
+    .timeline-event-calendar { border-left-color: #7C3AED; }
+    .timeline-event-balance { border-left-color: #F59E0B; }
+    .timeline-event-review { border-left-color: #57B657; }
+    .timeline-event-gamification { border-left-color: #D97706; }
+    .timeline-event-product { border-left-color: #0EA5E9; }
+    .timeline-event-survey { border-left-color: #14B8A6; }
+
+    .timeline-event-card.timeline-event-registered {
+      box-shadow: none !important;
+      -webkit-box-shadow: none !important;
+      border-color: rgba(87, 182, 87, 0.5) !important;
+      background: #ffffff !important;
+    }
+
+    .timeline-event-card.timeline-event-completed {
+      box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.20), 0 12px 30px rgba(217, 119, 6, 0.28) !important;
+      -webkit-box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.20), 0 12px 30px rgba(217, 119, 6, 0.28) !important;
+      border-color: rgba(217, 119, 6, 0.45) !important;
+      background: linear-gradient(0deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.08)), #ffffff !important;
+    }
+
+    .timeline-event-card.timeline-event-rewarded {
+      box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.22), 0 12px 30px rgba(34, 197, 94, 0.28) !important;
+      -webkit-box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.22), 0 12px 30px rgba(34, 197, 94, 0.28) !important;
+      border-color: rgba(34, 197, 94, 0.5) !important;
+      background: linear-gradient(0deg, rgba(34, 197, 94, 0.08), rgba(34, 197, 94, 0.08)), #ffffff !important;
+    }
+
+    .timeline-event-title {
+      font-weight: 700;
+      color: #111827;
+      line-height: 1.3;
+    }
+
+    .timeline-event-date {
+      color: #6b7280;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 999px;
+      padding: 2px 10px;
+      white-space: nowrap;
+      font-size: .75rem;
+      font-weight: 400;
+    }
+
+    .timeline-event-description {
+      color: #6B7280;
+      line-height: 1.45;
+      font-weight: 400;
+    }
+
+    .timeline-products-table td {
+      padding: .35rem .5rem;
+      border-color: #e5e7eb;
+      font-size: .85rem;
+      color: #6B7280;
+      background: #fff;
+      font-weight: 400;
+    }
+
+    .timeline-product-name {
+      font-weight: 400;
+    }
+
+    .timeline-product-total {
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .notice-card {
+      border: 1px solid #e3e8ef;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+      box-shadow: 0 10px 24px -18px rgba(15, 23, 42, 0.28);
+      overflow: hidden;
+    }
+
+    .notice-card-header {
+      border-bottom: 0;
+      color: #111827;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .notice-card-header-info { background-color: #BFDBFE !important; }
+    .notice-card-header-success { background-color: #BBF7D0 !important; }
+    .notice-card-header-warning { background-color: #FDE68A !important; }
+    .notice-card-header-danger { background-color: #FECACA !important; }
+
+    .notice-title {
+      font-weight: 700;
+      color: #111827;
+      line-height: 1.3;
+    }
+
+    .notice-date {
+      color: #6b7280;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 999px;
+      padding: 2px 10px;
+      white-space: nowrap;
+      font-size: .75rem;
+      font-weight: 400;
+    }
+
+    .notice-description {
+      color: #6B7280;
+      line-height: 1.45;
+      font-weight: 400;
+    }
+
+    .notice-card .card-body {
+      padding: 1rem 1.1rem;
+    }
+
+    .timeline-event-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .95rem;
+      flex: 0 0 auto;
+    }
+
+    .timeline-icon-notice {
+      background: #EEF2FF;
+      color: #4B49AC;
+    }
+
+    .timeline-icon-purchase {
+      background: #DBEAFE;
+      color: #1F3BB3;
+    }
+
+    .timeline-icon-review {
+      background: #DCFCE7;
+      color: #15803D;
+    }
+
+    .timeline-icon-event {
+      background: #EDE9FE;
+      color: #7C3AED;
+    }
+
+    .timeline-icon-gamification {
+      background: #FEF3C7;
+      color: #B45309;
+    }
+
+    .timeline-icon-product {
+      background: #E0F2FE;
+      color: #0369A1;
+    }
+
+    .timeline-icon-product-featured {
+      background: #ffedd5;
+      color: #c2410c;
+    }
+
+    .timeline-icon-product-new {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .timeline-icon-product-mix {
+      background: #fde68a;
+      color: #92400e;
+    }
+
+    .timeline-icon-survey {
+      background: #CCFBF1;
+      color: #0F766E;
+    }
+
+    .timeline-event-photo {
+      width: 100%;
+      max-height: 180px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+      display: block;
+    }
+
+    @media (max-width: 767.98px) {
+      .timeline-event-card {
+        border: 1px solid #e5e7eb !important;
+        border-left-width: 4px !important;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08) !important;
+        -webkit-box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08) !important;
+        background: #ffffff !important;
+      }
+
+      .timeline-event-card.timeline-event-registered {
+        box-shadow: 0 0 0 2px rgba(87, 182, 87, 0.22), 0 10px 24px rgba(87, 182, 87, 0.28) !important;
+        -webkit-box-shadow: 0 0 0 2px rgba(87, 182, 87, 0.22), 0 10px 24px rgba(87, 182, 87, 0.28) !important;
+        border-color: rgba(87, 182, 87, 0.5) !important;
+        background: linear-gradient(0deg, rgba(87, 182, 87, 0.06), rgba(87, 182, 87, 0.06)), #ffffff !important;
+      }
+
+      .notice-card {
+        border: 1px solid #e5e7eb !important;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08) !important;
+        -webkit-box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08) !important;
+        background: #ffffff !important;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block extra_js %}
+  {{ block.super }}
+  <script>
+    (function () {
+      const SCROLL_KEY = 'user_dashboard_timeline_scroll_y';
+      document.addEventListener('click', function (event) {
+        const link = event.target.closest('.timeline-load-more-text');
+        if (!link) {
+          return;
+        }
+        sessionStorage.setItem(SCROLL_KEY, String(window.scrollY || window.pageYOffset || 0));
+      });
+
+      const query = new URLSearchParams(window.location.search);
+      const savedScroll = sessionStorage.getItem(SCROLL_KEY);
+      if (!query.has('timeline_page') || savedScroll === null) {
+        return;
+      }
+
+      window.requestAnimationFrame(function () {
+        window.scrollTo(0, parseInt(savedScroll, 10) || 0);
+        sessionStorage.removeItem(SCROLL_KEY);
+      });
+    })();
+  </script>
+  {% if show_password_change_modal %}
+    <script>
+      (function () {
+        const modalEl = document.getElementById('passwordChangeReminderModal');
+        if (!modalEl || typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+          return;
+        }
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+      })();
+    </script>
+  {% endif %}
+{% endblock %}
+

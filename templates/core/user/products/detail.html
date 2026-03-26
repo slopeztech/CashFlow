@@ -1,0 +1,90 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n user_display %}
+
+{% block title %}{% trans 'Product Detail' %} | CashFlow{% endblock %}
+{% block page_title %}{{ product.name }}{% endblock %}
+{% block page_subtitle %}{% trans 'Product details and approved ratings' %}{% endblock %}
+{% block page_actions %}
+  <div class="d-flex gap-2">
+    <a class="btn btn-light" href="{% url 'user_products_catalog' %}"><i class="icon-arrow-left"></i> {% trans 'Back to products' %}</a>
+    {% if can_review %}
+      <a class="btn btn-primary text-white" href="{% url 'user_product_review' product.id %}">{% trans 'Rate product' %}</a>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block content %}
+  {% if product.images.all %}
+    <div class="card card-rounded mb-3">
+      <div class="card-body">
+        <h4 class="card-title card-title-dash mb-3">{% trans 'Product images' %}</h4>
+        <div id="productImagesCarousel" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-indicators">
+            {% for image in product.images.all %}
+              <button type="button" data-bs-target="#productImagesCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" {% if forloop.first %}aria-current="true"{% endif %} aria-label="Slide {{ forloop.counter }}"></button>
+            {% endfor %}
+          </div>
+          <div class="carousel-inner rounded">
+            {% for image in product.images.all %}
+              <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                <img src="{{ image.image.url }}" class="d-block w-100" alt="{{ product.name }}" style="height: 320px; object-fit: cover;">
+              </div>
+            {% endfor %}
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#productImagesCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">{% trans 'Previous' %}</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#productImagesCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">{% trans 'Next' %}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="card card-rounded mb-3">
+    <div class="card-body">
+      <h4 class="card-title card-title-dash mb-3">{% trans 'Product information' %}</h4>
+      <div class="row g-3">
+        <div class="col-md-4"><strong>{% trans 'SKU:' %}</strong> {{ product.sku }}</div>
+        <div class="col-md-4"><strong>{% trans 'Category:' %}</strong> {{ product.category.name|default:'-' }}</div>
+        <div class="col-md-4"><strong>{% trans 'Supplier:' %}</strong> {{ product.supplier.name|default:'-' }}</div>
+        <div class="col-md-4"><strong>{% trans 'Price:' %}</strong> € {{ product.price }}</div>
+        <div class="col-md-4"><strong>{% trans 'Stock status:' %}</strong> {% if product.stock > 0 %}{% trans 'In stock' %}{% else %}{% trans 'Out of stock' %}{% endif %}</div>
+        <div class="col-md-12"><strong>{% trans 'Description:' %}</strong> {{ product.description|default:'-' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-rounded">
+    <div class="card-body">
+      <h4 class="card-title card-title-dash mb-3">{% trans 'Approved reviews' %}</h4>
+      <div class="table-responsive">
+        <table class="table select-table">
+          <thead>
+            <tr>
+              <th>{% trans 'User' %}</th>
+              <th>{% trans 'Rating' %}</th>
+              <th>{% trans 'Message' %}</th>
+              <th>{% trans 'Date' %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for review in approved_reviews %}
+              <tr>
+                <td>{{ review.user|public_name }}</td>
+                <td>{{ review.rating }} / 5</td>
+                <td>{{ review.message }}</td>
+                <td>{{ review.updated_at }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="4" class="text-center text-muted py-3">{% trans 'No approved reviews for this product yet.' %}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}

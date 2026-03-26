@@ -1,0 +1,74 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Order Approval' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Review order' %} #{{ order.id }}{% endblock %}
+{% block page_subtitle %}{% trans 'Approve or reject user purchase request' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'admin_actions' %}">{% trans 'Back to actions' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="card card-rounded mb-3">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4"><strong>{% trans 'User:' %}</strong> {{ order.created_by.username }}</div>
+        <div class="col-md-4"><strong>{% trans 'Status:' %}</strong> {{ order.get_status_display }}</div>
+        <div class="col-md-4"><strong>{% trans 'Total:' %}</strong> € {{ order.total_amount|truncate_2 }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-rounded mb-3">
+    <div class="card-body">
+      <h5 class="mb-3">{% trans 'Order items' %}</h5>
+      <div class="table-responsive">
+        <table class="table select-table">
+          <thead>
+            <tr>
+              <th>{% trans 'Product' %}</th>
+              <th>{% trans 'Quantity' %}</th>
+              <th>{% trans 'Unit price' %}</th>
+              <th>{% trans 'Subtotal' %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in order.items.all %}
+              <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>€ {{ item.unit_price|truncate_2 }}</td>
+                <td>€ {{ item.subtotal|truncate_2 }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {% if order.status == 'pending' %}
+    <div class="card card-rounded">
+      <div class="card-body">
+        <div class="d-flex gap-2 mb-3">
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="approve">
+            <button class="btn btn-success text-white" type="submit">{% trans 'Approve order' %}</button>
+          </form>
+        </div>
+        <form method="post" class="row g-3 align-items-end">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="reject">
+          <div class="col-md-8">
+            <label class="form-label" for="id_rejection_reason">{% trans 'Rejection reason' %}</label>
+            {{ form.rejection_reason }}
+          </div>
+          <div class="col-md-4">
+            <button class="btn btn-danger text-white" type="submit">{% trans 'Reject order' %}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,220 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Order form' %} | CashFlow{% endblock %}
+{% block page_title %}{% if mode == 'update' %}{% trans 'Edit order' %}{% else %}{% trans 'New order' %}{% endif %}{% endblock %}
+{% block page_subtitle %}{% trans 'Configure order items' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'sale_list' %}"><i class="icon-arrow-left"></i> {% trans 'Back to sales' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-lg-12 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h4 class="card-title">{% trans 'Edit order' %} #{{ order.id }}</h4>
+          <p class="card-description">{% trans 'Configure order items' %}</p>
+          <form method="post" class="forms-sample">
+            {% csrf_token %}
+            {{ formset.management_form }}
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="form-group mb-4">
+              <label class="form-label">{% trans 'Customer' %}</label>
+              <input type="text" class="form-control" value="{{ order.created_by.username }}" disabled>
+            </div>
+
+            <div class="form-group mb-2">
+              <label class="form-label mb-2">{% trans 'Items' %}</label>
+              <div>
+                <button class="btn btn-sm btn-outline-primary" type="button" id="add-item-row-btn">{% trans 'Add item' %}</button>
+              </div>
+            </div>
+
+            <div class="card card-rounded mb-3">
+              <div class="card-body py-3">
+                <div class="row">
+                  <div class="col-md-4"><strong>{% trans 'Current balance:' %}</strong> <span id="current-balance-value">€ 0.00</span></div>
+                  <div class="col-md-4"><strong>{% trans 'Current order total:' %}</strong> <span id="order-total-value">€ 0.00</span></div>
+                  <div class="col-md-4"><strong>{% trans 'Projected balance:' %}</strong> <span id="projected-balance-value">€ 0.00</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table select-table align-middle items-table">
+                <thead>
+                  <tr>
+                    <th>{% trans 'Product' %}</th>
+                    <th>{% trans 'Quantity' %}</th>
+                    <th>{% trans 'Unit price (from product)' %}</th>
+                    <th class="text-end">{% trans 'Action' %}</th>
+                  </tr>
+                </thead>
+                <tbody id="items-table-body">
+                  {% for item_form in formset %}
+                    <tr>
+                      <td data-label="Product">
+                        {{ item_form.id }}
+                        {{ item_form.product }}
+                        {% if item_form.product.errors %}<div class="text-danger small mt-1">{{ item_form.product.errors }}</div>{% endif %}
+                      </td>
+                      <td data-label="Quantity">
+                        {{ item_form.quantity }}
+                        {% if item_form.quantity.errors %}<div class="text-danger small mt-1">{{ item_form.quantity.errors }}</div>{% endif %}
+                      </td>
+                      <td data-label="Unit price">{{ item_form.display_unit_price }}</td>
+                      <td class="text-end" data-label="Action">
+                        <span class="d-none">{{ item_form.DELETE }}</span>
+                        <button class="btn btn-sm btn-outline-danger remove-item-btn" type="button">{% trans 'Remove' %}</button>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <template id="item-empty-form-template">
+              <tr>
+                <td data-label="Product">
+                  {{ formset.empty_form.id }}
+                  {{ formset.empty_form.product }}
+                </td>
+                <td data-label="Quantity">{{ formset.empty_form.quantity }}</td>
+                <td data-label="Unit price">{{ formset.empty_form.display_unit_price }}</td>
+                <td class="text-end" data-label="Action">
+                  <span class="d-none">{{ formset.empty_form.DELETE }}</span>
+                  <button class="btn btn-sm btn-outline-danger remove-item-btn" type="button">{% trans 'Remove' %}</button>
+                </td>
+              </tr>
+            </template>
+
+            {% if formset.non_form_errors %}
+              <div class="alert alert-danger">{{ formset.non_form_errors }}</div>
+            {% endif %}
+
+            <div class="mt-3 d-flex gap-2">
+              <button class="btn btn-primary me-2" type="submit"><i class="icon-check"></i> {% trans 'Save order' %}</button>
+              <a class="btn btn-light" href="{% url 'sale_list' %}">{% trans 'Cancel' %}</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script>
+    (function () {
+      const currentBalance = parseFloat('{{ current_balance|default:0|truncate_2 }}') || 0;
+      const tableBody = document.getElementById('items-table-body');
+      const addButton = document.getElementById('add-item-row-btn');
+      const totalFormsInput = document.getElementById('id_items-TOTAL_FORMS');
+      const emptyTemplate = document.getElementById('item-empty-form-template');
+      const currentBalanceValue = document.getElementById('current-balance-value');
+      const orderTotalValue = document.getElementById('order-total-value');
+      const projectedBalanceValue = document.getElementById('projected-balance-value');
+
+      const parseMoney = (raw) => {
+        const value = parseFloat(String(raw).replace(',', '.'));
+        return Number.isFinite(value) ? value : 0;
+      };
+
+      const formatMoney = (value) => `€ ${value.toFixed(2)}`;
+
+      const calculateTotal = () => {
+        let total = 0;
+        tableBody.querySelectorAll('tr').forEach((row) => {
+          if (row.classList.contains('d-none')) {
+            return;
+          }
+          const quantityInput = row.querySelector('input[name$="-quantity"]');
+          const priceInput = row.querySelector('input[name$="-display_unit_price"]');
+          const quantity = parseFloat(quantityInput ? quantityInput.value : '0') || 0;
+          const price = parseMoney(priceInput ? priceInput.value : '0');
+          total += quantity * price;
+        });
+        return total;
+      };
+
+      const refreshBalancePreview = () => {
+        const orderTotal = calculateTotal();
+        currentBalanceValue.textContent = formatMoney(currentBalance);
+        orderTotalValue.textContent = formatMoney(orderTotal);
+        projectedBalanceValue.textContent = formatMoney(currentBalance - orderTotal);
+      };
+
+      const attachRowBehavior = (row) => {
+        const productSelect = row.querySelector('select[name$="-product"]');
+        const priceInput = row.querySelector('input[name$="-display_unit_price"]');
+        const quantityInput = row.querySelector('input[name$="-quantity"]');
+        const removeButton = row.querySelector('.remove-item-btn');
+        const deleteInput = row.querySelector('input[name$="-DELETE"]');
+        if (!productSelect || !priceInput) {
+          return;
+        }
+
+        const updatePriceFromProduct = () => {
+          const selected = productSelect.options[productSelect.selectedIndex];
+          if (!selected) {
+            priceInput.value = '';
+            return;
+          }
+          const optionText = selected.text || '';
+          const match = optionText.match(/€\s*([0-9]+(?:[\.,][0-9]{1,2})?)/);
+          if (match) {
+            priceInput.value = match[1].replace(',', '.');
+          }
+          refreshBalancePreview();
+        };
+
+        productSelect.addEventListener('change', updatePriceFromProduct);
+        if (quantityInput) {
+          quantityInput.addEventListener('input', refreshBalancePreview);
+        }
+        if (removeButton) {
+          removeButton.addEventListener('click', () => {
+            const rowCount = tableBody.querySelectorAll('tr:not(.d-none)').length;
+            if (rowCount <= 1) {
+              return;
+            }
+
+            if (deleteInput && deleteInput.name.indexOf('__prefix__') === -1) {
+              deleteInput.checked = true;
+              row.classList.add('d-none');
+            } else {
+              row.remove();
+              totalFormsInput.value = String(parseInt(totalFormsInput.value, 10) - 1);
+            }
+            refreshBalancePreview();
+          });
+        }
+        updatePriceFromProduct();
+      };
+
+      tableBody.querySelectorAll('tr').forEach(attachRowBehavior);
+
+      addButton.addEventListener('click', () => {
+        const currentTotal = parseInt(totalFormsInput.value, 10);
+        const newRowHtml = emptyTemplate.innerHTML.replaceAll('__prefix__', String(currentTotal));
+        const wrapper = document.createElement('tbody');
+        wrapper.innerHTML = newRowHtml.trim();
+        const newRow = wrapper.querySelector('tr');
+        if (!newRow) {
+          return;
+        }
+        tableBody.appendChild(newRow);
+        totalFormsInput.value = String(currentTotal + 1);
+        attachRowBehavior(newRow);
+        refreshBalancePreview();
+      });
+
+      refreshBalancePreview();
+    })();
+  </script>
+{% endblock %}

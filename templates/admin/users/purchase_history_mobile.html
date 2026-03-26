@@ -1,0 +1,69 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'User Purchase History' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Purchases for' %} {{ target_user.username }}{% endblock %}
+{% block page_subtitle %}{% trans 'Approved orders and direct sales' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'admin_user_list' %}">{% trans 'Back to users' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="card card-rounded mb-3">
+    <div class="card-body">
+      <h4 class="card-title card-title-dash mb-3">{% trans 'Direct sales' %}</h4>
+      <div class="table-responsive">
+        <table class="table select-table">
+          <thead>
+            <tr>
+              <th>{% trans 'Sale' %}</th>
+              <th>{% trans 'Date' %}</th>
+              <th>{% trans 'Total' %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for sale in direct_sales %}
+              <tr>
+                <td>#{{ sale.id }}</td>
+                <td>{{ sale.created_at }}</td>
+                <td>€ {{ sale.total_amount|truncate_2 }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="3" class="text-center text-muted py-3">{% trans 'No direct sales for this user.' %}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-rounded">
+    <div class="card-body">
+      <h4 class="card-title card-title-dash mb-3">{% trans 'Approved orders' %}</h4>
+      <div class="table-responsive">
+        <table class="table select-table">
+          <thead>
+            <tr>
+              <th>{% trans 'Order' %}</th>
+              <th>{% trans 'Date' %}</th>
+              <th>{% trans 'Total' %}</th>
+              <th>{% trans 'Approved by' %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in approved_orders %}
+              <tr>
+                <td>#{{ order.id }}</td>
+                <td>{{ order.created_at }}</td>
+                <td>€ {{ order.total_amount|truncate_2 }}</td>
+                <td>{{ order.approved_by|default:'-' }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="4" class="text-center text-muted py-3">{% trans 'No approved orders for this user.' %}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Cancel order' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Cancel order' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Stock and user balance will be restored automatically and historical records will be preserved' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'sale_list' %}"><i class="icon-arrow-left"></i> {% trans 'Back to sales' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="card card-rounded">
+    <div class="card-body">
+      <p>{% trans 'Are you sure you want to cancel order' %} <strong>#{{ order.id }}</strong>? {% trans 'Stock and user balance will be restored automatically and the record will be kept.' %}</p>
+      <form method="post" class="d-flex gap-2">
+        {% csrf_token %}
+        <button class="btn btn-danger text-white" type="submit"><i class="icon-trash"></i> {% trans 'Cancel order' %}</button>
+        <a class="btn btn-light" href="{% url 'sale_list' %}">{% trans 'Cancel' %}</a>
+      </form>
+    </div>
+  </div>
+{% endblock %}

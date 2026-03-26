@@ -1,0 +1,72 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Available Products' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Available products' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Public products and approved ratings' %}{% endblock %}
+
+{% block content %}
+  <div class="card card-rounded">
+    <div class="card-body">
+      <form method="get" class="row g-2 mb-3">
+        <div class="col-md-6">
+          <input type="text" name="q" class="form-control" value="{{ query }}" placeholder="{% trans 'Search products' %}">
+        </div>
+        <div class="col-md-4">
+          <select name="category" class="form-select">
+            <option value="">{% trans 'All categories' %}</option>
+            {% for category in categories %}
+              <option value="{{ category.id }}" {% if filter_category == category.id|stringformat:'s' %}selected{% endif %}>{{ category.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+          <button class="btn btn-primary text-white w-100" type="submit">{% trans 'Filter' %}</button>
+        </div>
+      </form>
+
+      <div class="table-responsive">
+        <table class="table select-table">
+          <thead>
+            <tr>
+              <th>{% trans 'Product' %}</th>
+              <th>{% trans 'Category' %}</th>
+              <th>{% trans 'Price' %}</th>
+              <th>{% trans 'Stock' %}</th>
+              <th>{% trans 'Rating' %}</th>
+              <th class="text-end">{% trans 'Actions' %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for product in products %}
+              <tr>
+                <td>{{ product.name }}</td>
+                <td>{{ product.category.name|default:'-' }}</td>
+                <td>€ {{ product.price }}</td>
+                <td>
+                  {% if product.stock > 0 %}
+                    <span class="badge badge-opacity-success">{% trans 'In stock' %}</span>
+                  {% else %}
+                    <span class="badge badge-opacity-danger">{% trans 'Out of stock' %}</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if product.approved_avg_rating %}
+                    {{ product.approved_avg_rating|floatformat:1 }} / 5 ({{ product.approved_reviews_count }})
+                  {% else %}
+                    {% trans 'No approved reviews' %}
+                  {% endif %}
+                </td>
+                <td class="text-end">
+                  <a class="btn btn-sm btn-outline-primary" href="{% url 'user_product_detail' product.id %}">{% trans 'View details' %}</a>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="6" class="text-center text-muted py-3">{% trans 'No public products available.' %}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,170 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Event information' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Event information' %}{% endblock %}
+{% block page_subtitle %}{{ event.name }}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'admin_events' %}"><i class="icon-arrow-left"></i> {% trans 'Back to events' %}</a>
+{% endblock %}
+
+{% block extra_css %}
+  {{ block.super }}
+  <style>
+    .admin-event-comments {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .admin-event-comment {
+      border: 1px solid #e2e7f0;
+      border-radius: 0.7rem;
+      padding: 0.85rem;
+      background: #fff;
+    }
+
+    .admin-event-comment-replies {
+      margin-top: 0.65rem;
+      margin-left: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .admin-event-comment-reply {
+      background: #f7fafc;
+      border: 1px solid #dde4ef;
+      border-radius: 0.55rem;
+      padding: 0.65rem;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card card-rounded h-100">
+        <div class="card-body">
+          <p class="text-muted mb-1">{% trans 'Registered users' %}</p>
+          <h4 class="mb-0">{{ registrations_count }}{% if event.capacity %}/{{ event.capacity }}{% endif %}</h4>
+        </div>
+      </div>
+    </div>
+    {% if event.is_paid_event %}
+      <div class="col-md-4">
+        <div class="card card-rounded h-100">
+          <div class="card-body">
+            <p class="text-muted mb-1">{% trans 'Total collected' %}</p>
+            <h4 class="mb-0">€ {{ total_collected|truncate_2 }}</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card card-rounded h-100">
+          <div class="card-body">
+            <p class="text-muted mb-1">{% trans 'Registration fee' %}</p>
+            <h4 class="mb-0">€ {{ event.registration_fee|truncate_2 }}</h4>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="card card-rounded">
+    <div class="card-body">
+      <h5 class="card-title mb-3">{% trans 'Registered users' %}</h5>
+      {% if registrations %}
+        <div class="table-responsive">
+          <table class="table select-table align-middle">
+            <thead>
+              <tr>
+                <th>{% trans 'User' %}</th>
+                <th>{% trans 'Registered at' %}</th>
+                <th>{% trans 'Form answers' %}</th>
+                <th class="text-end">{% trans 'Actions' %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for registration in registrations %}
+                <tr>
+                  <td>{{ registration.user.username }}</td>
+                  <td>{{ registration.created_at|date:'Y/m/d H:i' }}</td>
+                  <td>
+                    {% if registration.answers %}
+                      <ul class="mb-0 ps-3">
+                        {% for answer in registration.answers.values %}
+                          <li>
+                            <strong>{{ answer.label }}:</strong>
+                            {% if answer.type == 'checkbox' %}
+                              {% if answer.value %}{% trans 'Yes' %}{% else %}{% trans 'No' %}{% endif %}
+                            {% else %}
+                              {{ answer.value }}
+                            {% endif %}
+                          </li>
+                        {% endfor %}
+                      </ul>
+                    {% else %}
+                      <span class="text-muted">-</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end">
+                    <form method="post" action="{% url 'admin_event_registration_remove' event.pk registration.id %}" onsubmit="return confirm('{% trans 'Are you sure you want to remove this registration?' %}');">
+                      {% csrf_token %}
+                      <button class="btn btn-sm btn-outline-danger" type="submit">{% trans 'Remove registration' %}</button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">{% trans 'No users registered yet.' %}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card card-rounded mt-3">
+    <div class="card-body">
+      <h5 class="card-title mb-3">{% trans 'Comments' %}</h5>
+      {% if event_comments %}
+        <div class="admin-event-comments">
+          {% for comment in event_comments %}
+            <article class="admin-event-comment">
+              <div class="d-flex justify-content-between flex-wrap gap-2 mb-2">
+                <div>
+                  <strong>{{ comment.user.username }}</strong>
+                  <span class="text-muted">· {{ comment.created_at|date:'Y/m/d H:i' }}</span>
+                </div>
+              </div>
+              <p class="mb-2">{{ comment.content|linebreaksbr }}</p>
+
+              {% if comment.replies.all %}
+                <div class="admin-event-comment-replies mb-2">
+                  {% for reply in comment.replies.all %}
+                    <article class="admin-event-comment-reply">
+                      <div>
+                        <strong>{{ reply.user.username }}</strong>
+                        <span class="text-muted">· {{ reply.created_at|date:'Y/m/d H:i' }}</span>
+                      </div>
+                      <div>{{ reply.content|linebreaksbr }}</div>
+                    </article>
+                  {% endfor %}
+                </div>
+              {% endif %}
+
+              <form method="post" action="{% url 'admin_event_comment_reply' event.pk comment.id %}" class="mt-2">
+                {% csrf_token %}
+                {{ comment_reply_form.content }}
+                <button class="btn btn-sm btn-outline-primary mt-2" type="submit">{% trans 'Reply as admin' %}</button>
+              </form>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">{% trans 'No comments yet.' %}</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

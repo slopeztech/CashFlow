@@ -1,0 +1,135 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Sales' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Sales' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Track and manage all transactions' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-primary text-white me-0" href="{% url 'sale_create' %}"><i class="icon-plus"></i> {% trans 'Create sale' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="row g-4 mb-4" data-live-region="sales-counters">
+    <div class="col-6 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body" data-live-region="sales-history">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title mb-0">{% trans 'Total sales' %}</p>
+            <i class="mdi mdi-swap-horizontal text-primary fs-4"></i>
+          </div>
+          <h3 class="rate-percentage mb-2">{{ sales_month_count }}</h3>
+          <p class="text-muted mb-1 small">{% trans 'Current month' %}</p>
+          <p class="text-primary mb-0">{% trans 'Transactions' %}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <p class="statistics-title mb-0">{% trans 'Total revenue' %}</p>
+            <i class="mdi mdi-cash text-success fs-4"></i>
+          </div>
+          <h3 class="rate-percentage mb-2">€ {{ sales_month_revenue|truncate_2 }}</h3>
+          <p class="text-muted mb-1 small">{% trans 'Current month' %}</p>
+          <p class="text-success mb-0">{% trans 'Gross amount' %}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-12 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+            <h4 class="card-title card-title-dash mb-0">{% trans 'History' %}</h4>
+            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#salesFilterCollapseDesktop" aria-expanded="false" aria-controls="salesFilterCollapseDesktop">
+              {% trans 'Filter' %}
+            </button>
+          </div>
+
+          <ul class="nav nav-pills mb-3" role="tablist" aria-label="{% trans 'Transaction history scope' %}">
+            <li class="nav-item" role="presentation">
+              <a class="nav-link {% if selected_scope == 'active' %}active{% endif %}" href="?scope=active{% if selected_customer %}&customer={{ selected_customer }}{% endif %}">
+                {% trans 'Active' %} ({{ active_transactions_count }})
+              </a>
+            </li>
+            <li class="nav-item" role="presentation">
+              <a class="nav-link {% if selected_scope == 'voided' %}active{% endif %}" href="?scope=voided{% if selected_customer %}&customer={{ selected_customer }}{% endif %}">
+                {% trans 'Voided / canceled' %} ({{ voided_transactions_count }})
+              </a>
+            </li>
+          </ul>
+
+          <div class="collapse mb-3" id="salesFilterCollapseDesktop">
+            <form method="get" class="row g-2 align-items-end">
+              <input type="hidden" name="scope" value="{{ selected_scope }}">
+              <div class="col-sm-6 col-md-4">
+                <label for="customerFilterDesktop" class="form-label mb-1">{% trans 'Customer' %}</label>
+                <select id="customerFilterDesktop" name="customer" class="form-select form-select-sm">
+                  <option value="">{% trans 'All customers' %}</option>
+                  {% for customer_name in customer_filters %}
+                    <option value="{{ customer_name }}" {% if selected_customer == customer_name %}selected{% endif %}>{{ customer_name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-sm-auto">
+                <button type="submit" class="btn btn-sm btn-primary text-white">{% trans 'Apply' %}</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table select-table">
+              <tbody>
+                {% for item in transactions %}
+                  <tr>
+                    <td>
+                      {% if item.kind == 'sale' %}
+                        <span class="badge badge-opacity-primary mb-1 d-inline-block">{% trans 'Sale' %}</span>
+                      {% else %}
+                        <span class="badge badge-opacity-warning mb-1 d-inline-block">{% trans 'Order' %}</span>
+                      {% endif %}
+                      <br>
+                      <span class="badge badge-opacity-light text-dark">{{ item.date|date:"Y/m/d H:i" }}</span>
+                    </td>
+                    <td>{{ item.customer }}</td>
+                    <td>€ {{ item.total|truncate_2 }}</td>
+                    <td class="text-end">
+                      {% if item.view_url or item.edit_url or item.delete_url %}
+                        <div class="dropdown">
+                          <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {% trans 'Actions' %}
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-end">
+                            {% if item.view_url %}
+                              <li><a class="dropdown-item" href="{{ item.view_url }}">{% trans 'View' %}</a></li>
+                            {% endif %}
+                            {% if item.edit_url %}
+                              <li><a class="dropdown-item" href="{{ item.edit_url }}">{% trans 'Edit' %}</a></li>
+                            {% endif %}
+                            {% if item.delete_url %}
+                              <li><a class="dropdown-item text-danger" href="{{ item.delete_url }}">{% if item.kind == 'sale' %}{% trans 'Void' %}{% else %}{% trans 'Cancel' %}{% endif %}</a></li>
+                            {% endif %}
+                          </ul>
+                        </div>
+                      {% else %}
+                        <span class="text-muted">-</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="4" class="text-center py-4 text-muted">{{ transactions_empty_text }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

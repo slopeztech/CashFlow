@@ -1,0 +1,147 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Dashboard' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Dashboard' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Your performance summary this week' %}{% endblock %}
+
+{% block content %}
+  <div class="tab-content tab-content-basic">
+    <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview">
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="statistics-details d-flex align-items-center justify-content-between">
+            <div>
+              <p class="statistics-title">{% trans 'Registered products' %}</p>
+              <h3 class="rate-percentage">{{ products_count }}</h3>
+              <p class="text-success d-flex"><i class="mdi mdi-menu-up"></i><span>{% trans 'Catalog growth' %}</span></p>
+            </div>
+            <div>
+              <p class="statistics-title">{% trans 'Low stock items' %}</p>
+              <h3 class="rate-percentage">{{ low_stock_count }}</h3>
+              <p class="text-danger d-flex"><i class="mdi mdi-menu-down"></i><span>{% trans 'Needs replenishment' %}</span></p>
+            </div>
+            <div>
+              <p class="statistics-title">{% trans 'Total sales' %}</p>
+              <h3 class="rate-percentage">€ {{ total_sales }}</h3>
+              <p class="text-success d-flex"><i class="mdi mdi-menu-up"></i><span>{% trans 'Revenue' %}</span></p>
+            </div>
+            <div class="d-none d-md-block">
+              <p class="statistics-title">{% trans 'Current balance' %}</p>
+              <h3 class="rate-percentage">€ {{ current_balance }}</h3>
+              <p class="text-primary d-flex"><i class="mdi mdi-wallet"></i><span>{% trans 'User profile' %}</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <div class="col-lg-8 d-flex flex-column">
+          <div class="row flex-grow">
+            <div class="col-12 grid-margin stretch-card">
+              <div class="card card-rounded">
+                <div class="card-body">
+                  <div class="d-sm-flex justify-content-between align-items-start">
+                    <div>
+                      <h4 class="card-title card-title-dash">{% trans 'Store overview' %}</h4>
+                      <p class="card-subtitle card-subtitle-dash">{% trans 'Global operational summary for your local business' %}</p>
+                    </div>
+                  </div>
+                  <div class="d-sm-flex align-items-center mt-1 justify-content-between">
+                    <div class="d-sm-flex align-items-center mt-4 justify-content-between">
+                      <h2 class="me-2 fw-bold">€ {{ total_sales }}</h2>
+                      <h4 class="me-2">{% trans 'Revenue' %}</h4>
+                      <h4 class="text-success">{% trans 'Active' %}</h4>
+                    </div>
+                    <div class="me-3">
+                      <div id="marketingOverview-legend"></div>
+                    </div>
+                  </div>
+                  <div class="chartjs-bar-wrapper mt-3">
+                    <canvas id="marketingOverview"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row flex-grow">
+            <div class="col-12 grid-margin stretch-card">
+              <div class="card card-rounded">
+                <div class="card-body">
+                  <h4 class="card-title card-title-dash">{% trans 'Quick status' %}</h4>
+                  <div class="table-responsive mt-1">
+                    <table class="table select-table">
+                      <thead>
+                        <tr>
+                          <th>{% trans 'Metric' %}</th>
+                          <th>{% trans 'Value' %}</th>
+                          <th>{% trans 'Status' %}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>{% trans 'Products' %}</td>
+                          <td>{{ products_count }}</td>
+                          <td><div class="badge badge-opacity-success">{% trans 'Healthy' %}</div></td>
+                        </tr>
+                        <tr>
+                          <td>{% trans 'Low stock' %}</td>
+                          <td>{{ low_stock_count }}</td>
+                          <td><div class="badge badge-opacity-warning">{% trans 'Monitor' %}</div></td>
+                        </tr>
+                        <tr>
+                          <td>{% trans 'Sales total' %}</td>
+                          <td>€ {{ total_sales }}</td>
+                          <td><div class="badge badge-opacity-success">{% trans 'Growing' %}</div></td>
+                        </tr>
+                        <tr>
+                          <td>{% trans 'Current balance' %}</td>
+                          <td>€ {{ current_balance }}</td>
+                          <td><div class="badge badge-opacity-primary">{% trans 'Available' %}</div></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4 d-flex flex-column">
+          <div class="row flex-grow">
+            <div class="col-12 grid-margin stretch-card">
+              <div class="card card-rounded">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="card-title card-title-dash">{% trans 'Sales mix' %}</h4>
+                  </div>
+                  <div>
+                    <canvas class="my-auto" id="doughnutChart"></canvas>
+                  </div>
+                  <div id="doughnutChart-legend" class="mt-5 text-center"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row flex-grow">
+            <div class="col-12 grid-margin stretch-card">
+              <div class="card card-rounded">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="card-title card-title-dash">{% trans 'Sales trend' %}</h4>
+                  </div>
+                  <div class="mt-3">
+                    <canvas id="leaveReport"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

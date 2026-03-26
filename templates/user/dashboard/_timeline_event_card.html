@@ -1,0 +1,36 @@
+{% load i18n %}
+<a class="timeline-event-link text-decoration-none" href="{{ event.event_url }}">
+  <div class="timeline-event-card p-3 {% if event.kind == 'notice' %}timeline-event-notice{% elif event.kind == 'purchase' %}timeline-event-purchase{% elif event.kind == 'event' %}timeline-event-calendar{% elif event.kind == 'survey' %}timeline-event-survey{% elif event.kind == 'balance' %}timeline-event-balance{% elif event.kind == 'gamification' %}timeline-event-gamification{% elif event.kind == 'product' %}timeline-event-product{% else %}timeline-event-review{% endif %} {% if event.kind == 'event' and event.is_registered %}timeline-event-registered{% endif %} {% if event.kind == 'survey' and event.is_answered %}timeline-event-registered{% endif %} {% if event.kind == 'gamification' and event.is_completed %}timeline-event-completed{% endif %} {% if event.kind == 'gamification' and event.is_reward_completed %}timeline-event-rewarded{% endif %}">
+    <div class="d-flex justify-content-between align-items-start mb-2 gap-2">
+      <div>
+        <h6 class="timeline-event-title mb-0 d-flex align-items-center gap-2">
+          <span class="timeline-event-icon {% if event.kind == 'notice' %}timeline-icon-notice{% elif event.kind == 'purchase' %}timeline-icon-purchase{% elif event.kind == 'event' %}timeline-icon-event{% elif event.kind == 'survey' %}timeline-icon-survey{% elif event.kind == 'gamification' %}timeline-icon-gamification{% elif event.kind == 'product' and event.is_featured and event.is_new %}timeline-icon-product-mix{% elif event.kind == 'product' and event.is_featured %}timeline-icon-product-featured{% elif event.kind == 'product' and event.is_new %}timeline-icon-product-new{% elif event.kind == 'product' %}timeline-icon-product{% else %}timeline-icon-review{% endif %}">
+            <i class="mdi {% if event.kind == 'notice' %}mdi-bell-outline{% elif event.kind == 'purchase' %}mdi-cart-outline{% elif event.kind == 'event' %}mdi-calendar-star{% elif event.kind == 'survey' %}mdi-checkbox-marked-circle-outline{% elif event.kind == 'gamification' %}mdi-trophy-variant{% elif event.kind == 'product' %}mdi-star-circle-outline{% else %}mdi-star-outline{% endif %}"></i>
+          </span>
+          {{ event.title }}
+        </h6>
+      </div>
+      <small class="timeline-event-date">{{ event.event_date|date:"d/m/Y" }}</small>
+    </div>
+    <p class="timeline-event-description mb-0">{{ event.description }}</p>
+    {% if event.kind == 'event' and event.event_image_url %}
+      <div class="mt-2">
+        <img src="{{ event.event_image_url }}" alt="{{ event.title }}" class="timeline-event-photo">
+      </div>
+    {% endif %}
+    {% if event.products %}
+      <div class="table-responsive mt-2">
+        <table class="table table-sm mb-0 timeline-products-table">
+          <tbody>
+            {% for row in event.products %}
+              <tr>
+                <td class="timeline-product-name">{{ row.label }}</td>
+                <td class="timeline-product-total text-end">€ {{ row.total|truncate_2 }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+  </div>
+</a>

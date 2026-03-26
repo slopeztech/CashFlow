@@ -1,0 +1,347 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n core_numbers %}
+
+{% block title %}{% trans 'Cart' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Cart' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Review, edit and send your order' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'user_products_catalog' %}"><i class="icon-arrow-left"></i> {% trans 'Back to products' %}</a>
+{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <style>
+    .cart-shell {
+      display: flex;
+      flex-direction: column;
+      gap: .9rem;
+    }
+
+    .cart-item-card {
+      border: 1px solid #dbe4ef;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      box-shadow: 0 12px 24px -24px rgba(15, 23, 42, 0.55);
+      padding: .85rem;
+    }
+
+    .cart-item-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: .8rem;
+      margin-bottom: .65rem;
+    }
+
+    .cart-item-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.25;
+      margin: 0;
+    }
+
+    .cart-item-subtotal {
+      font-size: 1.02rem;
+      font-weight: 800;
+      color: #1e3a8a;
+      white-space: nowrap;
+    }
+
+    .cart-item-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .45rem;
+      margin-bottom: .75rem;
+    }
+
+    .cart-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .25rem;
+      border-radius: 999px;
+      padding: .2rem .6rem;
+      border: 1px solid #dbe4ef;
+      background: #f8fafc;
+      color: #334155;
+      font-size: .78rem;
+      font-weight: 600;
+    }
+
+    .cart-item-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: .4rem;
+      width: 100%;
+    }
+
+    .cart-controls-inline {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: stretch;
+      gap: .55rem;
+      width: 100%;
+    }
+
+    .cart-update-inline {
+      flex: 1 1 auto;
+      min-width: 0;
+      height: 44px;
+      margin: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: stretch;
+      gap: .55rem;
+    }
+
+    .cart-field-label {
+      font-size: .76rem;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+      font-weight: 700;
+      color: #64748b;
+      margin: 0;
+      width: 100%;
+      text-align: left;
+    }
+
+    .cart-update-inline .form-control {
+      width: 100%;
+      min-width: 0;
+      border-radius: 10px;
+      border: 1px solid #dbe4ef;
+      padding: .5rem .65rem;
+      height: 44px;
+      min-height: 44px;
+      line-height: 1.2;
+    }
+
+    .cart-btn-update {
+      border-radius: 10px;
+      height: 44px;
+      min-height: 44px;
+      min-width: 122px;
+      font-weight: 700;
+      padding: .45rem .85rem;
+      border-color: #cbd5e1;
+      color: #334155;
+      background: #f8fafc;
+      white-space: nowrap;
+      margin: 0;
+      line-height: 1;
+    }
+
+    .cart-btn-remove {
+      border-radius: 10px;
+      width: 44px;
+      height: 44px;
+      min-height: 44px;
+      min-width: 44px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cart-remove-form {
+      display: flex;
+      align-items: stretch;
+      flex: 0 0 auto;
+      height: 44px;
+      margin: 0;
+    }
+
+    .cart-remove-form .cart-btn-remove {
+      height: 100%;
+      min-height: 100%;
+    }
+
+    .cart-summary-card {
+      border: 1px solid #bfdbfe;
+      border-radius: 14px;
+      background: linear-gradient(120deg, #eff6ff 0%, #ffffff 100%);
+      padding: .95rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: .8rem;
+      flex-wrap: wrap;
+    }
+
+    .cart-summary-metrics {
+      display: flex;
+      flex-direction: column;
+      gap: .35rem;
+    }
+
+    .cart-total-label {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0;
+    }
+
+    .cart-balance-line {
+      margin: 0;
+      font-size: .88rem;
+      color: #334155;
+      font-weight: 600;
+    }
+
+    .cart-balance-after {
+      color: #0f766e;
+      font-weight: 700;
+    }
+
+    .cart-balance-after.is-negative {
+      color: #b91c1c;
+    }
+
+    .cart-summary-actions {
+      display: flex;
+      gap: .55rem;
+      flex-wrap: wrap;
+      margin-left: auto;
+    }
+
+    .cart-summary-actions .btn {
+      border-radius: 10px;
+      min-height: 42px;
+      font-weight: 700;
+      padding: .5rem .95rem;
+    }
+
+    @media (max-width: 767.98px) {
+      .cart-controls-inline {
+        align-items: center;
+      }
+
+      .cart-summary-actions {
+        width: 100%;
+      }
+
+      .cart-summary-actions .btn {
+        flex: 1 1 auto;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="card card-rounded">
+    <div class="card-body">
+      {% if cart_items %}
+        <div class="cart-summary-card" id="cart-summary-card" data-current-balance="{{ current_balance|default_if_none:0 }}">
+          <div class="cart-summary-metrics">
+            <h5 class="cart-total-label">{% trans 'Total' %}: € <span id="cart-total-live">{{ cart_total_amount|truncate_2 }}</span></h5>
+            <p class="cart-balance-line">{% trans 'Current balance' %}: € <span id="cart-balance-current">{{ current_balance|truncate_2 }}</span></p>
+            <p class="cart-balance-line cart-balance-after">{% trans 'Balance after purchase' %}: € <span id="cart-balance-after-live">0.00</span></p>
+          </div>
+          <div class="cart-summary-actions">
+            <form method="post" action="{% url 'user_cart_clear' %}">
+              {% csrf_token %}
+              <button class="btn btn-light" type="submit">{% trans 'Cancel cart' %}</button>
+            </form>
+            <form method="post" action="{% url 'user_cart_submit' %}">
+              {% csrf_token %}
+              <button class="btn btn-primary text-white" type="submit">{% trans 'Submit order' %}</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="cart-shell mt-3">
+          {% for item in cart_items %}
+            <div class="cart-item-card">
+              <div class="cart-item-top">
+                <h5 class="cart-item-name">{{ item.product.name }}</h5>
+                <span class="cart-item-subtotal">€ {{ item.subtotal|truncate_2 }}</span>
+              </div>
+
+              <div class="cart-item-meta">
+                <span class="cart-pill"><i class="mdi mdi-currency-eur"></i>{% trans 'Price' %}: {{ item.product.price|truncate_2 }}</span>
+                <span class="cart-pill"><i class="mdi mdi-counter"></i>{% trans 'Quantity' %}: {{ item.quantity|trim_zeros }}</span>
+              </div>
+
+              <div class="cart-item-actions">
+                <label class="cart-field-label" for="cart-qty-{{ item.product.id }}">{% trans 'Quantity' %}</label>
+                <div class="cart-controls-inline">
+                  <form method="post" action="{% url 'user_cart_update' %}" class="cart-update-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                    <input id="cart-qty-{{ item.product.id }}" type="number" class="form-control cart-qty-input" name="quantity" min="0.01" step="0.01" value="{{ item.quantity|trim_zeros }}" data-unit-price="{{ item.product.price }}">
+                    <button class="btn cart-btn-update" type="submit">{% trans 'Update' %}</button>
+                  </form>
+
+                  <form method="post" action="{% url 'user_cart_remove' %}" class="cart-remove-form" onsubmit="return confirm('{% trans 'Remove this product from your cart?' %}');">
+                    {% csrf_token %}
+                    <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                    <button class="btn btn-outline-danger cart-btn-remove" type="submit" aria-label="{% trans 'Remove' %}" title="{% trans 'Remove' %}">
+                      <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i>
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center text-muted py-4">{% trans 'Your cart is empty.' %}</div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  {{ block.super }}
+  <script>
+    (function () {
+      const summaryCard = document.getElementById('cart-summary-card');
+      if (!summaryCard) {
+        return;
+      }
+
+      const totalEl = document.getElementById('cart-total-live');
+      const balanceAfterEl = document.getElementById('cart-balance-after-live');
+      const qtyInputs = Array.from(document.querySelectorAll('.cart-qty-input'));
+
+      const parseNumber = (value) => {
+        if (value === null || value === undefined) {
+          return 0;
+        }
+        const parsed = Number(String(value).replace(',', '.'));
+        return Number.isFinite(parsed) ? parsed : 0;
+      };
+
+      const formatMoney = (value) => {
+        return new Intl.NumberFormat('es-ES', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(value);
+      };
+
+      const currentBalance = parseNumber(summaryCard.dataset.currentBalance);
+
+      const recalculateSimulation = () => {
+        const total = qtyInputs.reduce((acc, input) => {
+          const quantity = parseNumber(input.value);
+          const unitPrice = parseNumber(input.dataset.unitPrice);
+          return acc + (quantity * unitPrice);
+        }, 0);
+
+        const balanceAfter = currentBalance - total;
+
+        totalEl.textContent = formatMoney(total);
+        balanceAfterEl.textContent = formatMoney(balanceAfter);
+        balanceAfterEl.parentElement.classList.toggle('is-negative', balanceAfter < 0);
+      };
+
+      qtyInputs.forEach((input) => {
+        input.addEventListener('input', recalculateSimulation);
+        input.addEventListener('change', recalculateSimulation);
+      });
+
+      recalculateSimulation();
+    })();
+  </script>
+{% endblock %}

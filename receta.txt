@@ -45,3 +45,24 @@ python manage.py collectstatic
 gunicorn test:
 gunicorn --bind 0.0.0.0:8000 CashFlow.wsgi:application
 gunicorn --bind 0.0.0.0:8000 CashFlow.asgi:application -k uvicorn.workers.UvicornWorker
+
+si no funciona y usas riscv64 crea .env y añade ENABLE_REALTIME=0
+
+
+certificado ssl local:
+
+mkdir ~/certs
+cd ~/certs
+
+openssl genrsa -out server.key 2048
+
+openssl req -new -x509 -key server.key -out server.crt -days 99999
+
+test ssl:
+desde la carpeta CashFlow:
+gunicorn CashFlow.asgi:application \
+    --bind 0.0.0.0:8000 \
+    --certfile ~/certs/server.crt \
+    --keyfile ~/certs/server.key
+
+(es normal que el explorador diga que el cert no es de confianza)

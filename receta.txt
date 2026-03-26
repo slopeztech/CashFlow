@@ -47,7 +47,7 @@ gunicorn --bind 0.0.0.0:8000 CashFlow.wsgi:application
 gunicorn --bind 0.0.0.0:8000 CashFlow.asgi:application -k uvicorn.workers.UvicornWorker
 
 si no funciona y usas riscv64 crea .env y añade ENABLE_REALTIME=0
-
+python manage.py collectstatic --noinput
 
 certificado ssl local:
 

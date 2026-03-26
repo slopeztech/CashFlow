@@ -20,6 +20,30 @@ from urllib.parse import parse_qs, unquote, urlparse
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+def _load_dotenv_file(path):
+    if not path.exists():
+        return
+
+    for raw_line in path.read_text(encoding='utf-8').splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith('#') or '=' not in line:
+            continue
+
+        key, value = line.split('=', 1)
+        key = key.strip()
+        value = value.strip()
+        if not key:
+            continue
+
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in {'"', "'"}:
+            value = value[1:-1]
+
+        os.environ.setdefault(key, value)
+
+
+_load_dotenv_file(BASE_DIR / '.env')
+
+
 def _env_bool(name, default=False):
     value = os.getenv(name)
     if value is None:
@@ -249,12 +273,19 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+WHITE_NOISE_USE_MANIFEST = _env_bool('WHITENOISE_USE_MANIFEST', default=True)
+
+if WHITE_NOISE_USE_MANIFEST:
+    staticfiles_backend = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+else:
+    staticfiles_backend = 'whitenoise.storage.CompressedStaticFilesStorage'
+
 STORAGES = {
     'default': {
         'BACKEND': 'django.core.files.storage.FileSystemStorage',
     },
     'staticfiles': {
-        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        'BACKEND': staticfiles_backend,
     },
 }
 WHITENOISE_MANIFEST_STRICT = _env_bool('WHITENOISE_MANIFEST_STRICT', default=False)

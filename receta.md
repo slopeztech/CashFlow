@@ -118,6 +118,9 @@ In `.env`:
 WHITENOISE_MANIFEST_STRICT=0
 WHITENOISE_USE_MANIFEST=0
 ENABLE_REALTIME=0
+SERVE_MEDIA_WITH_DJANGO=1
+MEDIA_URL=/media/
+MEDIA_ROOT=/home/orangepi/CashFlow/media
 ```
 
 At this point, this should work:
@@ -126,7 +129,59 @@ At this point, this should work:
 gunicorn CashFlow.asgi:application --bind 0.0.0.0:8000 --certfile ~/certs/server.crt --keyfile ~/certs/server.key
 ```
 
-## 7. Create systemd Service
+## 7. Nginx Reverse Proxy (Required)
+
+Create an Nginx site file (for example in `/etc/nginx/sites-available/cashflow`) with this content:
+
+```nginx
+server {
+    listen 8443 ssl;
+    server_name cashflow.local;
+
+    ssl_certificate     /home/orangepi/certs/server.crt;
+    ssl_certificate_key /home/orangepi/certs/server.key;
+
+    access_log /var/log/nginx/cashflow_access.log;
+    error_log  /var/log/nginx/cashflow_error.log debug;
+
+    location /media/ {
+        alias /home/orangepi/CashFlow/media/;
+    }
+
+    location /static/ {
+        alias /home/orangepi/CashFlow/staticfiles/;
+    }
+
+    location / {
+        proxy_pass https://127.0.0.1:8000;
+        proxy_ssl_verify off;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-Proto https;
+    }
+}
+```
+
+Enable and reload Nginx:
+
+```bash
+sudo ln -s /etc/nginx/sites-available/cashflow /etc/nginx/sites-enabled/cashflow
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+## 8. Required Permissions for `media` and `staticfiles`
+
+Run these commands:
+
+```bash
+sudo chmod o+rx /home/orangepi
+sudo chmod o+rx /home/orangepi/CashFlow
+sudo chmod -R o+rx /home/orangepi/CashFlow/staticfiles
+sudo chmod -R o+rx /home/orangepi/CashFlow/media
+```
+
+## 9. Create systemd Service
 
 ```bash
 sudo nano /etc/systemd/system/cashflow.service
@@ -156,7 +211,7 @@ Restart=always
 WantedBy=multi-user.target
 ```
 
-## 8. Enable and Operate the Service
+## 10. Enable and Operate the Service
 
 ```bash
 sudo systemctl daemon-reload

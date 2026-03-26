@@ -44,6 +44,30 @@ def _load_dotenv_file(path):
 _load_dotenv_file(BASE_DIR / '.env')
 
 
+def _compile_locales_if_needed(base_dir):
+    auto_compile_raw = os.getenv('AUTO_COMPILE_LOCALES', '1').strip().lower()
+    if auto_compile_raw not in {'1', 'true', 'yes', 'on'}:
+        return
+
+    try:
+        import polib
+    except Exception:
+        return
+
+    locale_dir = base_dir / 'locale'
+    if not locale_dir.exists():
+        return
+
+    for po_path in locale_dir.rglob('django.po'):
+        mo_path = po_path.with_suffix('.mo')
+        should_compile = (not mo_path.exists()) or (po_path.stat().st_mtime > mo_path.stat().st_mtime)
+        if should_compile:
+            polib.pofile(str(po_path)).save_as_mofile(str(mo_path))
+
+
+_compile_locales_if_needed(BASE_DIR)
+
+
 def _env_bool(name, default=False):
     value = os.getenv(name)
     if value is None:

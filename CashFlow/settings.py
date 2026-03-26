@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 import os
 import sys
+import importlib.util
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
@@ -29,6 +30,10 @@ def _env_bool(name, default=False):
 def _env_list(name, default=''):
     raw_value = os.getenv(name, default)
     return [item.strip() for item in raw_value.split(',') if item.strip()]
+
+
+def _is_module_available(module_name):
+    return importlib.util.find_spec(module_name) is not None
 
 
 def _build_database_config():
@@ -117,15 +122,18 @@ CSRF_TRUSTED_ORIGINS = _env_list(
 
 # Application definition
 
+ENABLE_REALTIME = _env_bool('ENABLE_REALTIME', default=True)
+HAS_CHANNELS = _is_module_available('channels')
+HAS_DAPHNE = _is_module_available('daphne')
+REALTIME_ENABLED = ENABLE_REALTIME and HAS_CHANNELS and HAS_DAPHNE
+
 INSTALLED_APPS = [
-    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'channels',
     'rest_framework',
     'core',
     'inventory',
@@ -133,6 +141,10 @@ INSTALLED_APPS = [
     'customers',
     'api',
 ]
+
+if REALTIME_ENABLED:
+    INSTALLED_APPS = ['daphne', *INSTALLED_APPS]
+    INSTALLED_APPS.insert(7, 'channels')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -174,11 +186,12 @@ TEMPLATES = [
 WSGI_APPLICATION = 'CashFlow.wsgi.application'
 ASGI_APPLICATION = 'CashFlow.asgi.application'
 
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
-    },
-}
+if REALTIME_ENABLED:
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        },
+    }
 
 
 # Database

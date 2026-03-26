@@ -2,8 +2,11 @@ from django.utils import timezone
 
 
 def push_live_update(*, event='changed', user_ids=None, include_admin=True, include_all_users=False):
-    from asgiref.sync import async_to_sync
-    from channels.layers import get_channel_layer
+    try:
+        from asgiref.sync import async_to_sync
+        from channels.layers import get_channel_layer
+    except ImportError:
+        return
 
     channel_layer = get_channel_layer()
     if channel_layer is None:

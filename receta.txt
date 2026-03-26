@@ -14,8 +14,34 @@ sudo reboot
 ---
 
 sudo apt install -y git nginx avahi-daemon
+sudo apt install -y python3 python3-pip python3-venv
+sudo apt install -y python3-dev build-essential libffi-dev
+sudo apt install -y libjpeg-dev zlib1g-dev libpng-dev libfreetype6-dev liblcms2-dev libopenjp2-7-dev libtiff-dev tk-dev tcl-dev build-essential
+sudo apt install -y python3-cryptography python3-openssl pkg-config libssl-dev cargo
 
 sudo systemctl enable avahi-daemon
 sudo systemctl start avahi-daemon
 
 (en este punto se puede acceder al servidor como cashflow.local en red local)
+(cambiar cr4edenciales por defecto)
+
+en la carpeta de usuario:
+
+git clone https://github.com/slopeztech/CashFlow
+cd CashFlow
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+python manage.py migrate
+python manage.py createsuperuser
+
+si quieres puedes hacer un test llegado a este punto:
+python manage.py runserver 0.0.0.0:8000
+
+
+python manage.py collectstatic
+
+gunicorn test:
+gunicorn --bind 0.0.0.0:8000 CashFlow.wsgi:application
+gunicorn --bind 0.0.0.0:8000 CashFlow.asgi:application -k uvicorn.workers.UvicornWorker

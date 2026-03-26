@@ -198,7 +198,7 @@ Additional consistency rules:
 1. Clone
 
 ```bash
-git clone <YOUR_REPO_URL>
+git clone https://github.com/slopeztech/CashFlow
 cd CashFlow
 ```
 
@@ -241,6 +241,10 @@ Django admin site: `http://127.0.0.1:8000/admin/`
 - Admin navigation badges and selected dashboard regions refresh automatically.
 - User balance/orders/dashboard regions refresh automatically after relevant events.
 
+Compatibility mode:
+- Set `ENABLE_REALTIME=0` to run without Channels/Daphne.
+- In this mode, the app keeps full HTTP functionality and disables websocket live refresh.
+
 ## Environment Variables
 
 Use `.env.example` as baseline.
@@ -268,6 +272,7 @@ Use `.env.example` as baseline.
 
 - `SECRET_KEY`
 - `DEBUG`
+- `ENABLE_REALTIME`
 - `ALLOWED_HOSTS`
 - `SECURE_SSL_REDIRECT`
 - `SESSION_COOKIE_SECURE`
@@ -395,6 +400,34 @@ python manage.py collectstatic --noinput
 ```bash
 gunicorn -c gunicorn.conf.py CashFlow.asgi:application
 ```
+
+### Orange Pi RISC-V64 profile (without Channels/Daphne)
+
+If your platform cannot install `channels`/`daphne`:
+
+1. Install compatibility dependencies:
+
+```bash
+pip install -r requirements-riscv64.txt
+```
+
+2. Disable realtime in env:
+
+```bash
+ENABLE_REALTIME=0
+```
+
+3. Run with WSGI:
+
+```bash
+gunicorn --workers 3 --bind 127.0.0.1:8001 CashFlow.wsgi:application
+```
+
+4. Optional systemd template:
+
+- `deploy/systemd/cashflow-riscv64.service`
+
+This profile keeps web/API behavior and disables websocket-driven auto-refresh only.
 
 5. Move templates to system paths:
 

@@ -48,12 +48,24 @@ class UserLanguageMiddleware:
         translation.activate(language)
         request.LANGUAGE_CODE = translation.get_language()
 
+        if hasattr(request, 'session'):
+            request.session['django_language'] = request.LANGUAGE_CODE
+
         if user and user.is_authenticated:
             process_monthly_fee_for_user(user)
 
         response = self.get_response(request)
         response['Content-Language'] = translation.get_language() or language
-        translation.deactivate()
+        response.set_cookie(
+            settings.LANGUAGE_COOKIE_NAME,
+            request.LANGUAGE_CODE,
+            max_age=settings.LANGUAGE_COOKIE_AGE,
+            path=settings.LANGUAGE_COOKIE_PATH,
+            domain=settings.LANGUAGE_COOKIE_DOMAIN,
+            secure=settings.LANGUAGE_COOKIE_SECURE,
+            httponly=False,
+            samesite=settings.LANGUAGE_COOKIE_SAMESITE,
+        )
         return response
 
 

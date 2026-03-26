@@ -195,45 +195,7 @@ Additional consistency rules:
 
 ## Getting Started
 
-1. Clone
-
-```bash
-git clone https://github.com/slopeztech/CashFlow
-cd CashFlow
-```
-
-2. Virtual environment + dependencies
-
-```bash
-python -m venv .venv
-# Windows
-.\.venv\Scripts\activate
-# Linux/macOS
-source .venv/bin/activate
-
-pip install -r requirements.txt
-```
-
-3. Migrate database
-
-```bash
-python manage.py migrate
-```
-
-4. Create admin user
-
-```bash
-python manage.py createsuperuser
-```
-
-5. Run app
-
-```bash
-python manage.py runserver
-```
-
-Main app: `http://127.0.0.1:8000/`
-Django admin site: `http://127.0.0.1:8000/admin/`
+Installation and deployment recipe is documented in [receta.md](receta.md).
 
 ## Realtime Notes
 

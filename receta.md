@@ -121,6 +121,7 @@ ENABLE_REALTIME=0
 SERVE_MEDIA_WITH_DJANGO=1
 MEDIA_URL=/media/
 MEDIA_ROOT=/home/orangepi/CashFlow/media
+AUTO_COMPILE_LOCALES=1
 ```
 
 At this point, this should work:

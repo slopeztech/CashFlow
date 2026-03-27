@@ -46,6 +46,38 @@ def get_systemctl_executable():
     )
 
 
+def get_sudo_executable():
+    return _resolve_executable(
+        'sudo',
+        extra_paths=[
+            '/usr/bin/sudo',
+            '/bin/sudo',
+            '/usr/local/bin/sudo',
+        ],
+    )
+
+
+def _build_systemctl_command():
+    systemctl_cmd = get_systemctl_executable()
+    if not systemctl_cmd:
+        return None
+
+    # If process already runs as root, direct systemctl is enough.
+    try:
+        is_root = hasattr(os, 'geteuid') and os.geteuid() == 0
+    except Exception:
+        is_root = False
+
+    if is_root:
+        return [systemctl_cmd]
+
+    sudo_cmd = get_sudo_executable()
+    if sudo_cmd:
+        return [sudo_cmd, '-n', systemctl_cmd]
+
+    return [systemctl_cmd]
+
+
 def get_update_log_path() -> Path:
     base_dir = Path(str(getattr(settings, 'BASE_DIR', os.getcwd())))
     return base_dir / 'last_update.log'
@@ -220,8 +252,8 @@ def run_platform_update(*, initiated_by='manual'):
                     }
 
             if os_name == 'linux':
-                systemctl_cmd = get_systemctl_executable()
-                if not systemctl_cmd:
+                systemctl_base = _build_systemctl_command()
+                if not systemctl_base:
                     _append_log(log_file, 'ERROR: systemctl executable not found on Linux environment.')
                     _append_log(log_file, 'CashFlow update finished with errors')
                     return {
@@ -229,10 +261,13 @@ def run_platform_update(*, initiated_by='manual'):
                         'log_path': str(log_path),
                     }
 
+                _append_log(log_file, f"Systemctl command base: {' '.join(systemctl_base)}")
+                _append_log(log_file, 'If restart fails with permissions, configure sudoers for non-interactive systemctl restart.')
+
                 linux_steps = [
-                    ('Reload systemd units', [systemctl_cmd, 'daemon-reload']),
-                    ('Restart CashFlow service', [systemctl_cmd, 'restart', UPDATE_SERVICE_NAME]),
-                    ('Verify CashFlow service status', [systemctl_cmd, 'is-active', UPDATE_SERVICE_NAME]),
+                    ('Reload systemd units', systemctl_base + ['daemon-reload']),
+                    ('Restart CashFlow service', systemctl_base + ['restart', UPDATE_SERVICE_NAME]),
+                    ('Verify CashFlow service status', systemctl_base + ['is-active', UPDATE_SERVICE_NAME]),
                 ]
                 for step_name, command in linux_steps:
                     if not _run_step(log_file, step_name=step_name, command=command, cwd=base_dir):

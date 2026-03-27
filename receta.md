@@ -243,3 +243,22 @@ Restart after `git pull`:
 ```bash
 sudo systemctl restart cashflow.service
 ```
+
+## 11. Allow Non-Interactive Service Restart for In-App Updates
+
+If updates are triggered from the admin panel, the app may need to restart `cashflow.service`
+without interactive password prompts.
+
+Open sudoers with `visudo`:
+
+```bash
+sudo visudo
+```
+
+Add this line (adjust username if needed):
+
+```sudoers
+orangepi ALL=(root) NOPASSWD: /usr/bin/systemctl restart cashflow.service, /usr/bin/systemctl is-active cashflow.service, /usr/bin/systemctl daemon-reload
+```
+
+This allows only the required `systemctl` operations for CashFlow updates.

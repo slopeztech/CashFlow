@@ -394,6 +394,9 @@ msgstr "Rama"
 msgid "Last commit"
 msgstr "Último commit"
 
+msgid "Repository URL"
+msgstr "URL del repositorio"
+
 msgid "Current commit"
 msgstr "Commit actual"
 

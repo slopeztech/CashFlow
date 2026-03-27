@@ -1735,6 +1735,7 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
         system_settings = self._system_settings()
         monthly_settings = self._monthly_settings()
         git_info = self._resolve_git_info()
+        git_repo_url = self._resolve_git_repo_url()
         git_history = (
             self._resolve_git_history(limit=self.UPDATES_HISTORY_MAX_COMMITS)
             if selected_tab == self.TAB_UPDATES
@@ -1768,6 +1769,7 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
             'code_version': os.getenv('APP_VERSION') or 'N/A',
             'git_branch': git_info['branch'],
             'git_commit': git_info['commit'],
+            'git_repo_url': git_repo_url,
             'updates_current_commit': (git_history or {}).get(
                 'current',
                 {'hash': 'N/A', 'subject': 'N/A', 'date': ''},
@@ -1885,6 +1887,28 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
             'current': formatted[0],
             'history': formatted[1:],
         }
+
+    def _resolve_git_repo_url(self):
+        fallback = 'N/A'
+        base_dir = str(getattr(settings, 'BASE_DIR', '')) or os.getcwd()
+        git_cmd = get_git_executable()
+        if not git_cmd:
+            return fallback
+
+        try:
+            repo_result = subprocess.run(
+                [git_cmd, 'config', '--get', 'remote.origin.url'],
+                cwd=base_dir,
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=2,
+            )
+        except (OSError, subprocess.SubprocessError):
+            return fallback
+
+        repo_url = (repo_result.stdout or '').strip() if repo_result.returncode == 0 else ''
+        return repo_url or fallback
 
     def _read_last_update_log(self):
         log_path = str(get_update_log_path())

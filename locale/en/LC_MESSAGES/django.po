@@ -384,6 +384,9 @@ msgstr "Branch"
 msgid "Last commit"
 msgstr "Last commit"
 
+msgid "Repository URL"
+msgstr "Repository URL"
+
 msgid "Current commit"
 msgstr "Current commit"
 

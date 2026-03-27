@@ -28,7 +28,7 @@
 
       {% if selected_tab == 'summary' %}
         <div class="row g-3">
-          <div class="col-lg-4 col-md-6">
+          <div class="col-lg-3 col-md-6">
             <div class="card card-rounded h-100 border">
               <div class="card-body">
                 <p class="text-muted mb-1">{% trans 'Platform name' %}</p>
@@ -36,7 +36,7 @@
               </div>
             </div>
           </div>
-          <div class="col-lg-4 col-md-6">
+          <div class="col-lg-3 col-md-6">
             <div class="card card-rounded h-100 border">
               <div class="card-body">
                 <p class="text-muted mb-1">{% trans 'Branch' %}</p>
@@ -44,11 +44,19 @@
               </div>
             </div>
           </div>
-          <div class="col-lg-4 col-md-12">
+          <div class="col-lg-3 col-md-6">
             <div class="card card-rounded h-100 border">
               <div class="card-body">
                 <p class="text-muted mb-1">{% trans 'Last commit' %}</p>
                 <h4 class="mb-0">{{ git_commit }}</h4>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <div class="card card-rounded h-100 border">
+              <div class="card-body">
+                <p class="text-muted mb-1">{% trans 'Repository URL' %}</p>
+                <p class="mb-0 text-break">{{ git_repo_url }}</p>
               </div>
             </div>
           </div>

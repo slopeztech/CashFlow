@@ -411,6 +411,15 @@ msgstr "Platform updated successfully."
 msgid "Platform update failed. Review last_update.log for details."
 msgstr "Platform update failed. Review last_update.log for details."
 
+msgid "Platform update started in background. The page will refresh while it runs."
+msgstr "Platform update started in background. The page will refresh while it runs."
+
+msgid "An update is already running."
+msgstr "An update is already running."
+
+msgid "Update in progress. This page refreshes automatically."
+msgstr "Update in progress. This page refreshes automatically."
+
 msgid "Updating..."
 msgstr "Updating..."
 

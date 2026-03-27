@@ -66,11 +66,14 @@
               <div class="card-body">
                 <h5 class="card-title mb-2">{% trans 'Update to latest version' %}</h5>
                 <p class="text-muted mb-3">{% trans 'Warning: this action applies system changes and the platform may be temporarily unavailable during the update window.' %}</p>
+                {% if updates_is_running %}
+                  <div class="alert alert-info py-2">{% trans 'Update in progress. This page refreshes automatically.' %}</div>
+                {% endif %}
                 <form id="update-platform-form" method="post">
                   {% csrf_token %}
                   <input type="hidden" name="action" value="run_update">
-                  <button id="update-platform-btn" type="submit" class="btn btn-warning d-inline-flex align-items-center gap-2">
-                    <span id="update-platform-spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                  <button id="update-platform-btn" type="submit" class="btn btn-warning d-inline-flex align-items-center gap-2" {% if updates_is_running %}disabled aria-busy="true"{% endif %}>
+                    <span id="update-platform-spinner" class="spinner-border spinner-border-sm {% if not updates_is_running %}d-none{% endif %}" role="status" aria-hidden="true"></span>
                     <span id="update-platform-btn-label">{% trans 'Update to latest version' %}</span>
                   </button>
                 </form>
@@ -434,6 +437,7 @@
       var updateOverlay = document.getElementById('update-platform-overlay');
       var updateConfirmText = "{% trans 'Are you sure you want to start the platform update now?' %}";
       var updatingText = "{% trans 'Updating...' %}";
+      var updatesIsRunning = {{ updates_is_running|yesno:'true,false' }};
 
       if (updateForm && updateBtn) {
         updateForm.addEventListener('submit', function (event) {
@@ -460,6 +464,12 @@
             updateBtnLabel.textContent = updatingText;
           }
         });
+      }
+
+      if (updatesIsRunning) {
+        window.setTimeout(function () {
+          window.location.reload();
+        }, 7000);
       }
 
       if (refreshBtn) {

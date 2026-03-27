@@ -57,7 +57,12 @@ from core.models import (
     UserSession,
 )
 from core.security import safe_redirect_target
-from core.update_runner import get_git_executable, get_update_log_path, run_platform_update
+from core.update_runner import (
+    get_git_executable,
+    get_update_log_path,
+    is_update_running,
+    start_platform_update_background,
+)
 from core.webviews.mixins import ResponsiveTemplateMixin, StaffRequiredMixin
 from customers.models import BalanceLog, BalanceRequest, MonthlyFeeSettings, StoreUserProfile
 from customers.services import months_due_for_profile, process_monthly_fee_for_user
@@ -1769,6 +1774,7 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
             ),
             'updates_commit_history': (git_history or {}).get('history', []),
             'updates_last_log': last_update_log,
+            'updates_is_running': is_update_running(),
             'platform_label': system_settings.store_name,
             'backendlog': backendlog,
             'backendlog_filter': backendlog_filter,
@@ -2187,14 +2193,11 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
             return render(request, self.get_template_names()[0], context)
 
         if action == 'run_update':
-            result = run_platform_update(initiated_by=request.user.username)
-            if result['success']:
-                messages.success(request, _('Platform updated successfully.'))
+            result = start_platform_update_background(initiated_by=request.user.username)
+            if result['started']:
+                messages.success(request, _('Platform update started in background. The page will refresh while it runs.'))
             else:
-                messages.error(
-                    request,
-                    _('Platform update failed. Review last_update.log for details.'),
-                )
+                messages.warning(request, _('An update is already running.'))
             return redirect(f"{request.path}?tab={self.TAB_UPDATES}")
 
         return redirect(f"{request.path}?tab={self._selected_tab()}")

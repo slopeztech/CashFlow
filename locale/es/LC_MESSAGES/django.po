@@ -421,6 +421,15 @@ msgstr "Plataforma actualizada correctamente."
 msgid "Platform update failed. Review last_update.log for details."
 msgstr "La actualización de la plataforma falló. Revisa last_update.log para más detalles."
 
+msgid "Platform update started in background. The page will refresh while it runs."
+msgstr "La actualización se inició en segundo plano. Esta página se refrescará mientras se ejecuta."
+
+msgid "An update is already running."
+msgstr "Ya hay una actualización en curso."
+
+msgid "Update in progress. This page refreshes automatically."
+msgstr "Actualización en curso. Esta página se refresca automáticamente."
+
 msgid "Updating..."
 msgstr "Actualizando..."
 

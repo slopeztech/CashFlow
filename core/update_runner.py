@@ -51,10 +51,87 @@ def get_update_log_path() -> Path:
     return base_dir / 'last_update.log'
 
 
+def get_update_lock_path() -> Path:
+    base_dir = Path(str(getattr(settings, 'BASE_DIR', os.getcwd())))
+    return base_dir / '.last_update.lock'
+
+
 def _append_log(log_file, message):
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     log_file.write(f"[{timestamp}] {message}\n")
     log_file.flush()
+
+
+def _is_pid_running(pid):
+    if pid <= 0:
+        return False
+    try:
+        os.kill(pid, 0)
+    except OSError:
+        return False
+    return True
+
+
+def is_update_running():
+    lock_path = get_update_lock_path()
+    if not lock_path.exists():
+        return False
+
+    try:
+        lock_content = lock_path.read_text(encoding='utf-8').strip()
+        pid = int(lock_content.split(':', 1)[0])
+    except Exception:
+        try:
+            lock_path.unlink(missing_ok=True)
+        except Exception:
+            pass
+        return False
+
+    if _is_pid_running(pid):
+        return True
+
+    try:
+        lock_path.unlink(missing_ok=True)
+    except Exception:
+        pass
+    return False
+
+
+def start_platform_update_background(*, initiated_by='manual'):
+    base_dir = Path(str(getattr(settings, 'BASE_DIR', os.getcwd())))
+    if is_update_running():
+        return {
+            'started': False,
+            'reason': 'running',
+        }
+
+    command = [
+        sys.executable,
+        'manage.py',
+        'update_platform',
+        '--initiated-by',
+        initiated_by,
+    ]
+
+    try:
+        subprocess.Popen(
+            command,
+            cwd=str(base_dir),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True,
+            close_fds=True,
+        )
+    except Exception as exc:  # pragma: no cover - defensive
+        return {
+            'started': False,
+            'reason': str(exc),
+        }
+
+    return {
+        'started': True,
+        'reason': '',
+    }
 
 
 def _run_step(log_file, *, step_name, command, cwd, timeout=900):
@@ -95,67 +172,84 @@ def _run_step(log_file, *, step_name, command, cwd, timeout=900):
 def run_platform_update(*, initiated_by='manual'):
     base_dir = Path(str(getattr(settings, 'BASE_DIR', os.getcwd())))
     log_path = get_update_log_path()
+    lock_path = get_update_lock_path()
     os_name = platform.system().lower()
     python_cmd = [sys.executable, 'manage.py']
 
-    with open(log_path, 'w', encoding='utf-8') as log_file:
-        _append_log(log_file, 'CashFlow update started')
-        _append_log(log_file, f'Initiated by: {initiated_by}')
-        _append_log(log_file, f'Base directory: {base_dir}')
-        _append_log(log_file, f'Detected OS: {os_name}')
+    if is_update_running():
+        with open(log_path, 'w', encoding='utf-8') as log_file:
+            _append_log(log_file, 'CashFlow update skipped: another update process is already running')
+        return {
+            'success': False,
+            'log_path': str(log_path),
+        }
 
-        git_cmd = get_git_executable()
-        if not git_cmd:
-            _append_log(log_file, 'ERROR: Git executable not found. Ensure git is installed and available to the service user.')
-            _append_log(log_file, 'CashFlow update finished with errors')
-            return {
-                'success': False,
-                'log_path': str(log_path),
-            }
+    lock_path.write_text(f"{os.getpid()}:{initiated_by}", encoding='utf-8')
 
-        steps = [
-            ('Fetch remote changes', [git_cmd, 'fetch', '--all', '--prune']),
-            ('Pull latest changes', [git_cmd, 'pull', '--ff-only']),
-            ('Install dependencies', [sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt']),
-            ('Apply database migrations', python_cmd + ['migrate', '--noinput']),
-            ('Collect static files', python_cmd + ['collectstatic', '--noinput']),
-            ('Run Django checks', python_cmd + ['check']),
-        ]
+    try:
+        with open(log_path, 'w', encoding='utf-8') as log_file:
+            _append_log(log_file, 'CashFlow update started')
+            _append_log(log_file, f'Initiated by: {initiated_by}')
+            _append_log(log_file, f'Base directory: {base_dir}')
+            _append_log(log_file, f'Detected OS: {os_name}')
 
-        for step_name, command in steps:
-            if not _run_step(log_file, step_name=step_name, command=command, cwd=base_dir):
+            git_cmd = get_git_executable()
+            if not git_cmd:
+                _append_log(log_file, 'ERROR: Git executable not found. Ensure git is installed and available to the service user.')
                 _append_log(log_file, 'CashFlow update finished with errors')
                 return {
                     'success': False,
                     'log_path': str(log_path),
                 }
 
-        if os_name == 'linux':
-            systemctl_cmd = get_systemctl_executable()
-            if not systemctl_cmd:
-                _append_log(log_file, 'ERROR: systemctl executable not found on Linux environment.')
-                _append_log(log_file, 'CashFlow update finished with errors')
-                return {
-                    'success': False,
-                    'log_path': str(log_path),
-                }
-
-            linux_steps = [
-                ('Reload systemd units', [systemctl_cmd, 'daemon-reload']),
-                ('Restart CashFlow service', [systemctl_cmd, 'restart', UPDATE_SERVICE_NAME]),
-                ('Verify CashFlow service status', [systemctl_cmd, 'is-active', UPDATE_SERVICE_NAME]),
+            steps = [
+                ('Fetch remote changes', [git_cmd, 'fetch', '--all', '--prune']),
+                ('Pull latest changes', [git_cmd, 'pull', '--ff-only']),
+                ('Install dependencies', [sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt']),
+                ('Apply database migrations', python_cmd + ['migrate', '--noinput']),
+                ('Collect static files', python_cmd + ['collectstatic', '--noinput']),
+                ('Run Django checks', python_cmd + ['check']),
             ]
-            for step_name, command in linux_steps:
+
+            for step_name, command in steps:
                 if not _run_step(log_file, step_name=step_name, command=command, cwd=base_dir):
                     _append_log(log_file, 'CashFlow update finished with errors')
                     return {
                         'success': False,
                         'log_path': str(log_path),
                     }
-        else:
-            _append_log(log_file, 'Skipping systemctl steps because OS is not Linux')
 
-        _append_log(log_file, 'CashFlow update finished successfully')
+            if os_name == 'linux':
+                systemctl_cmd = get_systemctl_executable()
+                if not systemctl_cmd:
+                    _append_log(log_file, 'ERROR: systemctl executable not found on Linux environment.')
+                    _append_log(log_file, 'CashFlow update finished with errors')
+                    return {
+                        'success': False,
+                        'log_path': str(log_path),
+                    }
+
+                linux_steps = [
+                    ('Reload systemd units', [systemctl_cmd, 'daemon-reload']),
+                    ('Restart CashFlow service', [systemctl_cmd, 'restart', UPDATE_SERVICE_NAME]),
+                    ('Verify CashFlow service status', [systemctl_cmd, 'is-active', UPDATE_SERVICE_NAME]),
+                ]
+                for step_name, command in linux_steps:
+                    if not _run_step(log_file, step_name=step_name, command=command, cwd=base_dir):
+                        _append_log(log_file, 'CashFlow update finished with errors')
+                        return {
+                            'success': False,
+                            'log_path': str(log_path),
+                        }
+            else:
+                _append_log(log_file, 'Skipping systemctl steps because OS is not Linux')
+
+            _append_log(log_file, 'CashFlow update finished successfully')
+    finally:
+        try:
+            lock_path.unlink(missing_ok=True)
+        except Exception:
+            pass
 
     return {
         'success': True,

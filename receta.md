@@ -159,6 +159,12 @@ server {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-Proto https;
+
+        # Avoid timeouts on long backend operations.
+        proxy_connect_timeout 120s;
+        proxy_send_timeout 1800s;
+        proxy_read_timeout 1800s;
+        send_timeout 1800s;
     }
 }
 ```

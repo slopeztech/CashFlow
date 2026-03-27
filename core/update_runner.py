@@ -196,6 +196,16 @@ def _run_step(log_file, *, step_name, command, cwd, timeout=900):
 
     if result.returncode != 0:
         _append_log(log_file, f"ERROR: {step_name} exited with code {result.returncode}")
+        stderr_lower = (result.stderr or '').lower()
+        if 'a password is required' in stderr_lower:
+            runtime_user = getpass.getuser()
+            _append_log(log_file, 'HINT: Non-interactive sudo is not configured for this runtime user.')
+            _append_log(log_file, 'HINT: Run `sudo visudo -f /etc/sudoers.d/cashflow-update` and add:')
+            _append_log(
+                log_file,
+                f"HINT: {runtime_user} ALL=(root) NOPASSWD: /usr/bin/systemctl restart {UPDATE_SERVICE_NAME}, /usr/bin/systemctl is-active {UPDATE_SERVICE_NAME}, /usr/bin/systemctl daemon-reload",
+            )
+            _append_log(log_file, f"HINT: Verify with `sudo -l -U {runtime_user}` and `sudo -n /usr/bin/systemctl is-active {UPDATE_SERVICE_NAME}`.")
         return False
 
     _append_log(log_file, f"OK: {step_name}")

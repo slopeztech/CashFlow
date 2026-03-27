@@ -252,7 +252,7 @@ without interactive password prompts.
 Open sudoers with `visudo`:
 
 ```bash
-sudo visudo
+sudo visudo -f /etc/sudoers.d/cashflow-update
 ```
 
 Add this line (adjust username if needed):
@@ -262,3 +262,14 @@ orangepi ALL=(root) NOPASSWD: /usr/bin/systemctl restart cashflow.service, /usr/
 ```
 
 This allows only the required `systemctl` operations for CashFlow updates.
+
+Apply safe permissions and verify:
+
+```bash
+sudo chmod 440 /etc/sudoers.d/cashflow-update
+sudo visudo -c
+sudo -l -U orangepi
+sudo -n /usr/bin/systemctl is-active cashflow.service
+```
+
+If `sudo -n` asks for password, the rule is not being applied (wrong username, wrong path, or overridden by another sudoers rule).

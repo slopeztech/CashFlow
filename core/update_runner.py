@@ -201,6 +201,24 @@ def _run_step(log_file, *, step_name, command, cwd, timeout=900):
     return True
 
 
+def _select_requirements_file(base_dir: Path) -> str:
+    machine = (platform.machine() or '').lower()
+    standard_arch_markers = (
+        'x86_64',
+        'amd64',
+        'x64',
+        'x86',
+        'i386',
+        'i686',
+        'x32',
+    )
+    lite_requirements = base_dir / 'requirements-lite.txt'
+
+    if not any(marker in machine for marker in standard_arch_markers) and lite_requirements.exists():
+        return 'requirements-lite.txt'
+    return 'requirements.txt'
+
+
 def run_platform_update(*, initiated_by='manual'):
     base_dir = Path(str(getattr(settings, 'BASE_DIR', os.getcwd())))
     log_path = get_update_log_path()
@@ -224,6 +242,10 @@ def run_platform_update(*, initiated_by='manual'):
             _append_log(log_file, f'Initiated by: {initiated_by}')
             _append_log(log_file, f'Base directory: {base_dir}')
             _append_log(log_file, f'Detected OS: {os_name}')
+            _append_log(log_file, f'Detected architecture: {platform.machine() or "unknown"}')
+
+            requirements_file = _select_requirements_file(base_dir)
+            _append_log(log_file, f'Using requirements file: {requirements_file}')
 
             git_cmd = get_git_executable()
             if not git_cmd:
@@ -237,7 +259,7 @@ def run_platform_update(*, initiated_by='manual'):
             steps = [
                 ('Fetch remote changes', [git_cmd, 'fetch', '--all', '--prune']),
                 ('Pull latest changes', [git_cmd, 'pull', '--ff-only']),
-                ('Install dependencies', [sys.executable, '-m', 'pip', 'install', '-r', 'requirements.txt']),
+                ('Install dependencies', [sys.executable, '-m', 'pip', 'install', '-r', requirements_file]),
                 ('Apply database migrations', python_cmd + ['migrate', '--noinput']),
                 ('Collect static files', python_cmd + ['collectstatic', '--noinput']),
                 ('Run Django checks', python_cmd + ['check']),

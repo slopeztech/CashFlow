@@ -370,7 +370,7 @@ If your platform cannot install `channels`/`daphne`:
 1. Install compatibility dependencies:
 
 ```bash
-pip install -r requirements-riscv64.txt
+pip install -r requirements-lite.txt
 ```
 
 2. Disable realtime in env:

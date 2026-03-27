@@ -266,6 +266,7 @@ This allows only the required `systemctl` operations for CashFlow updates.
 Apply safe permissions and verify:
 
 ```bash
+sudo chown root:root /etc/sudoers.d/cashflow-update
 sudo chmod 440 /etc/sudoers.d/cashflow-update
 sudo visudo -c
 sudo -l -U orangepi
@@ -273,3 +274,24 @@ sudo -n /usr/bin/systemctl is-active cashflow.service
 ```
 
 If `sudo -n` asks for password, the rule is not being applied (wrong username, wrong path, or overridden by another sudoers rule).
+
+Troubleshooting checklist for `sudo: a password is required`:
+
+```bash
+# 1) Ensure the file name loads late (to avoid PASSWD override by later files)
+sudo mv /etc/sudoers.d/cashflow-update /etc/sudoers.d/zz-cashflow-update
+
+# 2) Re-validate syntax and effective rules
+sudo visudo -c
+sudo -l -U orangepi
+
+# 3) Test as orangepi (non-interactive)
+sudo -u orangepi -H sh -c 'sudo -n /usr/bin/systemctl is-active cashflow.service'
+sudo -u orangepi -H sh -c 'sudo -n /usr/bin/systemctl restart cashflow.service'
+```
+
+If your distro uses a different path, include both paths in sudoers:
+
+```sudoers
+orangepi ALL=(root) NOPASSWD: /usr/bin/systemctl restart cashflow.service, /usr/bin/systemctl is-active cashflow.service, /usr/bin/systemctl daemon-reload, /bin/systemctl restart cashflow.service, /bin/systemctl is-active cashflow.service, /bin/systemctl daemon-reload
+```

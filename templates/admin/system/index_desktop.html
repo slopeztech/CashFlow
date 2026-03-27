@@ -29,44 +29,44 @@
       {% if selected_tab == 'summary' %}
         <div class="row g-3">
           <div class="col-lg-3 col-md-6">
-            <div class="card card-rounded h-100 border">
+            <div class="card card-rounded h-100 border summary-info-card">
               <div class="card-header summary-card-header">
                 <p class="summary-card-title mb-0">{% trans 'Platform name' %}</p>
               </div>
               <div class="card-body">
-                <h4 class="mb-0">{{ system_settings.store_name }}</h4>
+                <h4 class="mb-0 summary-card-value">{{ system_settings.store_name }}</h4>
               </div>
             </div>
           </div>
           <div class="col-lg-3 col-md-6">
-            <div class="card card-rounded h-100 border">
+            <div class="card card-rounded h-100 border summary-info-card">
               <div class="card-header summary-card-header">
                 <p class="summary-card-title mb-0">{% trans 'Branch' %}</p>
               </div>
               <div class="card-body">
-                <h4 class="mb-0">{{ git_branch }}</h4>
+                <h4 class="mb-0 summary-card-value">{{ git_branch }}</h4>
               </div>
             </div>
           </div>
           <div class="col-lg-3 col-md-6">
-            <div class="card card-rounded h-100 border">
+            <div class="card card-rounded h-100 border summary-info-card">
               <div class="card-header summary-card-header">
                 <p class="summary-card-title mb-0">{% trans 'Last commit' %}</p>
               </div>
               <div class="card-body">
-                <h4 class="mb-0">{{ git_commit }}</h4>
+                <h4 class="mb-0 summary-card-value">{{ git_commit }}</h4>
               </div>
             </div>
           </div>
           <div class="col-lg-3 col-md-6">
-            <div class="card card-rounded h-100 border">
+            <div class="card card-rounded h-100 border summary-info-card">
               <div class="card-header summary-card-header">
                 <p class="summary-card-title mb-0">{% trans 'Repository URL' %}</p>
               </div>
               <div class="card-body">
                 {% if git_repo_web_url != 'N/A' %}
                   <a
-                    class="text-break js-repo-link"
+                    class="text-break js-repo-link summary-card-link"
                     href="{{ git_repo_web_url }}"
                     data-repo-web-url="{{ git_repo_web_url }}"
                     data-repo-app-url="{{ git_repo_app_url }}"
@@ -74,7 +74,7 @@
                     rel="noopener noreferrer"
                   >{{ git_repo_web_url }}</a>
                 {% else %}
-                  <p class="mb-0 text-break">{{ git_repo_url }}</p>
+                  <p class="mb-0 text-break summary-card-muted">{{ git_repo_url }}</p>
                 {% endif %}
               </div>
             </div>
@@ -409,18 +409,56 @@
       border-radius: 999px;
     }
 
+    .summary-info-card {
+      border-color: rgb(37 99 235 / 0.18) !important;
+      box-shadow: 0 10px 26px -22px rgb(17 24 39 / 0.8);
+      overflow: hidden;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    }
+
+    .summary-info-card:hover {
+      transform: translateY(-2px);
+      border-color: rgb(37 99 235 / 0.35) !important;
+      box-shadow: 0 14px 30px -20px rgb(17 24 39 / 0.5);
+    }
+
     .summary-card-header {
-      background: linear-gradient(180deg, rgb(17 24 39 / 0.06), rgb(17 24 39 / 0.02));
-      border-bottom: 1px solid rgb(17 24 39 / 0.12);
-      padding: 0.7rem 0.9rem;
+      background: linear-gradient(135deg, rgb(37 99 235 / 0.12), rgb(37 99 235 / 0.03));
+      border-bottom: 1px solid rgb(37 99 235 / 0.16);
+      padding: 0.72rem 0.92rem;
     }
 
     .summary-card-title {
-      color: #374151;
-      font-size: 0.84rem;
+      color: #1f3d8f;
+      font-size: 0.78rem;
       font-weight: 700;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.05em;
       text-transform: uppercase;
+    }
+
+    .summary-card-value {
+      color: #111827;
+      font-size: 1.08rem;
+      font-weight: 700;
+      line-height: 1.25;
+      word-break: break-word;
+    }
+
+    .summary-card-link {
+      color: #1d4ed8;
+      font-weight: 600;
+      text-decoration: none;
+      word-break: break-all;
+    }
+
+    .summary-card-link:hover {
+      color: #1e40af;
+      text-decoration: underline;
+    }
+
+    .summary-card-muted {
+      color: #6b7280;
+      font-weight: 600;
     }
 
     .backendlog-viewer {

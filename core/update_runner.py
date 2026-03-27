@@ -2,6 +2,7 @@ import os
 import platform
 import subprocess
 import sys
+import getpass
 from datetime import datetime
 from pathlib import Path
 from shutil import which
@@ -240,6 +241,7 @@ def run_platform_update(*, initiated_by='manual'):
         with open(log_path, 'w', encoding='utf-8') as log_file:
             _append_log(log_file, 'CashFlow update started')
             _append_log(log_file, f'Initiated by: {initiated_by}')
+            _append_log(log_file, f'Runtime user: {getpass.getuser()}')
             _append_log(log_file, f'Base directory: {base_dir}')
             _append_log(log_file, f'Detected OS: {os_name}')
             _append_log(log_file, f'Detected architecture: {platform.machine() or "unknown"}')
@@ -286,8 +288,17 @@ def run_platform_update(*, initiated_by='manual'):
                 _append_log(log_file, f"Systemctl command base: {' '.join(systemctl_base)}")
                 _append_log(log_file, 'If restart fails with permissions, configure sudoers for non-interactive systemctl restart.')
 
+                # daemon-reload is useful when unit files changed, but not required on every code update.
+                daemon_reload_ok = _run_step(
+                    log_file,
+                    step_name='Reload systemd units',
+                    command=systemctl_base + ['daemon-reload'],
+                    cwd=base_dir,
+                )
+                if not daemon_reload_ok:
+                    _append_log(log_file, 'WARN: daemon-reload failed; continuing with service restart attempt.')
+
                 linux_steps = [
-                    ('Reload systemd units', systemctl_base + ['daemon-reload']),
                     ('Restart CashFlow service', systemctl_base + ['restart', UPDATE_SERVICE_NAME]),
                     ('Verify CashFlow service status', systemctl_base + ['is-active', UPDATE_SERVICE_NAME]),
                 ]

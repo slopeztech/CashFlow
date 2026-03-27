@@ -5,6 +5,7 @@
   <li><a class="{{ cls }}" href="{% url 'admin_user_strikes' action_user.id %}">{% trans 'Strikes' %}</a></li>
   {% if not action_user.is_staff %}
     <li><a class="{{ cls }}" href="{% url 'admin_user_balance_adjust' action_user.id %}">{% trans 'Adjust balance' %}</a></li>
+    <li><a class="{{ cls }}" href="{% url 'sale_create' %}?customer={{ action_user.id }}">{% trans 'Create sale' %}</a></li>
   {% endif %}
   <li><a class="{{ cls }}" href="{% url 'admin_user_purchase_history' action_user.id %}">{% trans 'View purchases' %}</a></li>
   <li><a class="{{ cls }}" href="{% url 'admin_balance_logs' %}?user_id={{ action_user.id }}">{% trans 'Logs' %}</a></li>

@@ -12,6 +12,8 @@ from sales.services import approve_order, create_order, create_sale, delete_sale
 class SaleServiceTests(TestCase):
 	def setUp(self):
 		self.seller = User.objects.create_user(username='seller', password='testpass123')
+		self.customer = User.objects.create_user(username='buyer_sale', password='testpass123')
+		self.customer_profile = StoreUserProfile.objects.create(user=self.customer, current_balance='30.00')
 		self.product_a = Product.objects.create(
 			name='Coffee',
 			sku='COF-1',
@@ -30,6 +32,7 @@ class SaleServiceTests(TestCase):
 	def test_create_sale_reduces_stock_and_sets_total(self):
 		sale = create_sale(
 			seller=self.seller,
+			customer=self.customer,
 			customer_name='John',
 			items_data=[
 				{'product': self.product_a, 'quantity': 2, 'unit_price': self.product_a.price},
@@ -40,10 +43,14 @@ class SaleServiceTests(TestCase):
 		self.product_a.refresh_from_db()
 		self.product_b.refresh_from_db()
 		sale.refresh_from_db()
+		self.customer_profile.refresh_from_db()
 
 		self.assertEqual(self.product_a.stock, 8)
 		self.assertEqual(self.product_b.stock, 5)
 		self.assertEqual(str(sale.total_amount), '9.50')
+		self.assertEqual(str(self.customer_profile.current_balance), '20.50')
+		log = BalanceLog.objects.filter(user=self.customer).latest('id')
+		self.assertEqual(str(log.amount_delta), '-9.50')
 		self.assertEqual(SaleItem.objects.filter(sale=sale).count(), 2)
 
 	def test_create_sale_rejects_insufficient_stock(self):
@@ -77,6 +84,7 @@ class SaleServiceTests(TestCase):
 	def test_update_sale_rebalances_stock(self):
 		sale = create_sale(
 			seller=self.seller,
+			customer=self.customer,
 			customer_name='John',
 			items_data=[
 				{'product': self.product_a, 'quantity': 2, 'unit_price': self.product_a.price},
@@ -85,6 +93,7 @@ class SaleServiceTests(TestCase):
 
 		update_sale(
 			sale=sale,
+			customer=self.customer,
 			customer_name='Jane',
 			items_data=[
 				{'product': self.product_a, 'quantity': 1, 'unit_price': self.product_a.price},
@@ -95,15 +104,18 @@ class SaleServiceTests(TestCase):
 		self.product_a.refresh_from_db()
 		self.product_b.refresh_from_db()
 		sale.refresh_from_db()
+		self.customer_profile.refresh_from_db()
 
 		self.assertEqual(self.product_a.stock, 9)
 		self.assertEqual(self.product_b.stock, 6)
 		self.assertEqual(sale.customer_name, 'Jane')
 		self.assertEqual(str(sale.total_amount), '5.50')
+		self.assertEqual(str(self.customer_profile.current_balance), '24.50')
 
 	def test_delete_sale_restores_stock(self):
 		sale = create_sale(
 			seller=self.seller,
+			customer=self.customer,
 			customer_name='John',
 			items_data=[
 				{'product': self.product_a, 'quantity': 4, 'unit_price': self.product_a.price},
@@ -113,7 +125,9 @@ class SaleServiceTests(TestCase):
 		delete_sale(sale=sale)
 
 		self.product_a.refresh_from_db()
+		self.customer_profile.refresh_from_db()
 		self.assertEqual(self.product_a.stock, 10)
+		self.assertEqual(str(self.customer_profile.current_balance), '30.00')
 
 
 class OrderServiceTests(TestCase):

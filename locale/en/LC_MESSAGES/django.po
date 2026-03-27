@@ -1318,6 +1318,9 @@ msgstr "Categories enabled for untried products"
 msgid "Configure category behavior for untried products"
 msgstr "Configure category behavior for untried products"
 
+msgid "Are you sure you want to save the sale?"
+msgstr "Are you sure you want to save the sale?"
+
 msgid "If disabled, products in this category will not appear in the untried recommendations."
 msgstr "If disabled, products in this category will not appear in the untried recommendations."
 

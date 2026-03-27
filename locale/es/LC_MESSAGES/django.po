@@ -1318,6 +1318,9 @@ msgstr "Volver a avisos"
 msgid "Create notice"
 msgstr "Crear aviso"
 
+msgid "Are you sure you want to save the sale?"
+msgstr "¿Seguro que quieres guardar la venta?"
+
 msgid "Notice created successfully."
 msgstr "Aviso creado correctamente."
 

@@ -76,6 +76,9 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                       <li><a class="dropdown-item" href="{% url 'admin_user_edit' user.id %}">{% trans 'Edit' %}</a></li>
+                      {% if not user.is_staff %}
+                        <li><a class="dropdown-item" href="{% url 'sale_create' %}?customer={{ user.id }}">{% trans 'Create sale' %}</a></li>
+                      {% endif %}
                       <li><a class="dropdown-item" href="{% url 'admin_user_purchase_history' user.id %}">{% trans 'View purchases' %}</a></li>
                       <li><a class="dropdown-item" href="{% url 'admin_balance_logs' %}?user_id={{ user.id }}">{% trans 'Logs' %}</a></li>
                     </ul>

@@ -31,13 +31,40 @@ def _formset_items(formset):
         data = form.cleaned_data
         if not data or data.get('DELETE'):
             continue
+        product = data.get('product')
+        quantity = data.get('quantity')
+        if not product or not quantity:
+            continue
         items.append(
             {
-                'product': data['product'],
-                'quantity': data['quantity'],
+                'product': product,
+                'quantity': quantity,
             }
         )
     return items
+
+
+def _normalize_sale_formset_post(post_data):
+    mutable_data = post_data.copy()
+    total_forms_raw = mutable_data.get('items-TOTAL_FORMS', '0')
+    try:
+        total_forms = int(total_forms_raw)
+    except (TypeError, ValueError):
+        total_forms = 0
+
+    for index in range(total_forms):
+        product_key = f'items-{index}-product'
+        quantity_key = f'items-{index}-quantity'
+        delete_key = f'items-{index}-DELETE'
+
+        product_value = (mutable_data.get(product_key) or '').strip()
+        quantity_value = (mutable_data.get(quantity_key) or '').strip()
+
+        if not product_value:
+            mutable_data[delete_key] = 'on'
+            mutable_data[quantity_key] = quantity_value
+
+    return mutable_data
 
 
 def _customer_balances_json():
@@ -172,8 +199,24 @@ class SaleDetailView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredM
 class SaleCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMixin, View):
     template_name = 'admin/sales/form.html'
 
+    def _build_sale_form(self, request):
+        customer_raw = (request.GET.get('customer') or '').strip()
+        if not customer_raw:
+            return SaleForm()
+
+        try:
+            customer_id = int(customer_raw)
+        except (TypeError, ValueError):
+            return SaleForm()
+
+        customer = User.objects.filter(id=customer_id, is_staff=False).first()
+        if not customer:
+            return SaleForm()
+
+        return SaleForm(initial={'customer': customer.id})
+
     def get(self, request):
-        form = SaleForm()
+        form = self._build_sale_form(request)
         formset = SaleItemFormSet()
         return render(
             request,
@@ -187,8 +230,9 @@ class SaleCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredM
         )
 
     def post(self, request):
-        form = SaleForm(request.POST)
-        formset = SaleItemFormSet(request.POST)
+        normalized_post = _normalize_sale_formset_post(request.POST)
+        form = SaleForm(normalized_post)
+        formset = SaleItemFormSet(normalized_post)
 
         if form.is_valid() and formset.is_valid():
             try:
@@ -235,8 +279,9 @@ class SaleUpdateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredM
 
     def post(self, request, pk):
         sale = get_object_or_404(Sale.objects.filter(is_voided=False), pk=pk)
-        form = SaleForm(request.POST, instance=sale)
-        formset = SaleItemFormSet(request.POST, instance=sale)
+        normalized_post = _normalize_sale_formset_post(request.POST)
+        form = SaleForm(normalized_post, instance=sale)
+        formset = SaleItemFormSet(normalized_post, instance=sale)
 
         if form.is_valid() and formset.is_valid():
             try:

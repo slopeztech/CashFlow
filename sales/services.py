@@ -42,6 +42,26 @@ def _compute_total(items_data):
     return total
 
 
+def _apply_balance_delta(*, user, changed_by, amount_delta, note):
+    if user is None or amount_delta == 0:
+        return
+
+    profile, _created = StoreUserProfile.objects.select_for_update().get_or_create(user=user)
+    balance_before = profile.current_balance
+    profile.current_balance += amount_delta
+    profile.save(update_fields=['current_balance', 'updated_at'])
+
+    BalanceLog.objects.create(
+        user=user,
+        changed_by=changed_by,
+        source=BalanceLog.Source.MANUAL_ADJUSTMENT,
+        amount_delta=amount_delta,
+        balance_before=balance_before,
+        balance_after=profile.current_balance,
+        note=note,
+    )
+
+
 @transaction.atomic
 def create_sale(*, seller, customer=None, customer_name='', items_data):
     if not items_data:
@@ -83,6 +103,13 @@ def create_sale(*, seller, customer=None, customer_name='', items_data):
 
     sale.total_amount = _compute_total(items_data)
     sale.save(update_fields=['total_amount'])
+
+    _apply_balance_delta(
+        user=customer,
+        changed_by=seller,
+        amount_delta=-sale.total_amount,
+        note=_('Sale #%(sale_id)s charged by admin') % {'sale_id': sale.id},
+    )
     return sale
 
 
@@ -123,6 +150,9 @@ def update_sale(*, sale, customer=None, customer_name='', items_data):
         product.stock = product.stock + restored_quantity - required_quantity
         product.save(update_fields=['stock', 'updated_at'])
 
+    old_total = sale.total_amount
+    old_customer = sale.customer
+
     sale.items.all().delete()
 
     sale_items = []
@@ -140,8 +170,39 @@ def update_sale(*, sale, customer=None, customer_name='', items_data):
 
     sale.customer = customer
     sale.customer_name = customer_name or (customer.username if customer else '')
-    sale.total_amount = _compute_total(items_data)
+    new_total = _compute_total(items_data)
+    sale.total_amount = new_total
     sale.save(update_fields=['customer', 'customer_name', 'total_amount'])
+
+    if old_customer_id := getattr(old_customer, 'id', None):
+        if customer and old_customer_id == customer.id:
+            _apply_balance_delta(
+                user=customer,
+                changed_by=sale.seller,
+                amount_delta=(old_total - new_total),
+                note=_('Sale #%(sale_id)s edited by admin') % {'sale_id': sale.id},
+            )
+        else:
+            _apply_balance_delta(
+                user=old_customer,
+                changed_by=sale.seller,
+                amount_delta=old_total,
+                note=_('Sale #%(sale_id)s customer changed (refund)') % {'sale_id': sale.id},
+            )
+            _apply_balance_delta(
+                user=customer,
+                changed_by=sale.seller,
+                amount_delta=-new_total,
+                note=_('Sale #%(sale_id)s customer changed (charge)') % {'sale_id': sale.id},
+            )
+    else:
+        _apply_balance_delta(
+            user=customer,
+            changed_by=sale.seller,
+            amount_delta=-new_total,
+            note=_('Sale #%(sale_id)s customer assigned') % {'sale_id': sale.id},
+        )
+
     return sale
 
 
@@ -167,6 +228,13 @@ def delete_sale(*, sale, modified_by=None):
     sale.voided_at = timezone.now()
     sale.void_reason = _('Voided by admin')
     sale.save(update_fields=['is_voided', 'voided_by', 'voided_at', 'void_reason'])
+
+    _apply_balance_delta(
+        user=sale.customer,
+        changed_by=modified_by,
+        amount_delta=sale.total_amount,
+        note=_('Sale #%(sale_id)s voided by admin (refund)') % {'sale_id': sale.id},
+    )
     return sale
 
 

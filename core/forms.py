@@ -264,6 +264,7 @@ class SaleItemForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['product'].required = False
         self.fields['product'].queryset = Product.objects.filter(is_active=True).order_by('name')
         self.fields['product'].label_from_instance = (
             lambda obj: f'{obj.category.name if obj.category else "Uncategorized"} | {obj.name} - € {obj.price}'
@@ -276,6 +277,21 @@ class SaleItemForm(forms.ModelForm):
                 self.fields['display_unit_price'].initial = product.price
         if 'DELETE' in self.fields:
             self.fields['DELETE'].widget = forms.HiddenInput()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        product = cleaned_data.get('product')
+        quantity = cleaned_data.get('quantity')
+
+        # Allow extra empty rows created by the dynamic composer UI.
+        if not product:
+            cleaned_data['quantity'] = None
+            return cleaned_data
+
+        if quantity is None or quantity <= 0:
+            self.add_error('quantity', _('Quantity must be greater than zero.'))
+
+        return cleaned_data
 
 
 SaleItemFormSet = inlineformset_factory(

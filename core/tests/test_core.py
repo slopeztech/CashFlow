@@ -1,7 +1,7 @@
 from datetime import timedelta
 from decimal import Decimal
 
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
@@ -21,6 +21,7 @@ from inventory.models import Category, Product, ProductSheetField, ProductSheetU
 from inventory.models import ProductReview
 from sales.models import Order, Sale
 from sales.services import approve_order, create_order, create_sale
+from core.webviews.sales_views import SaleCreateView
 
 
 class ProductWebCrudTests(TestCase):
@@ -266,6 +267,8 @@ class SaleWebCrudTests(TestCase):
 		)
 
 	def test_create_sale_from_web_reduces_stock(self):
+		StoreUserProfile.objects.create(user=self.customer, current_balance='20.00')
+
 		response = self.client.post(
 			reverse('sale_create'),
 			{
@@ -277,12 +280,13 @@ class SaleWebCrudTests(TestCase):
 				'items-0-product': str(self.product_a.id),
 				'items-0-quantity': '4',
 			},
-			follow=True,
 		)
-		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response.status_code, 302)
 
 		self.product_a.refresh_from_db()
+		profile = StoreUserProfile.objects.get(user=self.customer)
 		self.assertEqual(self.product_a.stock, 6)
+		self.assertEqual(str(profile.current_balance), '10.80')
 
 	def test_update_sale_from_web_rebalances_stock(self):
 		sale = create_sale(
@@ -377,6 +381,34 @@ class SaleWebCrudTests(TestCase):
 		self.assertEqual(sale.total_amount, Decimal('1.15'))
 		self.product_a.refresh_from_db()
 		self.assertEqual(self.product_a.stock, Decimal('9.50'))
+
+	def test_create_sale_from_web_ignores_extra_blank_row(self):
+		StoreUserProfile.objects.create(user=self.customer, current_balance='20.00')
+
+		response = self.client.post(
+			reverse('sale_create'),
+			{
+				'customer': str(self.customer.id),
+				'items-TOTAL_FORMS': '2',
+				'items-INITIAL_FORMS': '0',
+				'items-MIN_NUM_FORMS': '1',
+				'items-MAX_NUM_FORMS': '1000',
+				'items-0-product': str(self.product_a.id),
+				'items-0-quantity': '2',
+				'items-1-product': '',
+				'items-1-quantity': '',
+			},
+		)
+		self.assertEqual(response.status_code, 302)
+
+		sale = Sale.objects.latest('id')
+		self.assertEqual(sale.items.count(), 1)
+		self.assertEqual(str(sale.total_amount), '4.60')
+
+	def test_sale_create_get_prefills_customer_from_query(self):
+		request = RequestFactory().get(reverse('sale_create'), {'customer': str(self.customer.id)})
+		form = SaleCreateView()._build_sale_form(request)
+		self.assertEqual(form.initial.get('customer'), self.customer.id)
 
 
 class UserOrderFlowTests(TestCase):

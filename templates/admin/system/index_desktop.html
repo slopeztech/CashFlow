@@ -30,32 +30,40 @@
         <div class="row g-3">
           <div class="col-lg-3 col-md-6">
             <div class="card card-rounded h-100 border">
+              <div class="card-header summary-card-header">
+                <p class="summary-card-title mb-0">{% trans 'Platform name' %}</p>
+              </div>
               <div class="card-body">
-                <p class="text-muted mb-1">{% trans 'Platform name' %}</p>
                 <h4 class="mb-0">{{ system_settings.store_name }}</h4>
               </div>
             </div>
           </div>
           <div class="col-lg-3 col-md-6">
             <div class="card card-rounded h-100 border">
+              <div class="card-header summary-card-header">
+                <p class="summary-card-title mb-0">{% trans 'Branch' %}</p>
+              </div>
               <div class="card-body">
-                <p class="text-muted mb-1">{% trans 'Branch' %}</p>
                 <h4 class="mb-0">{{ git_branch }}</h4>
               </div>
             </div>
           </div>
           <div class="col-lg-3 col-md-6">
             <div class="card card-rounded h-100 border">
+              <div class="card-header summary-card-header">
+                <p class="summary-card-title mb-0">{% trans 'Last commit' %}</p>
+              </div>
               <div class="card-body">
-                <p class="text-muted mb-1">{% trans 'Last commit' %}</p>
                 <h4 class="mb-0">{{ git_commit }}</h4>
               </div>
             </div>
           </div>
           <div class="col-lg-3 col-md-6">
             <div class="card card-rounded h-100 border">
+              <div class="card-header summary-card-header">
+                <p class="summary-card-title mb-0">{% trans 'Repository URL' %}</p>
+              </div>
               <div class="card-body">
-                <p class="text-muted mb-1">{% trans 'Repository URL' %}</p>
                 <p class="mb-0 text-break">{{ git_repo_url }}</p>
               </div>
             </div>
@@ -388,6 +396,20 @@
     .system-tabs::-webkit-scrollbar-thumb {
       background: rgb(75 73 172 / 0.3);
       border-radius: 999px;
+    }
+
+    .summary-card-header {
+      background: linear-gradient(180deg, rgb(17 24 39 / 0.06), rgb(17 24 39 / 0.02));
+      border-bottom: 1px solid rgb(17 24 39 / 0.12);
+      padding: 0.7rem 0.9rem;
+    }
+
+    .summary-card-title {
+      color: #374151;
+      font-size: 0.84rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
     }
 
     .backendlog-viewer {

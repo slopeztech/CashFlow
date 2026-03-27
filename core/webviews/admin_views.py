@@ -57,7 +57,7 @@ from core.models import (
     UserSession,
 )
 from core.security import safe_redirect_target
-from core.update_runner import get_update_log_path, run_platform_update
+from core.update_runner import get_git_executable, get_update_log_path, run_platform_update
 from core.webviews.mixins import ResponsiveTemplateMixin, StaffRequiredMixin
 from customers.models import BalanceLog, BalanceRequest, MonthlyFeeSettings, StoreUserProfile
 from customers.services import months_due_for_profile, process_monthly_fee_for_user
@@ -1788,10 +1788,13 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
         }
 
         base_dir = str(getattr(settings, 'BASE_DIR', '')) or os.getcwd()
+        git_cmd = get_git_executable()
+        if not git_cmd:
+            return fallback
 
         try:
             branch_result = subprocess.run(
-                ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
+                [git_cmd, 'rev-parse', '--abbrev-ref', 'HEAD'],
                 cwd=base_dir,
                 capture_output=True,
                 text=True,
@@ -1799,7 +1802,7 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
                 timeout=2,
             )
             commit_result = subprocess.run(
-                ['git', 'log', '-1', '--pretty=format:%h %s'],
+                [git_cmd, 'log', '-1', '--pretty=format:%h %s'],
                 cwd=base_dir,
                 capture_output=True,
                 text=True,
@@ -1828,10 +1831,13 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
         }
 
         base_dir = str(getattr(settings, 'BASE_DIR', '')) or os.getcwd()
+        git_cmd = get_git_executable()
+        if not git_cmd:
+            return fallback
 
         try:
             history_result = subprocess.run(
-                ['git', 'log', f'-n{limit}', '--pretty=format:%h%x09%s%x09%ad', '--date=short'],
+                [git_cmd, 'log', f'-n{limit}', '--pretty=format:%h%x09%s%x09%ad', '--date=short'],
                 cwd=base_dir,
                 capture_output=True,
                 text=True,

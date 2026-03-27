@@ -58,6 +58,10 @@
                     </div>
                     <div class="sale-item-grid sale-item-edit-fields">
                       <div>
+                        <label class="sale-item-label">{% trans 'Category' %}</label>
+                        <select class="form-select" data-category-filter></select>
+                      </div>
+                      <div>
                         <label class="sale-item-label">{% trans 'Product' %}</label>
                         {{ item_form.product }}
                         {% if item_form.product.errors %}<div class="text-danger small mt-1">{{ item_form.product.errors }}</div>{% endif %}
@@ -102,6 +106,10 @@
                       </p>
                     </div>
                     <div class="sale-item-grid sale-item-edit-fields">
+                      <div>
+                        <label class="sale-item-label">{% trans 'Category' %}</label>
+                        <select class="form-select" data-category-filter></select>
+                      </div>
                       <div>
                         <label class="sale-item-label">{% trans 'Product' %}</label>
                         {{ item_form.product }}
@@ -153,6 +161,10 @@
                 </p>
               </div>
               <div class="sale-item-grid sale-item-edit-fields">
+                <div>
+                  <label class="sale-item-label">{% trans 'Category' %}</label>
+                  <select class="form-select" data-category-filter></select>
+                </div>
                 <div>
                   <label class="sale-item-label">{% trans 'Product' %}</label>
                   {{ formset.empty_form.product }}
@@ -343,7 +355,7 @@
 
     .sale-item-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.2fr) minmax(0, 1fr);
       gap: .65rem;
       align-items: end;
     }
@@ -600,6 +612,71 @@
         return { name: withoutPrice, category: '' };
       };
 
+      const normalizeCategoryKey = (categoryLabel) => (categoryLabel || '').trim().toLowerCase();
+
+      const buildCategoryFilterOptions = (productSelect, categorySelect) => {
+        if (!productSelect || !categorySelect) {
+          return;
+        }
+
+        const seen = new Set();
+        const categories = [];
+        Array.from(productSelect.options).forEach((option) => {
+          if (!option.value) {
+            return;
+          }
+          const productData = parseProductData(option.text || '');
+          const key = normalizeCategoryKey(productData.category);
+          option.dataset.categoryKey = key;
+          if (!key || seen.has(key)) {
+            return;
+          }
+          seen.add(key);
+          categories.push({ key, label: productData.category });
+        });
+
+        categorySelect.innerHTML = '';
+        const allOption = document.createElement('option');
+        allOption.value = '';
+        allOption.textContent = '---';
+        categorySelect.appendChild(allOption);
+
+        categories
+          .sort((a, b) => a.label.localeCompare(b.label))
+          .forEach((category) => {
+            const option = document.createElement('option');
+            option.value = category.key;
+            option.textContent = category.label;
+            categorySelect.appendChild(option);
+          });
+      };
+
+      const applyCategoryFilter = (productSelect, categorySelect) => {
+        if (!productSelect || !categorySelect) {
+          return;
+        }
+
+        const selectedCategory = normalizeCategoryKey(categorySelect.value);
+        let hasSelectedVisible = false;
+
+        Array.from(productSelect.options).forEach((option) => {
+          if (!option.value) {
+            option.hidden = false;
+            return;
+          }
+          const key = option.dataset.categoryKey || '';
+          const visible = !selectedCategory || key === selectedCategory;
+          option.hidden = !visible;
+          if (visible && option.value === productSelect.value) {
+            hasSelectedVisible = true;
+          }
+        });
+
+        if (productSelect.value && !hasSelectedVisible) {
+          productSelect.value = '';
+        }
+      };
+
       const updateRowSummary = (row) => {
         const productSelect = row.querySelector('select[name$="-product"]');
         const quantityInput = row.querySelector('input[name$="-quantity"]');
@@ -713,6 +790,7 @@
       };
 
       const attachRowBehavior = (row) => {
+        const categorySelect = row.querySelector('[data-category-filter]');
         const productSelect = row.querySelector('select[name$="-product"]');
         const priceInput = row.querySelector('input[name$="-display_unit_price"]');
         const quantityInput = row.querySelector('input[name$="-quantity"]');
@@ -735,6 +813,11 @@
             refreshBalancePreview();
             return;
           }
+
+          if (categorySelect && selected.value) {
+            categorySelect.value = selected.dataset.categoryKey || '';
+          }
+
           const optionText = selected.text || '';
           const match = optionText.match(/€\s*([0-9]+(?:[\.,][0-9]{1,2})?)/);
           if (match) {
@@ -757,6 +840,15 @@
             amountInput.value = initialAmount > 0 ? String(initialAmount.toFixed(2)) : '';
           }
         };
+
+        if (categorySelect) {
+          buildCategoryFilterOptions(productSelect, categorySelect);
+          categorySelect.addEventListener('change', () => {
+            applyCategoryFilter(productSelect, categorySelect);
+            updatePriceFromProduct();
+          });
+          applyCategoryFilter(productSelect, categorySelect);
+        }
 
         productSelect.addEventListener('change', updatePriceFromProduct);
         if (amountInput) {

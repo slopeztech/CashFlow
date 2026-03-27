@@ -64,7 +64,18 @@
                 <p class="summary-card-title mb-0">{% trans 'Repository URL' %}</p>
               </div>
               <div class="card-body">
-                <p class="mb-0 text-break">{{ git_repo_url }}</p>
+                {% if git_repo_web_url != 'N/A' %}
+                  <a
+                    class="text-break js-repo-link"
+                    href="{{ git_repo_web_url }}"
+                    data-repo-web-url="{{ git_repo_web_url }}"
+                    data-repo-app-url="{{ git_repo_app_url }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >{{ git_repo_web_url }}</a>
+                {% else %}
+                  <p class="mb-0 text-break">{{ git_repo_url }}</p>
+                {% endif %}
               </div>
             </div>
           </div>
@@ -468,6 +479,28 @@
       var updateConfirmText = "{% trans 'Are you sure you want to start the platform update now?' %}";
       var updatingText = "{% trans 'Updating...' %}";
       var updatesIsRunning = {{ updates_is_running|yesno:'true,false' }};
+      var repoLinks = document.querySelectorAll('.js-repo-link');
+
+      repoLinks.forEach(function (link) {
+        link.addEventListener('click', function (event) {
+          var webUrl = link.getAttribute('data-repo-web-url') || link.href;
+          var appUrl = link.getAttribute('data-repo-app-url') || '';
+          if (!appUrl) {
+            return;
+          }
+
+          event.preventDefault();
+
+          var fallbackWindow = window.open(webUrl, '_blank', 'noopener');
+          try {
+            window.location.href = appUrl;
+          } catch (error) {
+            if (fallbackWindow && fallbackWindow.focus) {
+              fallbackWindow.focus();
+            }
+          }
+        });
+      });
 
       if (updateForm && updateBtn) {
         updateForm.addEventListener('submit', function (event) {

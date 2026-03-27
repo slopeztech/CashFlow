@@ -2,6 +2,7 @@ import json
 import os
 import csv
 import subprocess
+from urllib.parse import urlparse
 from decimal import Decimal
 from datetime import timedelta
 
@@ -1736,6 +1737,7 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
         monthly_settings = self._monthly_settings()
         git_info = self._resolve_git_info()
         git_repo_url = self._resolve_git_repo_url()
+        git_repo_links = self._normalize_git_repo_links(git_repo_url)
         git_history = (
             self._resolve_git_history(limit=self.UPDATES_HISTORY_MAX_COMMITS)
             if selected_tab == self.TAB_UPDATES
@@ -1770,6 +1772,8 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
             'git_branch': git_info['branch'],
             'git_commit': git_info['commit'],
             'git_repo_url': git_repo_url,
+            'git_repo_web_url': git_repo_links['web_url'],
+            'git_repo_app_url': git_repo_links['app_url'],
             'updates_current_commit': (git_history or {}).get(
                 'current',
                 {'hash': 'N/A', 'subject': 'N/A', 'date': ''},
@@ -1909,6 +1913,44 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
 
         repo_url = (repo_result.stdout or '').strip() if repo_result.returncode == 0 else ''
         return repo_url or fallback
+
+    def _normalize_git_repo_links(self, repo_url):
+        fallback = {
+            'web_url': 'N/A',
+            'app_url': '',
+        }
+
+        source_url = (repo_url or '').strip()
+        if not source_url or source_url == 'N/A':
+            return fallback
+
+        web_url = source_url
+
+        # git@github.com:owner/repo.git -> https://github.com/owner/repo
+        if source_url.startswith('git@') and ':' in source_url:
+            host_part, path_part = source_url.split(':', 1)
+            host = host_part.split('@', 1)[-1]
+            repo_path = path_part.rstrip('/')
+            if repo_path.endswith('.git'):
+                repo_path = repo_path[:-4]
+            web_url = f'https://{host}/{repo_path}'
+        else:
+            parsed = urlparse(source_url)
+            if parsed.scheme in {'ssh', 'git', 'http', 'https'} and parsed.netloc:
+                repo_path = (parsed.path or '').rstrip('/')
+                if repo_path.endswith('.git'):
+                    repo_path = repo_path[:-4]
+                scheme = 'https' if parsed.scheme in {'ssh', 'git'} else parsed.scheme
+                web_url = f'{scheme}://{parsed.netloc}{repo_path}'
+
+        app_url = ''
+        if web_url.startswith('https://github.com/'):
+            app_url = f'x-github-client://openRepo/{web_url}'
+
+        return {
+            'web_url': web_url,
+            'app_url': app_url,
+        }
 
     def _read_last_update_log(self):
         log_path = str(get_update_log_path())

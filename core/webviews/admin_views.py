@@ -1,6 +1,7 @@
 import json
 import os
 import csv
+import subprocess
 from decimal import Decimal
 from datetime import timedelta
 
@@ -56,6 +57,7 @@ from core.models import (
     UserSession,
 )
 from core.security import safe_redirect_target
+from core.update_runner import get_update_log_path, run_platform_update
 from core.webviews.mixins import ResponsiveTemplateMixin, StaffRequiredMixin
 from customers.models import BalanceLog, BalanceRequest, MonthlyFeeSettings, StoreUserProfile
 from customers.services import months_due_for_profile, process_monthly_fee_for_user
@@ -1695,16 +1697,19 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
     template_name = 'admin/system/index.html'
 
     TAB_SUMMARY = 'summary'
+    TAB_UPDATES = 'updates'
     TAB_ENV = 'environment'
     TAB_BACKUPS = 'backups'
     TAB_BACKENDLOG = 'backendlog'
-    ALLOWED_TABS = {TAB_SUMMARY, TAB_ENV, TAB_BACKUPS, TAB_BACKENDLOG}
+    ALLOWED_TABS = {TAB_SUMMARY, TAB_UPDATES, TAB_ENV, TAB_BACKUPS, TAB_BACKENDLOG}
     LOG_MAX_LINES = 2000
     LOG_AUTO_REFRESH_OPTIONS = {0, 5, 10, 30, 60}
     EXPORT_DAYS_DEFAULT = 30
     EXPORT_DAYS_MIN = 1
     EXPORT_DAYS_MAX = 365
     BACKUP_TYPES = {'db', 'users_balances', 'products', 'low_stock_products', 'balance_logs_30d', 'orders_recent'}
+    UPDATES_HISTORY_MAX_COMMITS = 50
+    UPDATE_LOG_MAX_LINES = 4000
 
     def _selected_tab(self):
         requested_tab = (self.request.GET.get('tab') or self.TAB_SUMMARY).strip().lower()
@@ -1724,6 +1729,13 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
         selected_tab = self._selected_tab()
         system_settings = self._system_settings()
         monthly_settings = self._monthly_settings()
+        git_info = self._resolve_git_info()
+        git_history = (
+            self._resolve_git_history(limit=self.UPDATES_HISTORY_MAX_COMMITS)
+            if selected_tab == self.TAB_UPDATES
+            else None
+        )
+        last_update_log = self._read_last_update_log() if selected_tab == self.TAB_UPDATES else None
 
         if system_form is None:
             system_form = SystemSettingsForm(instance=system_settings, prefix='system')
@@ -1748,7 +1760,15 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
             'system_form': system_form,
             'monthly_form': monthly_form,
             'system_settings': system_settings,
-            'code_version': os.getenv('APP_VERSION', 'dev'),
+            'code_version': os.getenv('APP_VERSION') or 'N/A',
+            'git_branch': git_info['branch'],
+            'git_commit': git_info['commit'],
+            'updates_current_commit': (git_history or {}).get(
+                'current',
+                {'hash': 'N/A', 'subject': 'N/A', 'date': ''},
+            ),
+            'updates_commit_history': (git_history or {}).get('history', []),
+            'updates_last_log': last_update_log,
             'platform_label': system_settings.store_name,
             'backendlog': backendlog,
             'backendlog_filter': backendlog_filter,
@@ -1759,6 +1779,125 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
             'orders_export_days': orders_export_days,
             'orders_export_days_min': self.EXPORT_DAYS_MIN,
             'orders_export_days_max': self.EXPORT_DAYS_MAX,
+        }
+
+    def _resolve_git_info(self):
+        fallback = {
+            'branch': 'N/A',
+            'commit': 'N/A',
+        }
+
+        base_dir = str(getattr(settings, 'BASE_DIR', '')) or os.getcwd()
+
+        try:
+            branch_result = subprocess.run(
+                ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
+                cwd=base_dir,
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=2,
+            )
+            commit_result = subprocess.run(
+                ['git', 'log', '-1', '--pretty=format:%h %s'],
+                cwd=base_dir,
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=2,
+            )
+        except (OSError, subprocess.SubprocessError):
+            return fallback
+
+        branch = (branch_result.stdout or '').strip() if branch_result.returncode == 0 else ''
+        commit = (commit_result.stdout or '').strip() if commit_result.returncode == 0 else ''
+
+        return {
+            'branch': branch or fallback['branch'],
+            'commit': commit or fallback['commit'],
+        }
+
+    def _resolve_git_history(self, limit=50):
+        fallback = {
+            'current': {
+                'hash': 'N/A',
+                'subject': 'N/A',
+                'date': '',
+            },
+            'history': [],
+        }
+
+        base_dir = str(getattr(settings, 'BASE_DIR', '')) or os.getcwd()
+
+        try:
+            history_result = subprocess.run(
+                ['git', 'log', f'-n{limit}', '--pretty=format:%h%x09%s%x09%ad', '--date=short'],
+                cwd=base_dir,
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=2,
+            )
+        except (OSError, subprocess.SubprocessError):
+            return fallback
+
+        if history_result.returncode != 0:
+            return fallback
+
+        lines = [(line or '').strip() for line in (history_result.stdout or '').splitlines() if (line or '').strip()]
+        if not lines:
+            return fallback
+
+        formatted = []
+        for line in lines:
+            parts = line.split('\t', 2)
+            if len(parts) == 3:
+                sha, subject, date_str = parts
+                formatted.append(
+                    {
+                        'hash': sha.strip() or 'N/A',
+                        'subject': subject.strip() or 'N/A',
+                        'date': date_str.strip(),
+                    }
+                )
+            else:
+                formatted.append(
+                    {
+                        'hash': 'N/A',
+                        'subject': line,
+                        'date': '',
+                    }
+                )
+
+        return {
+            'current': formatted[0],
+            'history': formatted[1:],
+        }
+
+    def _read_last_update_log(self):
+        log_path = str(get_update_log_path())
+        if not os.path.exists(log_path):
+            return {
+                'path': log_path,
+                'exists': False,
+                'content': '',
+                'truncated': False,
+                'max_lines': self.UPDATE_LOG_MAX_LINES,
+            }
+
+        with open(log_path, 'r', encoding='utf-8', errors='replace') as log_file:
+            lines = log_file.readlines()
+
+        truncated = len(lines) > self.UPDATE_LOG_MAX_LINES
+        if truncated:
+            lines = lines[-self.UPDATE_LOG_MAX_LINES :]
+
+        return {
+            'path': log_path,
+            'exists': True,
+            'content': ''.join(lines),
+            'truncated': truncated,
+            'max_lines': self.UPDATE_LOG_MAX_LINES,
         }
 
     def _parse_export_days_value(self, raw_days):
@@ -2040,6 +2179,17 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
             context = self._build_context(system_form=system_form, monthly_form=monthly_form)
             context['selected_tab'] = self.TAB_ENV
             return render(request, self.get_template_names()[0], context)
+
+        if action == 'run_update':
+            result = run_platform_update(initiated_by=request.user.username)
+            if result['success']:
+                messages.success(request, _('Platform updated successfully.'))
+            else:
+                messages.error(
+                    request,
+                    _('Platform update failed. Review last_update.log for details.'),
+                )
+            return redirect(f"{request.path}?tab={self.TAB_UPDATES}")
 
         return redirect(f"{request.path}?tab={self._selected_tab()}")
 

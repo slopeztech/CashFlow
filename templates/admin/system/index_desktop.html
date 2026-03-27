@@ -13,6 +13,9 @@
           <a class="nav-link system-tab-link {% if selected_tab == 'summary' %}active{% endif %}" href="{% url 'admin_system' %}?tab=summary">{% trans 'Summary' %}</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link system-tab-link {% if selected_tab == 'updates' %}active{% endif %}" href="{% url 'admin_system' %}?tab=updates">{% trans 'Updates' %}</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link system-tab-link {% if selected_tab == 'environment' %}active{% endif %}" href="{% url 'admin_system' %}?tab=environment">{% trans 'Environment variables' %}</a>
         </li>
         <li class="nav-item">
@@ -25,7 +28,7 @@
 
       {% if selected_tab == 'summary' %}
         <div class="row g-3">
-          <div class="col-md-6">
+          <div class="col-lg-4 col-md-6">
             <div class="card card-rounded h-100 border">
               <div class="card-body">
                 <p class="text-muted mb-1">{% trans 'Platform name' %}</p>
@@ -33,11 +36,92 @@
               </div>
             </div>
           </div>
-          <div class="col-md-6">
+          <div class="col-lg-4 col-md-6">
             <div class="card card-rounded h-100 border">
               <div class="card-body">
-                <p class="text-muted mb-1">{% trans 'Code version' %}</p>
-                <h4 class="mb-0">{{ code_version }}</h4>
+                <p class="text-muted mb-1">{% trans 'Branch' %}</p>
+                <h4 class="mb-0">{{ git_branch }}</h4>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-12">
+            <div class="card card-rounded h-100 border">
+              <div class="card-body">
+                <p class="text-muted mb-1">{% trans 'Last commit' %}</p>
+                <h4 class="mb-0">{{ git_commit }}</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% elif selected_tab == 'updates' %}
+        <div class="row g-3">
+          <div class="col-lg-12">
+            <div id="update-platform-card" class="card card-rounded h-100 border border-warning-subtle position-relative">
+              <div id="update-platform-overlay" class="update-card-overlay d-none" aria-hidden="true">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                  <span>{% trans 'Updating...' %}</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <h5 class="card-title mb-2">{% trans 'Update to latest version' %}</h5>
+                <p class="text-muted mb-3">{% trans 'Warning: this action applies system changes and the platform may be temporarily unavailable during the update window.' %}</p>
+                <form id="update-platform-form" method="post">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="run_update">
+                  <button id="update-platform-btn" type="submit" class="btn btn-warning d-inline-flex align-items-center gap-2">
+                    <span id="update-platform-spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    <span id="update-platform-btn-label">{% trans 'Update to latest version' %}</span>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-12">
+            <div class="card card-rounded h-100 border">
+              <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between gap-2 mb-1">
+                  <p class="text-muted mb-0">{% trans 'Current commit' %}</p>
+                  <span class="badge bg-dark-subtle text-dark border">{{ updates_current_commit.hash }}</span>
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  <span class="fw-semibold">{{ updates_current_commit.subject }}</span>
+                  {% if updates_current_commit.date %}
+                    <span class="text-muted small">{{ updates_current_commit.date }}</span>
+                  {% endif %}
+                </div>
+
+                {% if updates_last_log and updates_last_log.exists %}
+                  <details class="mt-3">
+                    <summary class="small text-primary-emphasis">{% trans 'Last update log (click to expand)' %}</summary>
+                    {% if updates_last_log.truncated %}
+                      <p class="small text-muted mt-2 mb-2">{% blocktrans with count=updates_last_log.max_lines %}Showing last {{ count }} lines.{% endblocktrans %}</p>
+                    {% endif %}
+                    <pre class="backendlog-viewer mt-2 mb-0">{{ updates_last_log.content }}</pre>
+                  </details>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-12">
+            <div class="card card-rounded h-100 border">
+              <div class="card-body">
+                <p class="text-muted mb-2">{% trans 'Commit history' %}</p>
+                {% if updates_commit_history %}
+                  <ul class="list-unstyled mb-0">
+                    {% for commit_line in updates_commit_history %}
+                      <li class="d-flex flex-wrap align-items-center gap-2 py-2 border-bottom">
+                        <span class="badge bg-light text-dark border">{{ commit_line.hash }}</span>
+                        <span>{{ commit_line.subject }}</span>
+                        {% if commit_line.date %}
+                          <span class="text-muted small ms-auto">{{ commit_line.date }}</span>
+                        {% endif %}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  <p class="mb-0 text-muted">{% trans 'No commit history available.' %}</p>
+                {% endif %}
               </div>
             </div>
           </div>
@@ -316,6 +400,20 @@
       background: #fff;
       padding: 0.95rem;
     }
+
+    .update-card-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      background: rgb(255 255 255 / 0.78);
+      color: #1f2937;
+      font-weight: 600;
+      backdrop-filter: blur(1px);
+    }
   </style>
 {% endblock %}
 
@@ -328,6 +426,41 @@
       var emptyAlert = document.getElementById('backendlog-empty-filter');
       var refreshBtn = document.getElementById('backendlog-refresh-btn');
       var autoRefreshSelect = document.getElementById('backendlog-auto-refresh');
+      var updateForm = document.getElementById('update-platform-form');
+      var updateBtn = document.getElementById('update-platform-btn');
+      var updateSpinner = document.getElementById('update-platform-spinner');
+      var updateBtnLabel = document.getElementById('update-platform-btn-label');
+      var updateCard = document.getElementById('update-platform-card');
+      var updateOverlay = document.getElementById('update-platform-overlay');
+      var updateConfirmText = "{% trans 'Are you sure you want to start the platform update now?' %}";
+      var updatingText = "{% trans 'Updating...' %}";
+
+      if (updateForm && updateBtn) {
+        updateForm.addEventListener('submit', function (event) {
+          if (!window.confirm(updateConfirmText)) {
+            event.preventDefault();
+            return;
+          }
+
+          updateBtn.disabled = true;
+          updateBtn.classList.add('disabled');
+          updateBtn.setAttribute('aria-busy', 'true');
+
+          if (updateCard) {
+            updateCard.classList.add('pe-none');
+          }
+          if (updateOverlay) {
+            updateOverlay.classList.remove('d-none');
+          }
+
+          if (updateSpinner) {
+            updateSpinner.classList.remove('d-none');
+          }
+          if (updateBtnLabel) {
+            updateBtnLabel.textContent = updatingText;
+          }
+        });
+      }
 
       if (refreshBtn) {
         refreshBtn.addEventListener('click', function () {

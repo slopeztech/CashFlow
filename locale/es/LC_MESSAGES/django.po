@@ -370,6 +370,9 @@ msgstr "Configuración global del sistema y herramientas de mantenimiento"
 msgid "Summary"
 msgstr "Resumen"
 
+msgid "Updates"
+msgstr "Actualizaciones"
+
 msgid "Environment variables"
 msgstr "Variables de entorno"
 
@@ -381,6 +384,45 @@ msgstr "Nombre de la plataforma"
 
 msgid "Code version"
 msgstr "Versión del código"
+
+msgid "Git details"
+msgstr "Detalles de Git"
+
+msgid "Branch"
+msgstr "Rama"
+
+msgid "Last commit"
+msgstr "Último commit"
+
+msgid "Current commit"
+msgstr "Commit actual"
+
+msgid "Commit history"
+msgstr "Historial de commits"
+
+msgid "No commit history available."
+msgstr "No hay historial de commits disponible."
+
+msgid "Update to latest version"
+msgstr "Actualizar a la última versión"
+
+msgid "Warning: this action applies system changes and the platform may be temporarily unavailable during the update window."
+msgstr "Aviso: esta acción aplica cambios del sistema y la plataforma puede quedar temporalmente no disponible durante la ventana de actualización."
+
+msgid "Are you sure you want to start the platform update now?"
+msgstr "¿Seguro que quieres iniciar ahora la actualización de la plataforma?"
+
+msgid "Last update log (click to expand)"
+msgstr "Último log de actualización (clic para desplegar)"
+
+msgid "Platform updated successfully."
+msgstr "Plataforma actualizada correctamente."
+
+msgid "Platform update failed. Review last_update.log for details."
+msgstr "La actualización de la plataforma falló. Revisa last_update.log para más detalles."
+
+msgid "Updating..."
+msgstr "Actualizando..."
 
 msgid "Brand and texts"
 msgstr "Marca y textos"

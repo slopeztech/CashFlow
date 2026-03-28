@@ -41,7 +41,7 @@ from customers.services import months_due_for_profile
 from inventory.models import Category, Product, ProductReview, ProductSheetField, ProductSheetUrl
 from sales.models import Order, Sale
 from sales.services import create_order, update_order
-from decimal import Decimal, InvalidOperation, ROUND_DOWN
+from decimal import Decimal, InvalidOperation, ROUND_DOWN, ROUND_HALF_UP
 from datetime import date
 
 
@@ -55,7 +55,7 @@ def _parse_positive_quantity(raw_value):
         return None
     if parsed <= 0:
         return None
-    return parsed.quantize(Decimal('0.01'))
+    return parsed.quantize(Decimal('0.0001'), rounding=ROUND_HALF_UP)
 
 
 def _serialize_quantity(value):
@@ -950,7 +950,7 @@ class UserCartAddView(LoginRequiredMixin, NonStaffRequiredMixin, View):
                 messages.error(request, _('Invalid product or quantity.'))
                 return redirect('user_products_catalog')
 
-            quantity = (amount_value / product.price).quantize(Decimal('0.01'), rounding=ROUND_DOWN)
+            quantity = (amount_value / product.price).quantize(Decimal('0.0001'), rounding=ROUND_HALF_UP)
             if quantity <= 0:
                 messages.error(request, _('Amount is too low to buy one unit.'))
                 return redirect('user_products_catalog')

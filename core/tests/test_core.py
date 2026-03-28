@@ -609,7 +609,7 @@ class UserOrderFlowTests(TestCase):
 		)
 		self.assertEqual(response.status_code, 200)
 		session_cart = self.client.session.get('user_cart', {})
-		self.assertEqual(session_cart.get(str(self.product.id)), '2.06')
+		self.assertEqual(session_cart.get(str(self.product.id)), '2.0667')
 
 	def test_user_can_add_to_cart_with_decimal_quantity(self):
 		response = self.client.post(
@@ -629,7 +629,7 @@ class UserOrderFlowTests(TestCase):
 		self.assertEqual(cart_response.status_code, 200)
 		self.assertContains(cart_response, 'value="0.5"')
 
-	def test_user_cannot_add_to_cart_by_too_low_amount_for_minimum_fraction(self):
+	def test_user_can_add_to_cart_by_low_amount_when_fractional_units_apply(self):
 		response = self.client.post(
 			reverse('user_cart_add'),
 			{
@@ -641,7 +641,7 @@ class UserOrderFlowTests(TestCase):
 		)
 		self.assertEqual(response.status_code, 200)
 		session_cart = self.client.session.get('user_cart', {})
-		self.assertNotIn(str(self.product.id), session_cart)
+		self.assertEqual(session_cart.get(str(self.product.id)), '0.0067')
 
 	def test_cart_subtotal_is_truncated_to_two_decimals(self):
 		response = self.client.post(
@@ -658,7 +658,7 @@ class UserOrderFlowTests(TestCase):
 		cart_response = self.client.get(reverse('user_cart_detail'))
 		self.assertEqual(cart_response.status_code, 200)
 		subtotal = cart_response.context['cart_items'][0]['subtotal']
-		self.assertEqual(subtotal, Decimal('3.09'))
+		self.assertEqual(subtotal, Decimal('3.10'))
 
 	def test_user_cannot_add_amount_when_product_is_units_only(self):
 		self.product.purchase_options = Product.PurchaseOptions.UNITS_ONLY

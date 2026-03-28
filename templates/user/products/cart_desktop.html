@@ -260,7 +260,7 @@
 
               <div class="cart-item-meta">
                 <span class="cart-pill"><i class="mdi mdi-currency-eur"></i>{% trans 'Price' %}: {{ item.product.price|truncate_2 }}</span>
-                <span class="cart-pill"><i class="mdi mdi-counter"></i>{% trans 'Quantity' %}: {{ item.quantity|trim_zeros }}</span>
+                <span class="cart-pill"><i class="mdi mdi-counter"></i>{% trans 'Quantity' %}: {{ item.quantity|truncate_2 }}</span>
               </div>
 
               <div class="cart-item-actions">
@@ -269,7 +269,7 @@
                   <form method="post" action="{% url 'user_cart_update' %}" class="cart-update-inline">
                     {% csrf_token %}
                     <input type="hidden" name="product_id" value="{{ item.product.id }}">
-                    <input id="cart-qty-{{ item.product.id }}" type="number" class="form-control cart-qty-input" name="quantity" min="0.01" step="0.01" value="{{ item.quantity|trim_zeros }}" data-unit-price="{{ item.product.price }}">
+                    <input id="cart-qty-{{ item.product.id }}" type="number" class="form-control cart-qty-input" name="quantity" min="0.01" step="0.01" value="{{ item.quantity|truncate_2 }}" data-unit-price="{{ item.product.price }}">
                     <button class="btn cart-btn-update" type="submit">{% trans 'Update' %}</button>
                   </form>
 

@@ -424,6 +424,14 @@
         return Math.floor(numeric * 100) / 100;
       };
 
+      const ceil2 = (value) => {
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric)) {
+          return 0;
+        }
+        return Math.ceil(numeric * 100) / 100;
+      };
+
       const syncUnitsMode = () => {
         const quantity = parseFloat((quantityInput.value || '1').replace(',', '.'));
         const safeQuantity = Number.isNaN(quantity) || quantity <= 0 ? 0.01 : quantity;
@@ -435,12 +443,11 @@
       const syncAmountMode = () => {
         const amountValue = parseFloat((amountInput.value || '0').replace(',', '.'));
         const safeAmount = Number.isNaN(amountValue) || amountValue <= 0 ? 0 : amountValue;
-        const units = unitPrice > 0 ? truncate2(safeAmount / unitPrice) : 0;
-        const total = truncate2(units * unitPrice);
+        const units = unitPrice > 0 ? ceil2(safeAmount / unitPrice) : 0;
         purchaseModeInput.value = 'amount';
         finalQuantityInput.value = formatQuantity(units);
         amountUnitsEl.textContent = formatQuantity(units);
-        totalPreviewEl.textContent = total.toFixed(2);
+        totalPreviewEl.textContent = safeAmount.toFixed(2);
       };
 
       const applyPurchaseOptionsMode = (mode) => {

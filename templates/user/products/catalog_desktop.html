@@ -425,7 +425,7 @@
         <div class="card-body d-flex justify-content-between align-items-center">
           <div>
             <h5 class="cart-highlight-title">{% trans 'Cart' %}</h5>
-            <p class="cart-highlight-meta">{{ cart_total_quantity|trim_zeros }} {% trans 'items' %} · € {{ cart_total_amount|truncate_2 }}</p>
+            <p class="cart-highlight-meta">{{ cart_total_quantity|truncate_2 }} {% trans 'items' %} · € {{ cart_total_amount|truncate_2 }}</p>
           </div>
           <span class="cart-highlight-icon"><i class="mdi mdi-cart"></i></span>
         </div>
@@ -671,6 +671,14 @@
         return Math.floor(numeric * 100) / 100;
       };
 
+      const ceil2 = (value) => {
+        const numeric = Number(value);
+        if (!Number.isFinite(numeric)) {
+          return 0;
+        }
+        return Math.ceil(numeric * 100) / 100;
+      };
+
       const syncUnitsMode = () => {
         const quantity = parseFloat((quantityInput.value || '1').replace(',', '.'));
         const safeQuantity = Number.isNaN(quantity) || quantity <= 0 ? 0.01 : quantity;
@@ -682,12 +690,11 @@
       const syncAmountMode = () => {
         const amountValue = parseFloat((amountInput.value || '0').replace(',', '.'));
         const safeAmount = Number.isNaN(amountValue) || amountValue <= 0 ? 0 : amountValue;
-        const units = currentUnitPrice > 0 ? truncate2(safeAmount / currentUnitPrice) : 0;
-        const total = truncate2(units * currentUnitPrice);
+        const units = currentUnitPrice > 0 ? ceil2(safeAmount / currentUnitPrice) : 0;
         purchaseModeInput.value = 'amount';
         finalQuantityInput.value = formatQuantity(units);
         amountUnitsEl.textContent = formatQuantity(units);
-        totalPreviewEl.textContent = total.toFixed(2);
+        totalPreviewEl.textContent = safeAmount.toFixed(2);
       };
 
       const applyPurchaseOptionsMode = (purchaseOptions) => {

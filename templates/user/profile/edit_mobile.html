@@ -1,20 +1,23 @@
 {% extends 'base_dashboard.html' %}
 {% load i18n static %}
 
-{% block title %}{% trans 'Edit Profile' %} | CashFlow{% endblock %}
-{% block page_title %}{% trans 'Edit profile' %}{% endblock %}
+{% block title %}{% trans 'My profile' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'My profile' %}{% endblock %}
 {% block page_subtitle %}{% trans 'Update your account information' %}{% endblock %}
 
 {% block content %}
-  <div class="card card-rounded profile-card">
-    <div class="card-body profile-card-body">
-      <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {% if form.non_field_errors %}
-          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-        {% endif %}
+  <div class="profile-layout">
+    <form method="post" enctype="multipart/form-data" id="profile-form" class="profile-layout-main">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger mb-3">{{ form.non_field_errors }}</div>
+      {% endif %}
 
-        <div class="profile-image-block text-center mb-4">
+      <div class="card card-rounded profile-card profile-image-card">
+        <div class="profile-card-header">
+          <h6 class="profile-card-title mb-0"><i class="mdi mdi-account-circle-outline profile-card-title-icon" aria-hidden="true"></i>{% trans 'Profile image' %}</h6>
+        </div>
+        <div class="card-body profile-card-body text-center">
           {% if profile.profile_image %}
             <img id="profile-preview" src="{{ profile.profile_image.url }}" alt="{% trans 'Profile image' %}" class="profile-preview-image">
           {% else %}
@@ -25,12 +28,17 @@
             <button type="button" class="btn btn-light profile-upload-btn" id="profile-image-trigger">
               <i class="mdi mdi-camera-outline me-1"></i>Subir nueva foto
             </button>
+            <p class="profile-helper-text mb-0 mt-2">Se guarda automáticamente al seleccionar una imagen.</p>
             {% if form.profile_image.errors %}<div class="text-danger small mt-1">{{ form.profile_image.errors }}</div>{% endif %}
           </div>
         </div>
+      </div>
 
-        <div class="profile-section">
-          <h6 class="profile-section-title">Información básica</h6>
+      <div class="card card-rounded profile-card profile-info-card">
+        <div class="profile-card-header">
+          <h6 class="profile-card-title mb-0"><i class="mdi mdi-card-account-details-outline profile-card-title-icon" aria-hidden="true"></i>Información básica</h6>
+        </div>
+        <div class="card-body profile-card-body">
           <div class="row g-0 profile-grid-gap">
             <div class="col-12 profile-field">
               <label class="form-label profile-label">{% trans 'Username' %}</label>
@@ -49,27 +57,22 @@
               {{ form.display_name }}
               {% if form.display_name.errors %}<div class="text-danger small mt-1">{{ form.display_name.errors }}</div>{% endif %}
             </div>
-          </div>
-        </div>
-
-        <div class="profile-section">
-          <h6 class="profile-section-title">Ajustes de cuenta</h6>
-          <div class="row g-0 profile-grid-gap">
             <div class="col-12 profile-field">
               <label class="form-label profile-label" for="id_language">{% trans 'Language' %}</label>
               {{ form.language }}
               {% if form.language.errors %}<div class="text-danger small mt-1">{{ form.language.errors }}</div>{% endif %}
             </div>
           </div>
+          <button class="btn profile-accent-btn profile-save-btn" type="submit">{% trans 'Save changes' %}</button>
         </div>
+      </div>
+    </form>
 
-        <div class="mt-4">
-          <button class="btn btn-primary text-white profile-save-btn" type="submit">{% trans 'Save changes' %}</button>
-        </div>
-      </form>
-
-      <div class="profile-section" id="password-settings">
-        <h6 class="profile-section-title">{% trans 'Password settings' %}</h6>
+    <div class="card card-rounded profile-card profile-password-card" id="password-settings">
+      <div class="profile-card-header">
+        <h6 class="profile-card-title mb-0"><i class="mdi mdi-shield-key-outline profile-card-title-icon" aria-hidden="true"></i>{% trans 'Password settings' %}</h6>
+      </div>
+      <div class="card-body profile-card-body">
         <form method="post" novalidate>
           {% csrf_token %}
           <input type="hidden" name="change_password" value="1">
@@ -92,9 +95,7 @@
                     aria-label="{% trans 'Show password' %}"
                     title="{% trans 'Show password' %}"
                   >
-                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                      <path d="M12 5C6.5 5 2.1 8.3.3 12c1.8 3.7 6.2 7 11.7 7s9.9-3.3 11.7-7C21.9 8.3 17.5 5 12 5zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z" fill="currentColor"></path>
-                    </svg>
+                    <i class="mdi mdi-eye-outline profile-password-toggle-icon" aria-hidden="true"></i>
                   </button>
                 </div>
                 {% if password_form.old_password.errors %}<div class="text-danger small mt-1">{{ password_form.old_password.errors }}</div>{% endif %}
@@ -114,9 +115,7 @@
                   aria-label="{% trans 'Show password' %}"
                   title="{% trans 'Show password' %}"
                 >
-                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                    <path d="M12 5C6.5 5 2.1 8.3.3 12c1.8 3.7 6.2 7 11.7 7s9.9-3.3 11.7-7C21.9 8.3 17.5 5 12 5zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z" fill="currentColor"></path>
-                  </svg>
+                  <i class="mdi mdi-eye-outline profile-password-toggle-icon" aria-hidden="true"></i>
                 </button>
               </div>
               {% if password_form.new_password1.errors %}<div class="text-danger small mt-1">{{ password_form.new_password1.errors }}</div>{% endif %}
@@ -135,15 +134,13 @@
                   aria-label="{% trans 'Show password' %}"
                   title="{% trans 'Show password' %}"
                 >
-                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                    <path d="M12 5C6.5 5 2.1 8.3.3 12c1.8 3.7 6.2 7 11.7 7s9.9-3.3 11.7-7C21.9 8.3 17.5 5 12 5zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z" fill="currentColor"></path>
-                  </svg>
+                  <i class="mdi mdi-eye-outline profile-password-toggle-icon" aria-hidden="true"></i>
                 </button>
               </div>
               {% if password_form.new_password2.errors %}<div class="text-danger small mt-1">{{ password_form.new_password2.errors }}</div>{% endif %}
             </div>
           </div>
-          <button class="btn btn-outline-primary profile-password-btn" type="submit">{% trans 'Update password' %}</button>
+          <button class="btn profile-accent-btn profile-password-btn" type="submit">{% trans 'Update password' %}</button>
         </form>
       </div>
     </div>
@@ -153,47 +150,99 @@
 {% block extra_head %}
   {{ block.super }}
   <style>
+    .profile-layout {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .profile-layout-main {
+      display: grid;
+      gap: 1rem;
+    }
+
     .profile-card {
       border: 1px solid #E5E7EB;
-      border-radius: 16px;
-      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      border-radius: 18px;
+      box-shadow: 0 12px 26px rgb(15 23 42 / 0.08);
+      overflow: hidden;
+      background: #fff;
+      opacity: 0;
+      transform: translateY(14px) scale(.99);
+      animation: profileCardIn .45s ease-out forwards;
+    }
+
+    .profile-layout-main .profile-card:nth-child(1) {
+      animation-delay: .03s;
+    }
+
+    .profile-layout-main .profile-card:nth-child(2) {
+      animation-delay: .11s;
+    }
+
+    .profile-password-card {
+      animation-delay: .19s;
+    }
+
+    @keyframes profileCardIn {
+      from {
+        opacity: 0;
+        transform: translateY(14px) scale(.99);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .profile-card-header {
+      padding: 1.02rem 1.25rem;
+      border-bottom: 1px solid #E2E8F0;
+      background: linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 100%);
     }
 
     .profile-card-body {
       padding: 1.25rem;
     }
 
-    .profile-image-block {
-      margin-bottom: 1.25rem;
+    .profile-card-title {
+      font-size: 1.08rem;
+      font-weight: 800;
+      color: #0F172A;
+      margin-bottom: .2rem;
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .profile-card-title-icon {
+      font-size: 1.2rem;
+      color: #2563EB;
+    }
+
+    .profile-image-card .profile-card-body {
+      background: linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 65%);
     }
 
     .profile-preview-image {
-      width: 108px;
-      height: 108px;
+      width: 110px;
+      height: 110px;
       border-radius: 999px;
       object-fit: cover;
-      border: 3px solid #E5E7EB;
-      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      border: 4px solid #E2E8F0;
+      box-shadow: 0 8px 20px rgb(15 23 42 / 0.18);
     }
 
     .profile-upload-btn {
       border-radius: 999px;
-      border: 1px solid #E5E7EB;
+      border: 1px solid #CBD5E1;
       font-weight: 600;
       padding: .5rem .95rem;
+      background: #F8FAFC;
     }
 
-    .profile-section {
-      border-top: 1px solid #E5E7EB;
-      padding-top: 1rem;
-      margin-top: 1rem;
-    }
-
-    .profile-section-title {
-      font-size: .9rem;
-      font-weight: 700;
-      color: #111827;
-      margin-bottom: .75rem;
+    .profile-helper-text {
+      font-size: .76rem;
+      color: #64748B;
     }
 
     .profile-grid-gap {
@@ -265,27 +314,44 @@
       pointer-events: none;
     }
 
-    .profile-save-btn {
-      width: 100%;
-      border-radius: 10px;
-      background-color: #2563EB;
-      border-color: #2563EB;
-      font-weight: 700;
-      padding: .8rem 1rem;
-      box-shadow: 0 6px 14px rgb(37 99 235 / 0.25);
-      transition: transform .1s ease, box-shadow .1s ease;
+    .profile-accent-btn,
+    .profile-card .btn.profile-accent-btn {
+      border: 0;
+      border-radius: 12px;
+      color: #fff !important;
+      font-weight: 800;
+      font-size: .95rem;
+      letter-spacing: .015em;
+      padding: .72rem 1rem;
+      min-height: 46px;
+      background: linear-gradient(135deg, #3B82F6 0%, #2563EB 60%, #0EA5E9 100%) !important;
+      box-shadow: 0 10px 20px rgb(37 99 235 / 0.32);
+      transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
     }
 
-    .profile-save-btn:active {
+    .profile-accent-btn:hover,
+    .profile-accent-btn:focus,
+    .profile-card .btn.profile-accent-btn:hover,
+    .profile-card .btn.profile-accent-btn:focus {
+      color: #fff !important;
+      filter: brightness(1.04);
+      background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 55%, #38BDF8 100%) !important;
+      box-shadow: 0 12px 24px rgb(37 99 235 / 0.38);
+    }
+
+    .profile-accent-btn:active {
       transform: translateY(1px);
-      box-shadow: 0 3px 8px rgb(37 99 235 / 0.2);
+      box-shadow: 0 6px 14px rgb(37 99 235 / 0.34);
+    }
+
+    .profile-save-btn {
+      width: 100%;
+      margin-top: .35rem;
     }
 
     .profile-password-btn {
       width: 100%;
-      border-radius: 10px;
-      font-weight: 700;
-      padding: .75rem 1rem;
+      margin-top: .35rem;
     }
 
     .profile-password-field {
@@ -301,28 +367,29 @@
       top: 50%;
       right: .55rem;
       transform: translateY(-50%);
-      width: 34px;
-      height: 34px;
+      width: 36px;
+      height: 36px;
       border-radius: 999px;
-      border: 1px solid #E5E7EB;
+      border: 0 !important;
       color: #475569;
       padding: 0;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      background: #fff;
+      background: transparent !important;
+      box-shadow: none !important;
     }
 
-    .profile-password-toggle svg {
-      width: 18px;
-      height: 18px;
+    .profile-password-toggle-icon {
+      font-size: 1.45rem;
+      line-height: 1;
     }
 
     .profile-password-toggle:hover,
     .profile-password-toggle:focus {
       color: #1D4ED8;
-      border-color: #93C5FD;
-      background: #EFF6FF;
+      border-color: transparent;
+      background: transparent;
       box-shadow: none;
     }
   </style>
@@ -351,6 +418,13 @@
           preview.src = event.target.result;
         };
         reader.readAsDataURL(file);
+
+        const profileForm = document.getElementById('profile-form');
+        if (profileForm) {
+          trigger.disabled = true;
+          trigger.innerHTML = '<i class="mdi mdi-loading mdi-spin me-1"></i>Subiendo...';
+          profileForm.submit();
+        }
       });
 
       document.querySelectorAll('[data-toggle-password]').forEach(function (button) {
@@ -363,6 +437,12 @@
         button.addEventListener('click', function () {
           const isVisible = targetInput.type === 'text';
           targetInput.type = isVisible ? 'password' : 'text';
+          const icon = button.querySelector('.profile-password-toggle-icon');
+          const nowVisible = !isVisible;
+          if (icon) {
+            icon.classList.toggle('mdi-eye-off-outline', nowVisible);
+            icon.classList.toggle('mdi-eye-outline', !nowVisible);
+          }
           const nextLabel = isVisible
             ? (button.getAttribute('data-label-show') || 'Show password')
             : (button.getAttribute('data-label-hide') || 'Hide password');

@@ -1801,6 +1801,45 @@ msgstr "Usuario creado correctamente."
 msgid "User updated successfully."
 msgstr "Usuario actualizado correctamente."
 
+msgid "Password reset successfully. Temporary access code: %(code)s"
+msgstr "Contraseña reiniciada correctamente. Código temporal de acceso: %(code)s"
+
+msgid "Reset password for this user"
+msgstr "Reiniciar contraseña de este usuario"
+
+msgid "Basic information"
+msgstr "Información básica"
+
+msgid "Checks and access"
+msgstr "Checks y acceso"
+
+msgid "Options"
+msgstr "Opciones"
+
+msgid "Admin access"
+msgstr "Acceso de administrador"
+
+msgid "Are you sure you want to grant admin access to this user?"
+msgstr "¿Seguro que quieres conceder acceso de administrador a este usuario?"
+
+msgid "Are you sure you want to remove admin access from this user?"
+msgstr "¿Seguro que quieres quitar el acceso de administrador a este usuario?"
+
+msgid "You are about to grant admin access. Do you want to continue?"
+msgstr "Vas a conceder acceso de administrador. ¿Quieres continuar?"
+
+msgid "You are about to remove admin access. Do you want to continue?"
+msgstr "Vas a quitar el acceso de administrador. ¿Quieres continuar?"
+
+msgid "A new temporary access code will be generated automatically. The user will be signed out from active sessions and must log in again using the new code. After login, they will be asked to set a new password in My profile."
+msgstr "Se generará automáticamente un nuevo código temporal de acceso. Se cerrará la sesión del usuario en sus sesiones activas y deberá iniciar sesión de nuevo con el nuevo código. Tras iniciar sesión, se le pedirá establecer una nueva contraseña en Mi perfil."
+
+msgid "Reset password now"
+msgstr "Reiniciar contraseña ahora"
+
+msgid "Are you sure you want to reset this user's password? This will immediately close their active sessions."
+msgstr "¿Seguro que quieres reiniciar la contraseña de este usuario? Esto cerrará inmediatamente sus sesiones activas."
+
 msgid "Invalid balance amount."
 msgstr "Importe de saldo no válido."
 

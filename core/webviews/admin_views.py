@@ -10,6 +10,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.contrib.sessions.models import Session
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Avg, Count, Exists, F, Max, OuterRef, Prefetch, Q, Sum
@@ -40,6 +41,7 @@ from core.forms import (
     StrikeForm,
     StaffUserCreateForm,
     SystemSettingsForm,
+    generate_temporary_access_code,
 )
 from core.image_processing import optimize_uploaded_image
 from core.models import (
@@ -1428,6 +1430,44 @@ class AdminMonthlyFeeLateUsersView(ResponsiveTemplateMixin, LoginRequiredMixin, 
 class AdminUserUpdateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMixin, View):
     template_name = 'admin/users/form.html'
 
+    @staticmethod
+    def _invalidate_user_sessions(target_user):
+        session_keys = list(
+            UserSession.objects.filter(user=target_user).values_list('session_key', flat=True)
+        )
+        if session_keys:
+            Session.objects.filter(session_key__in=session_keys).delete()
+        UserSession.objects.filter(user=target_user).delete()
+
+    @staticmethod
+    def _build_section_form_data(target_user, request_post, section):
+        profile, _profile_created = StoreUserProfile.objects.get_or_create(user=target_user)
+        data = {
+            'username': target_user.username,
+            'member_number': profile.member_number or '',
+            'display_name': profile.display_name or '',
+            'is_staff': 'on' if target_user.is_staff else '',
+            'phone': profile.phone or '',
+            'address': profile.address or '',
+            'language': profile.language,
+            'monthly_fee_enabled': 'on' if profile.monthly_fee_enabled else '',
+            'recent_movements_limit': '' if profile.recent_movements_limit is None else str(profile.recent_movements_limit),
+        }
+
+        if section == 'basic':
+            for field_name in ['username', 'member_number', 'display_name', 'phone', 'address']:
+                if field_name in request_post:
+                    data[field_name] = request_post.get(field_name, '')
+        elif section == 'checks':
+            data['is_staff'] = 'on' if request_post.get('is_staff') else ''
+            data['monthly_fee_enabled'] = 'on' if request_post.get('monthly_fee_enabled') else ''
+            data['recent_movements_limit'] = request_post.get('recent_movements_limit', '')
+            data['language'] = request_post.get('language', data['language'])
+        elif section == 'admin_access':
+            data['is_staff'] = 'on' if request_post.get('is_staff') else ''
+
+        return data
+
     def get(self, request, user_id):
         target_user = get_object_or_404(User, id=user_id)
         form = AdminUserUpdateForm(user_instance=target_user)
@@ -1448,6 +1488,55 @@ class AdminUserUpdateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequ
 
     def post(self, request, user_id):
         target_user = get_object_or_404(User, id=user_id)
+
+        if 'reset_user_password' in request.POST:
+            temporary_access_code = generate_temporary_access_code()
+            target_user.set_password(temporary_access_code)
+            target_user.save(update_fields=['password'])
+
+            profile, _profile_created = StoreUserProfile.objects.get_or_create(user=target_user)
+            profile.password_change_required = True
+            profile.temporary_access_code_plain = temporary_access_code
+            profile.save(update_fields=['password_change_required', 'temporary_access_code_plain', 'updated_at'])
+
+            self._invalidate_user_sessions(target_user)
+            messages.success(
+                request,
+                _('Password reset successfully. Temporary access code: %(code)s') % {'code': temporary_access_code},
+            )
+            return redirect('admin_user_edit', user_id=target_user.id)
+
+        section = None
+        if 'save_basic_section' in request.POST:
+            section = 'basic'
+        elif 'save_checks_section' in request.POST:
+            section = 'checks'
+        elif 'save_admin_access_section' in request.POST:
+            section = 'admin_access'
+
+        if section:
+            merged_data = self._build_section_form_data(target_user, request.POST, section)
+            form = AdminUserUpdateForm(merged_data, user_instance=target_user)
+            if form.is_valid():
+                form.save()
+                messages.success(request, _('User updated successfully.'))
+                return redirect('admin_user_edit', user_id=target_user.id)
+
+            profile, _profile_created = StoreUserProfile.objects.get_or_create(user=target_user)
+            pending_temporary_access_code = (
+                profile.temporary_access_code_plain if profile.password_change_required else ''
+            )
+            return render(
+                request,
+                self.get_template_names()[0],
+                {
+                    'form': form,
+                    'mode': 'edit',
+                    'target_user': target_user,
+                    'pending_temporary_access_code': pending_temporary_access_code,
+                },
+            )
+
         form = AdminUserUpdateForm(request.POST, user_instance=target_user)
         if form.is_valid():
             form.save()

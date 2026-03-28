@@ -1768,6 +1768,45 @@ msgstr "User created successfully."
 msgid "User updated successfully."
 msgstr "User updated successfully."
 
+msgid "Password reset successfully. Temporary access code: %(code)s"
+msgstr "Password reset successfully. Temporary access code: %(code)s"
+
+msgid "Reset password for this user"
+msgstr "Reset password for this user"
+
+msgid "Basic information"
+msgstr "Basic information"
+
+msgid "Checks and access"
+msgstr "Checks and access"
+
+msgid "Options"
+msgstr "Options"
+
+msgid "Admin access"
+msgstr "Admin access"
+
+msgid "Are you sure you want to grant admin access to this user?"
+msgstr "Are you sure you want to grant admin access to this user?"
+
+msgid "Are you sure you want to remove admin access from this user?"
+msgstr "Are you sure you want to remove admin access from this user?"
+
+msgid "You are about to grant admin access. Do you want to continue?"
+msgstr "You are about to grant admin access. Do you want to continue?"
+
+msgid "You are about to remove admin access. Do you want to continue?"
+msgstr "You are about to remove admin access. Do you want to continue?"
+
+msgid "A new temporary access code will be generated automatically. The user will be signed out from active sessions and must log in again using the new code. After login, they will be asked to set a new password in My profile."
+msgstr "A new temporary access code will be generated automatically. The user will be signed out from active sessions and must log in again using the new code. After login, they will be asked to set a new password in My profile."
+
+msgid "Reset password now"
+msgstr "Reset password now"
+
+msgid "Are you sure you want to reset this user's password? This will immediately close their active sessions."
+msgstr "Are you sure you want to reset this user's password? This will immediately close their active sessions."
+
 msgid "Invalid balance amount."
 msgstr "Invalid balance amount."
 

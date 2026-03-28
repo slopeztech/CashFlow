@@ -9,94 +9,368 @@
 {% endblock %}
 
 {% block content %}
-  <div class="card card-rounded">
-    <div class="card-body">
-      <form method="post">
+  <div class="admin-user-layout">
+    {% if mode == 'edit' %}
+      <form method="post" class="admin-user-main-form">
         {% csrf_token %}
-
+        <input type="hidden" name="save_basic_section" value="1">
         {% if form.non_field_errors %}
           <div class="alert alert-danger">{{ form.non_field_errors }}</div>
         {% endif %}
 
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label">{% trans 'Username' %}</label>
-            {{ form.username }}
-            {% if form.username.errors %}<div class="text-danger small mt-1">{{ form.username.errors }}</div>{% endif %}
+        <div class="card card-rounded admin-user-card">
+          <div class="admin-user-card-header">
+            <h5 class="admin-user-card-title mb-0">
+              <i class="mdi mdi-card-account-details-outline admin-user-card-icon" aria-hidden="true"></i>
+              {% trans 'Basic information' %}
+            </h5>
           </div>
-
-          <div class="col-md-6">
-            <label class="form-label">{% trans 'Member number' %}</label>
-            {{ form.member_number }}
-            {% if form.member_number.errors %}<div class="text-danger small mt-1">{{ form.member_number.errors }}</div>{% endif %}
-          </div>
-
-          <div class="col-md-6">
-            <label class="form-label">{% trans 'Display name' %}</label>
-            {{ form.display_name }}
-            {% if form.display_name.errors %}<div class="text-danger small mt-1">{{ form.display_name.errors }}</div>{% endif %}
-          </div>
-
-          <div class="col-md-6">
-            <label class="form-label">{% trans 'Language' %}</label>
-            {{ form.language }}
-            {% if form.language.errors %}<div class="text-danger small mt-1">{{ form.language.errors }}</div>{% endif %}
-          </div>
-
-          {% if mode == 'create' %}
-            <div class="col-md-6">
-              <label class="form-label">{{ form.temporary_access_code.label }}</label>
-              {{ form.temporary_access_code }}
-              {% if form.temporary_access_code.errors %}<div class="text-danger small mt-1">{{ form.temporary_access_code.errors }}</div>{% endif %}
-              <div class="form-text">{% trans 'Generated automatically. Share this code securely with the user.' %}</div>
-            </div>
-          {% else %}
-            {% if pending_temporary_access_code %}
+          <div class="card-body admin-user-card-body">
+            <div class="row g-3">
               <div class="col-md-6">
-                <label class="form-label">{% trans 'Temporary access code' %}</label>
-                <input type="text" class="form-control font-monospace" value="{{ pending_temporary_access_code }}" readonly>
-                <div class="form-text">{% trans 'This code remains visible until the user changes their password.' %}</div>
+                <label class="form-label">{% trans 'Username' %}</label>
+                {{ form.username }}
+                {% if form.username.errors %}<div class="text-danger small mt-1">{{ form.username.errors }}</div>{% endif %}
               </div>
-            {% endif %}
 
-            <div class="col-md-6">
-              <label class="form-label">{% trans 'Phone' %}</label>
-              {{ form.phone }}
-              {% if form.phone.errors %}<div class="text-danger small mt-1">{{ form.phone.errors }}</div>{% endif %}
+              <div class="col-md-6">
+                <label class="form-label">{% trans 'Member number' %}</label>
+                {{ form.member_number }}
+                {% if form.member_number.errors %}<div class="text-danger small mt-1">{{ form.member_number.errors }}</div>{% endif %}
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">{% trans 'Display name' %}</label>
+                {{ form.display_name }}
+                {% if form.display_name.errors %}<div class="text-danger small mt-1">{{ form.display_name.errors }}</div>{% endif %}
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">{% trans 'Phone' %}</label>
+                {{ form.phone }}
+                {% if form.phone.errors %}<div class="text-danger small mt-1">{{ form.phone.errors }}</div>{% endif %}
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">{% trans 'Address' %}</label>
+                {{ form.address }}
+                {% if form.address.errors %}<div class="text-danger small mt-1">{{ form.address.errors }}</div>{% endif %}
+              </div>
             </div>
 
-            <div class="col-md-6">
-              <label class="form-label">{% trans 'Address' %}</label>
-              {{ form.address }}
-              {% if form.address.errors %}<div class="text-danger small mt-1">{{ form.address.errors }}</div>{% endif %}
+            <div class="mt-4 d-flex gap-2">
+              <button class="btn btn-primary text-white" type="submit">{% trans 'Save changes' %}</button>
+              <a class="btn btn-light" href="{% url 'admin_user_list' %}">{% trans 'Cancel' %}</a>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <form method="post" class="admin-user-main-form">
+        {% csrf_token %}
+        <input type="hidden" name="save_checks_section" value="1">
+        <div class="card card-rounded admin-user-card">
+          <div class="admin-user-card-header">
+            <h5 class="admin-user-card-title mb-0">
+              <i class="mdi mdi-shield-check-outline admin-user-card-icon" aria-hidden="true"></i>
+              {% trans 'Options' %}
+            </h5>
+          </div>
+          <div class="card-body admin-user-card-body">
+            <div class="row g-3">
+              <div class="col-md-12 admin-user-check-row">
+                <div class="form-check">
+                  {{ form.monthly_fee_enabled }}
+                  <label class="form-check-label" for="id_monthly_fee_enabled">{% trans 'Enable monthly fee for this user' %}</label>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">{% trans 'Language' %}</label>
+                {{ form.language }}
+                {% if form.language.errors %}<div class="text-danger small mt-1">{{ form.language.errors }}</div>{% endif %}
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">{% trans 'Limit recent movements' %}</label>
+                {{ form.recent_movements_limit }}
+                {% if form.recent_movements_limit.errors %}<div class="text-danger small mt-1">{{ form.recent_movements_limit.errors }}</div>{% endif %}
+                <div class="form-text">{% trans 'Empty or 0 shows all. Enter X to show the latest X changes.' %}</div>
+              </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+              <button class="btn btn-primary text-white" type="submit">{% trans 'Save changes' %}</button>
+              <a class="btn btn-light" href="{% url 'admin_user_list' %}">{% trans 'Cancel' %}</a>
+            </div>
+          </div>
+        </div>
+      </form>
+    {% else %}
+      <form method="post" class="admin-user-main-form">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="card card-rounded admin-user-card">
+          <div class="admin-user-card-header">
+            <h5 class="admin-user-card-title mb-0">
+              <i class="mdi mdi-card-account-details-outline admin-user-card-icon" aria-hidden="true"></i>
+              {% trans 'Basic information' %}
+            </h5>
+          </div>
+          <div class="card-body admin-user-card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">{% trans 'Username' %}</label>
+                {{ form.username }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">{% trans 'Member number' %}</label>
+                {{ form.member_number }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">{% trans 'Display name' %}</label>
+                {{ form.display_name }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">{{ form.temporary_access_code.label }}</label>
+                {{ form.temporary_access_code }}
+                <div class="form-text">{% trans 'Generated automatically. Share this code securely with the user.' %}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card-rounded admin-user-card">
+          <div class="admin-user-card-header">
+            <h5 class="admin-user-card-title mb-0">
+              <i class="mdi mdi-shield-check-outline admin-user-card-icon" aria-hidden="true"></i>
+              {% trans 'Options' %}
+            </h5>
+          </div>
+          <div class="card-body admin-user-card-body">
+            <div class="row g-3">
+              <div class="col-md-12 admin-user-check-row">
+                <div class="form-check">
+                  {{ form.monthly_fee_enabled }}
+                  <label class="form-check-label" for="id_monthly_fee_enabled">{% trans 'Enable monthly fee for this user' %}</label>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">{% trans 'Language' %}</label>
+                {{ form.language }}
+              </div>
+
+              <div class="col-md-12 admin-user-check-row">
+                <div class="form-check">
+                  {{ form.is_staff }}
+                  <label class="form-check-label" for="id_is_staff">{% trans 'Grant admin access' %}</label>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">{% trans 'Limit recent movements' %}</label>
+                {{ form.recent_movements_limit }}
+                <div class="form-text">{% trans 'Empty or 0 shows all. Enter X to show the latest X changes.' %}</div>
+              </div>
+            </div>
+            <div class="mt-4 d-flex gap-2">
+              <button class="btn btn-primary text-white" type="submit">{% trans 'Create user' %}</button>
+              <a class="btn btn-light" href="{% url 'admin_user_list' %}">{% trans 'Cancel' %}</a>
+            </div>
+          </div>
+        </div>
+      </form>
+    {% endif %}
+
+    {% if mode == 'edit' %}
+      <div class="card card-rounded admin-user-card admin-password-card">
+        <div class="admin-user-card-header admin-user-card-header-warning">
+          <h5 class="admin-user-card-title mb-0">
+            <i class="mdi mdi-shield-key-outline admin-user-card-icon admin-user-card-icon-warning" aria-hidden="true"></i>
+            {% trans 'Reset password for this user' %}
+          </h5>
+          {% if pending_temporary_access_code %}
+            <span class="badge rounded-pill bg-warning text-dark admin-user-pending-badge">{% trans 'Temporary access code' %}</span>
+          {% endif %}
+        </div>
+        <div class="card-body admin-user-card-body">
+          {% if pending_temporary_access_code %}
+            <div class="mb-3">
+              <label class="form-label">{% trans 'Temporary access code' %}</label>
+              <input type="text" class="form-control font-monospace" value="{{ pending_temporary_access_code }}" readonly>
+              <div class="form-text">{% trans 'This code remains visible until the user changes their password.' %}</div>
             </div>
           {% endif %}
 
-          <div class="col-md-12 d-flex align-items-end">
-            <div class="form-check mt-2">
-              {{ form.is_staff }}
-              <label class="form-check-label" for="id_is_staff">{% trans 'Grant admin access' %}</label>
-            </div>
-          </div>
-          <div class="col-md-12 d-flex align-items-end">
-            <div class="form-check mt-2">
-              {{ form.monthly_fee_enabled }}
-              <label class="form-check-label" for="id_monthly_fee_enabled">{% trans 'Enable monthly fee for this user' %}</label>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">{% trans 'Limit recent movements' %}</label>
-            {{ form.recent_movements_limit }}
-            {% if form.recent_movements_limit.errors %}<div class="text-danger small mt-1">{{ form.recent_movements_limit.errors }}</div>{% endif %}
-            <div class="form-text">{% trans 'Empty or 0 shows all. Enter X to show the latest X changes.' %}</div>
-          </div>
+          <p class="text-muted mb-3">
+            {% trans 'A new temporary access code will be generated automatically. The user will be signed out from active sessions and must log in again using the new code. After login, they will be asked to set a new password in My profile.' %}
+          </p>
+          <form method="post" class="m-0">
+            {% csrf_token %}
+            <input type="hidden" name="reset_user_password" value="1">
+            <button
+              type="submit"
+              class="btn btn-warning text-white"
+              onclick="return confirm('{% trans "Are you sure you want to reset this user\'s password? This will immediately close their active sessions." %}')"
+            >
+              {% trans 'Reset password now' %}
+            </button>
+          </form>
         </div>
+      </div>
 
-        <div class="mt-4 d-flex gap-2">
-          <button class="btn btn-primary text-white" type="submit">{% if mode == 'edit' %}{% trans 'Save changes' %}{% else %}{% trans 'Create user' %}{% endif %}</button>
-          <a class="btn btn-light" href="{% url 'admin_user_list' %}">{% trans 'Cancel' %}</a>
+      <form method="post" class="admin-user-main-form" id="admin-access-form">
+        {% csrf_token %}
+        <input type="hidden" name="save_admin_access_section" value="1">
+        <div class="card card-rounded admin-user-card">
+          <div class="admin-user-card-header">
+            <h5 class="admin-user-card-title mb-0">
+              <i class="mdi mdi-account-key-outline admin-user-card-icon" aria-hidden="true"></i>
+              {% trans 'Admin access' %}
+            </h5>
+          </div>
+          <div class="card-body admin-user-card-body">
+            <div class="admin-user-check-row mb-3">
+              <div class="form-check">
+                {{ form.is_staff }}
+                <label class="form-check-label" for="id_is_staff">{% trans 'Grant admin access' %}</label>
+              </div>
+              {% if form.is_staff.errors %}<div class="text-danger small mt-1">{{ form.is_staff.errors }}</div>{% endif %}
+            </div>
+            <button class="btn btn-primary text-white" type="submit">{% trans 'Save changes' %}</button>
+          </div>
         </div>
       </form>
-    </div>
+    {% endif %}
   </div>
+{% endblock %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <style>
+    .admin-user-layout {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .admin-user-main-form {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .admin-user-card {
+      border: 1px solid #E5E7EB;
+      border-radius: 18px;
+      box-shadow: 0 12px 26px rgb(15 23 42 / 0.08);
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .admin-user-card-header {
+      padding: 1.02rem 1.25rem;
+      border-bottom: 1px solid #E2E8F0;
+      background: linear-gradient(180deg, #F8FAFC 0%, #FFFFFF 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      flex-wrap: wrap;
+    }
+
+    .admin-user-card-header-warning {
+      background: linear-gradient(180deg, #FFF7ED 0%, #FFFFFF 100%);
+      border-bottom-color: #FED7AA;
+    }
+
+    .admin-user-card-title {
+      font-size: 1.08rem;
+      font-weight: 800;
+      color: #0F172A;
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .admin-user-card-icon {
+      font-size: 1.2rem;
+      color: #2563EB;
+    }
+
+    .admin-user-card-icon-warning {
+      color: #EA580C;
+    }
+
+    .admin-user-card-body {
+      padding: 1.25rem;
+    }
+
+    .admin-user-pending-badge {
+      font-size: .74rem;
+      letter-spacing: .01em;
+    }
+
+    .admin-user-check-row .form-check {
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+      margin: 0;
+      padding-left: 0;
+    }
+
+    .admin-user-check-row .form-check-input {
+      position: static;
+      margin: 0;
+      float: none;
+      flex-shrink: 0;
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+
+    .admin-user-check-row .form-check-label {
+      margin: 0;
+      line-height: 1.35;
+    }
+  </style>
+{% endblock %}
+
+{% block extra_js %}
+  {{ block.super }}
+  <script>
+    (function () {
+      const adminAccessInput = document.getElementById('id_is_staff');
+      if (!adminAccessInput) {
+        return;
+      }
+
+      adminAccessInput.addEventListener('change', function () {
+        const isGranting = adminAccessInput.checked;
+        const confirmed = window.confirm(
+          isGranting
+            ? "{% trans 'Are you sure you want to grant admin access to this user?' %}"
+            : "{% trans 'Are you sure you want to remove admin access from this user?' %}"
+        );
+        if (!confirmed) {
+          adminAccessInput.checked = !isGranting;
+        }
+      });
+
+      const adminAccessForm = document.getElementById('admin-access-form');
+      if (adminAccessForm) {
+        adminAccessForm.addEventListener('submit', function (event) {
+          const confirmSave = window.confirm(
+            adminAccessInput.checked
+              ? "{% trans 'You are about to grant admin access. Do you want to continue?' %}"
+              : "{% trans 'You are about to remove admin access. Do you want to continue?' %}"
+          );
+          if (!confirmSave) {
+            event.preventDefault();
+          }
+        });
+      }
+    })();
+  </script>
 {% endblock %}

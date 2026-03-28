@@ -1,6 +1,7 @@
 from datetime import timedelta
 from decimal import Decimal
 
+from django.contrib.sessions.models import Session
 from django.test import RequestFactory, TestCase
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -15,6 +16,7 @@ from core.models import (
 	Survey,
 	SurveyOption,
 	SurveyResponse,
+	UserSession,
 )
 from customers.models import BalanceLog, StoreUserProfile
 from inventory.models import Category, Product, ProductSheetField, ProductSheetUrl
@@ -1536,3 +1538,43 @@ class AdminUserCreateTemporaryCodeTests(TestCase):
 
 		profile = StoreUserProfile.objects.get(user=created_user)
 		self.assertEqual(profile.language, 'es')
+
+
+class AdminUserResetPasswordTests(TestCase):
+	def setUp(self):
+		self.admin = User.objects.create_user(username='admin_reset', password='testpass123', is_staff=True)
+		self.target_user = User.objects.create_user(username='reset_target', password='oldpass123', is_staff=False)
+		self.profile, _ = StoreUserProfile.objects.get_or_create(user=self.target_user)
+		self.profile.password_change_required = False
+		self.profile.temporary_access_code_plain = ''
+		self.profile.save(update_fields=['password_change_required', 'temporary_access_code_plain', 'updated_at'])
+
+	def test_admin_can_reset_user_password_and_force_relogin(self):
+		admin_client = self.client
+		admin_client.force_login(self.admin)
+
+		target_client = self.client_class()
+		target_client.force_login(self.target_user)
+		target_session_key = target_client.session.session_key
+		UserSession.objects.create(user=self.target_user, session_key=target_session_key)
+
+		response = admin_client.post(
+			reverse('admin_user_edit', kwargs={'user_id': self.target_user.id}),
+			{'reset_user_password': '1'},
+			follow=False,
+		)
+		self.assertEqual(response.status_code, 302)
+
+		self.target_user.refresh_from_db()
+		self.profile.refresh_from_db()
+
+		self.assertTrue(self.profile.password_change_required)
+		self.assertRegex(self.profile.temporary_access_code_plain, r'^[a-z0-9]{8}$')
+		self.assertTrue(self.target_user.check_password(self.profile.temporary_access_code_plain))
+
+		self.assertFalse(Session.objects.filter(session_key=target_session_key).exists())
+		self.assertFalse(UserSession.objects.filter(user=self.target_user, session_key=target_session_key).exists())
+
+		protected_response = target_client.get(reverse('user_dashboard'))
+		self.assertEqual(protected_response.status_code, 302)
+		self.assertIn(reverse('login'), protected_response.url)

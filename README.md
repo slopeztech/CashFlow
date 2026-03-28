@@ -321,7 +321,6 @@ python manage.py test --tag=scalability
 
 Before production:
 
-- Set a secure `SECRET_KEY`.
 - Set `DEBUG=False`.
 - Configure `ALLOWED_HOSTS` for your real domain(s).
 - Use HTTPS and keep secure cookie/HSTS settings enabled.
@@ -331,82 +330,8 @@ Before production:
 ### Ready-to-use production templates
 
 - `.env.production.example`: baseline environment variables for production.
-- `deploy/database.env.example`: DB-focused profile if you want to isolate DB config.
 - `gunicorn.conf.py`: Gunicorn configuration for ASGI (`CashFlow.asgi:application`).
-- `deploy/systemd/cashflow.service`: Linux systemd service template.
-- `deploy/nginx/cashflow.conf`: Nginx reverse proxy template (includes websocket headers).
 
-### Recommended deployment flow (Gunicorn + Nginx)
-
-1. Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-2. Create production env file from template:
-
-```bash
-cp .env.production.example /opt/cashflow/shared/.env
-```
-
-3. Run database and static setup:
-
-```bash
-python manage.py migrate
-python manage.py collectstatic --noinput
-```
-
-4. Start app with Gunicorn (manual check):
-
-```bash
-gunicorn -c gunicorn.conf.py CashFlow.asgi:application
-```
-
-### Orange Pi RISC-V64 profile (without Channels/Daphne)
-
-If your platform cannot install `channels`/`daphne`:
-
-1. Install compatibility dependencies:
-
-```bash
-pip install -r requirements-lite.txt
-```
-
-2. Disable realtime in env:
-
-```bash
-ENABLE_REALTIME=0
-```
-
-3. Run with WSGI:
-
-```bash
-gunicorn --workers 3 --bind 127.0.0.1:8001 CashFlow.wsgi:application
-```
-
-4. Optional systemd template:
-
-- `deploy/systemd/cashflow-riscv64.service`
-
-This profile keeps web/API behavior and disables websocket-driven auto-refresh only.
-
-5. Move templates to system paths:
-
-```bash
-sudo cp deploy/systemd/cashflow.service /etc/systemd/system/
-sudo cp deploy/nginx/cashflow.conf /etc/nginx/sites-available/cashflow
-```
-
-6. Enable and start services:
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable --now cashflow
-sudo ln -s /etc/nginx/sites-available/cashflow /etc/nginx/sites-enabled/cashflow
-sudo nginx -t
-sudo systemctl reload nginx
-```
 
 ### Database configuration
 

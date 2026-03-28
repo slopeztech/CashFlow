@@ -276,6 +276,12 @@ msgstr "Password settings"
 msgid "Update password"
 msgstr "Update password"
 
+msgid "Show password"
+msgstr "Show password"
+
+msgid "Hide password"
+msgstr "Hide password"
+
 msgid "Security reminder"
 msgstr "Security reminder"
 

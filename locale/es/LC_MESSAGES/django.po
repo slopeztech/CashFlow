@@ -278,6 +278,12 @@ msgstr "Configuración de contraseña"
 msgid "Update password"
 msgstr "Actualizar contraseña"
 
+msgid "Show password"
+msgstr "Mostrar contraseña"
+
+msgid "Hide password"
+msgstr "Ocultar contraseña"
+
 msgid "Security reminder"
 msgstr "Recordatorio de seguridad"
 

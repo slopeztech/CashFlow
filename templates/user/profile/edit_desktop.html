@@ -80,18 +80,66 @@
             {% if password_requires_old_password %}
               <div class="col-md-6 profile-field">
                 <label class="form-label profile-label" for="{{ password_form.old_password.id_for_label }}">{{ password_form.old_password.label }}</label>
-                {{ password_form.old_password }}
+                <div class="profile-password-field">
+                  {{ password_form.old_password }}
+                  <button
+                    type="button"
+                    class="btn btn-light profile-password-toggle"
+                    data-toggle-password
+                    data-target-input="{{ password_form.old_password.id_for_label }}"
+                    data-label-show="{% trans 'Show password' %}"
+                    data-label-hide="{% trans 'Hide password' %}"
+                    aria-label="{% trans 'Show password' %}"
+                    title="{% trans 'Show password' %}"
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path d="M12 5C6.5 5 2.1 8.3.3 12c1.8 3.7 6.2 7 11.7 7s9.9-3.3 11.7-7C21.9 8.3 17.5 5 12 5zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z" fill="currentColor"></path>
+                    </svg>
+                  </button>
+                </div>
                 {% if password_form.old_password.errors %}<div class="text-danger small mt-1">{{ password_form.old_password.errors }}</div>{% endif %}
               </div>
             {% endif %}
             <div class="col-md-6 profile-field">
               <label class="form-label profile-label" for="{{ password_form.new_password1.id_for_label }}">{{ password_form.new_password1.label }}</label>
-              {{ password_form.new_password1 }}
+              <div class="profile-password-field">
+                {{ password_form.new_password1 }}
+                <button
+                  type="button"
+                  class="btn btn-light profile-password-toggle"
+                  data-toggle-password
+                  data-target-input="{{ password_form.new_password1.id_for_label }}"
+                  data-label-show="{% trans 'Show password' %}"
+                  data-label-hide="{% trans 'Hide password' %}"
+                  aria-label="{% trans 'Show password' %}"
+                  title="{% trans 'Show password' %}"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M12 5C6.5 5 2.1 8.3.3 12c1.8 3.7 6.2 7 11.7 7s9.9-3.3 11.7-7C21.9 8.3 17.5 5 12 5zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z" fill="currentColor"></path>
+                  </svg>
+                </button>
+              </div>
               {% if password_form.new_password1.errors %}<div class="text-danger small mt-1">{{ password_form.new_password1.errors }}</div>{% endif %}
             </div>
             <div class="col-md-6 profile-field">
               <label class="form-label profile-label" for="{{ password_form.new_password2.id_for_label }}">{{ password_form.new_password2.label }}</label>
-              {{ password_form.new_password2 }}
+              <div class="profile-password-field">
+                {{ password_form.new_password2 }}
+                <button
+                  type="button"
+                  class="btn btn-light profile-password-toggle"
+                  data-toggle-password
+                  data-target-input="{{ password_form.new_password2.id_for_label }}"
+                  data-label-show="{% trans 'Show password' %}"
+                  data-label-hide="{% trans 'Hide password' %}"
+                  aria-label="{% trans 'Show password' %}"
+                  title="{% trans 'Show password' %}"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M12 5C6.5 5 2.1 8.3.3 12c1.8 3.7 6.2 7 11.7 7s9.9-3.3 11.7-7C21.9 8.3 17.5 5 12 5zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z" fill="currentColor"></path>
+                  </svg>
+                </button>
+              </div>
               {% if password_form.new_password2.errors %}<div class="text-danger small mt-1">{{ password_form.new_password2.errors }}</div>{% endif %}
             </div>
           </div>
@@ -239,6 +287,44 @@
       padding: .7rem 1rem;
     }
 
+    .profile-password-field {
+      position: relative;
+    }
+
+    .profile-password-field .form-control {
+      padding-right: 3rem;
+    }
+
+    .profile-password-toggle {
+      position: absolute;
+      top: 50%;
+      right: .55rem;
+      transform: translateY(-50%);
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid #E5E7EB;
+      color: #475569;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+    }
+
+    .profile-password-toggle svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .profile-password-toggle:hover,
+    .profile-password-toggle:focus {
+      color: #1D4ED8;
+      border-color: #93C5FD;
+      background: #EFF6FF;
+      box-shadow: none;
+    }
+
     @media (min-width: 768px) {
       .profile-save-btn {
         width: auto;
@@ -271,6 +357,24 @@
           preview.src = event.target.result;
         };
         reader.readAsDataURL(file);
+      });
+
+      document.querySelectorAll('[data-toggle-password]').forEach(function (button) {
+        const inputId = button.getAttribute('data-target-input');
+        const targetInput = inputId ? document.getElementById(inputId) : null;
+        if (!targetInput) {
+          return;
+        }
+
+        button.addEventListener('click', function () {
+          const isVisible = targetInput.type === 'text';
+          targetInput.type = isVisible ? 'password' : 'text';
+          const nextLabel = isVisible
+            ? (button.getAttribute('data-label-show') || 'Show password')
+            : (button.getAttribute('data-label-hide') || 'Hide password');
+          button.setAttribute('aria-label', nextLabel);
+          button.setAttribute('title', nextLabel);
+        });
       });
     })();
   </script>

@@ -511,7 +511,7 @@
                 {% if current_user_profile and current_user_profile.profile_image %}
                   <img class="img-xs rounded-circle profile-avatar" src="{{ current_user_profile.profile_image.url }}" alt="Profile image">
                 {% else %}
-                  <img class="img-xs rounded-circle profile-avatar" src="{% static 'vendor/staradmin2/assets/images/faces/face8.jpg' %}" alt="Profile image">
+                  <img class="img-xs rounded-circle profile-avatar" src="{% static 'vendor/cashflow/img/astro.png' %}" alt="Profile image">
                 {% endif %}
               </a>
               <div class="dropdown-menu dropdown-menu-end navbar-dropdown" aria-labelledby="UserDropdown">
@@ -519,7 +519,7 @@
                   {% if current_user_profile and current_user_profile.profile_image %}
                     <img class="img-md rounded-circle profile-avatar-lg" src="{{ current_user_profile.profile_image.url }}" alt="Profile image">
                   {% else %}
-                    <img class="img-md rounded-circle profile-avatar-lg" src="{% static 'vendor/staradmin2/assets/images/faces/face8.jpg' %}" alt="Profile image">
+                    <img class="img-md rounded-circle profile-avatar-lg" src="{% static 'vendor/cashflow/img/astro.png' %}" alt="Profile image">
                   {% endif %}
                   <p class="mb-1 mt-3 fw-semibold">{{ request.user.username }}</p>
                   <p class="fw-light text-muted mb-0">{% if current_user_profile and current_user_profile.member_number %}{{ current_user_profile.member_number }}{% else %}{% trans 'No member number' %}{% endif %}</p>

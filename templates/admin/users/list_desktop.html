@@ -34,7 +34,7 @@
                         {% if active_user.store_profile and active_user.store_profile.profile_image %}
                           <img src="{{ active_user.store_profile.profile_image.url }}" alt="{{ active_user.username }}" class="rounded-circle active-user-avatar">
                         {% else %}
-                          <img src="{% static 'vendor/staradmin2/assets/images/faces/face8.jpg' %}" alt="{{ active_user.username }}" class="rounded-circle active-user-avatar">
+                          <img src="{% static 'vendor/cashflow/img/astro.png' %}" alt="{{ active_user.username }}" class="rounded-circle active-user-avatar">
                         {% endif %}
                         <div class="flex-grow-1 text-start">
                           <div class="active-user-name">{{ active_user.username }}</div>
@@ -105,7 +105,7 @@
                       {% if user.store_profile and user.store_profile.profile_image %}
                         <img src="{{ user.store_profile.profile_image.url }}" alt="{{ user.username }}" class="rounded-circle" style="width:36px;height:36px;object-fit:cover;">
                       {% else %}
-                        <img src="{% static 'vendor/staradmin2/assets/images/faces/face8.jpg' %}" alt="{{ user.username }}" class="rounded-circle" style="width:36px;height:36px;object-fit:cover;">
+                        <img src="{% static 'vendor/cashflow/img/astro.png' %}" alt="{{ user.username }}" class="rounded-circle" style="width:36px;height:36px;object-fit:cover;">
                       {% endif %}
                       <div class="text-start">
                         <h6 class="mb-0">{{ user.username }}</h6>

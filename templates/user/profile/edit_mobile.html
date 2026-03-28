@@ -18,7 +18,7 @@
           {% if profile.profile_image %}
             <img id="profile-preview" src="{{ profile.profile_image.url }}" alt="{% trans 'Profile image' %}" class="profile-preview-image">
           {% else %}
-            <img id="profile-preview" src="{% static 'vendor/staradmin2/assets/images/faces/face8.jpg' %}" alt="{% trans 'Profile image' %}" class="profile-preview-image">
+            <img id="profile-preview" src="{% static 'vendor/cashflow/img/astro.png' %}" alt="{% trans 'Profile image' %}" class="profile-preview-image">
           {% endif %}
           <div class="mt-3">
             <input type="file" name="profile_image" id="id_profile_image" class="d-none" accept="image/*">

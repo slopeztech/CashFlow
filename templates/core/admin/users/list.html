@@ -42,7 +42,7 @@
                     {% if user.store_profile and user.store_profile.profile_image %}
                       <img src="{{ user.store_profile.profile_image.url }}" alt="{{ user.username }}" class="rounded-circle" style="width:36px;height:36px;object-fit:cover;">
                     {% else %}
-                      <img src="{% static 'vendor/staradmin2/assets/images/faces/face8.jpg' %}" alt="{{ user.username }}" class="rounded-circle" style="width:36px;height:36px;object-fit:cover;">
+                      <img src="{% static 'vendor/cashflow/img/astro.png' %}" alt="{{ user.username }}" class="rounded-circle" style="width:36px;height:36px;object-fit:cover;">
                     {% endif %}
                     <div>
                       <h6 class="mb-0">{{ user.username }}</h6>

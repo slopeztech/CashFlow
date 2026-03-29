@@ -687,11 +687,23 @@ class AdminBalanceAdjustmentForm(forms.Form):
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
-        fields = ['name', 'description', 'include_in_untried']
+        fields = [
+            'name',
+            'description',
+            'display_order',
+            'include_in_untried',
+            'allow_user_ratings',
+            'default_expanded',
+            'image',
+        ]
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'display_order': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'step': 1}),
             'include_in_untried': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'allow_user_ratings': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'default_expanded': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
         }
 
 

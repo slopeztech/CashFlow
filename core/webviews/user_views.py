@@ -846,7 +846,7 @@ class UserProductCatalogView(ResponsiveTemplateMixin, LoginRequiredMixin, NonSta
             queryset = queryset.filter(name__icontains=query)
         if category_id.isdigit():
             queryset = queryset.filter(category_id=int(category_id))
-        return queryset.order_by('category__name', 'name')
+        return queryset.order_by('category__display_order', 'category__name', 'name')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -869,6 +869,7 @@ class UserProductCatalogView(ResponsiveTemplateMixin, LoginRequiredMixin, NonSta
         for product in products:
             category_enabled = bool(getattr(product.category, 'include_in_untried', True)) if product.category else True
             product.is_untried_for_user = category_enabled and product.id not in tried_product_ids
+            product.user_ratings_enabled = bool(getattr(product.category, 'allow_user_ratings', True)) if product.category else True
 
         grouped = []
         grouped_index = {}
@@ -876,30 +877,30 @@ class UserProductCatalogView(ResponsiveTemplateMixin, LoginRequiredMixin, NonSta
             key = product.category_id or 0
             if key not in grouped_index:
                 category_name = product.category.name if product.category else '-'
-                grouped_index[key] = {'category_name': category_name, 'products': []}
+                grouped_index[key] = {
+                    'category_name': category_name,
+                    'display_order': (product.category.display_order if product.category else 0),
+                    'default_expanded': bool(product.category.default_expanded) if product.category else False,
+                    'image': (product.category.image if product.category else None),
+                    'products': [],
+                }
                 grouped.append(grouped_index[key])
             grouped_index[key]['products'].append(product)
 
-        featured_products = [product for product in products if product.is_featured]
-        new_products = [product for product in products if product.is_new]
-        untried_products = [product for product in products if getattr(product, 'is_untried_for_user', False)]
-
-        untried_products.sort(
-            key=lambda product: (
-                -(product.approved_avg_rating_others or 0),
-                -(product.approved_reviews_others_count or 0),
-                product.name.lower(),
+        for group in grouped:
+            group['products'].sort(
+                key=lambda product: (
+                    0 if (product.is_featured or product.is_new) else 1,
+                    0 if product.is_featured else 1,
+                    0 if product.is_new else 1,
+                    product.name.lower(),
+                )
             )
-        )
 
-        context['categories'] = Category.objects.order_by('name')
+        context['categories'] = Category.objects.order_by('display_order', 'name')
         context['query'] = (self.request.GET.get('q') or '').strip()
         context['filter_category'] = (self.request.GET.get('category') or '').strip()
         context['grouped_products'] = grouped
-        context['featured_products'] = featured_products[:8]
-        context['new_products'] = new_products[:8]
-        context['untried_products'] = untried_products[:3]
-        context['has_untried_products'] = bool(untried_products)
         context.update(_build_cart_summary(self.request))
         return context
 
@@ -1064,13 +1065,15 @@ class UserProductDetailView(ResponsiveTemplateMixin, LoginRequiredMixin, NonStaf
         ).select_related('user').order_by('-updated_at')
         product_sheet_fields = ProductSheetField.objects.filter(product=product).order_by('id')
         product_sheet_urls = ProductSheetUrl.objects.filter(product=product).order_by('id')
-        can_review = _can_review_product(self.request.user, product)
+        category_allows_ratings = bool(getattr(product.category, 'allow_user_ratings', True)) if product.category else True
+        can_review = _can_review_product(self.request.user, product) and category_allows_ratings
         has_user_review = ProductReview.objects.filter(product=product, user=self.request.user).exists()
         context['product'] = product
         context['approved_reviews'] = approved_reviews
         context['product_sheet_fields'] = product_sheet_fields
         context['product_sheet_urls'] = product_sheet_urls
         context['can_review'] = can_review
+        context['category_allows_ratings'] = category_allows_ratings
         context['show_pending_review_card'] = can_review and not has_user_review
         context['has_product_sheet'] = product_sheet_fields.exists() or product_sheet_urls.exists()
         return context
@@ -1081,6 +1084,9 @@ class UserProductReviewCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, N
 
     def get(self, request, product_id):
         product = get_object_or_404(Product, id=product_id, is_active=True, is_public_listing=True)
+        if product.category and not product.category.allow_user_ratings:
+            messages.error(request, _('Reviews are disabled for this category.'))
+            return redirect('user_product_detail', product_id=product.id)
         if not _can_review_product(request.user, product):
             messages.error(request, _('You can only review products you consumed before.'))
             return redirect('user_products_catalog')
@@ -1091,6 +1097,9 @@ class UserProductReviewCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, N
 
     def post(self, request, product_id):
         product = get_object_or_404(Product, id=product_id, is_active=True, is_public_listing=True)
+        if product.category and not product.category.allow_user_ratings:
+            messages.error(request, _('Reviews are disabled for this category.'))
+            return redirect('user_product_detail', product_id=product.id)
         if not _can_review_product(request.user, product):
             messages.error(request, _('You can only review products you consumed before.'))
             return redirect('user_products_catalog')

@@ -2374,6 +2374,39 @@ msgstr "Visibility:"
 msgid "Top buyers"
 msgstr "Top buyers"
 
+msgid "Display order"
+msgstr "Display order"
+
+msgid "Category image"
+msgstr "Category image"
+
+msgid "Allow user ratings"
+msgstr "Allow user ratings"
+
+msgid "Open by default in user catalog"
+msgstr "Open by default in user catalog"
+
+msgid "Ratings"
+msgstr "Ratings"
+
+msgid "Default state"
+msgstr "Default state"
+
+msgid "Expanded"
+msgstr "Expanded"
+
+msgid "Collapsed"
+msgstr "Collapsed"
+
+msgid "Edit category"
+msgstr "Edit category"
+
+msgid "Back to categories"
+msgstr "Back to categories"
+
+msgid "Reviews are disabled for this category."
+msgstr "Reviews are disabled for this category."
+
 msgid "units"
 msgstr "units"
 

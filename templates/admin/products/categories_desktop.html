@@ -8,29 +8,96 @@
   <a class="btn btn-light" href="{% url 'product_list' %}"><i class="icon-arrow-left"></i> {% trans 'Back to products' %}</a>
 {% endblock %}
 
+{% block extra_css %}
+<style>
+  .category-status-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+  }
+
+  .category-status-badge {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.2;
+    text-align: left;
+    padding: .45rem .7rem;
+  }
+
+  @media (max-width: 575.98px) {
+    .category-status-list {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .category-status-badge {
+      width: 100%;
+    }
+  }
+</style>
+{% endblock %}
+
 {% block content %}
   <div class="row g-4">
     <div class="col-lg-4">
       <div class="card card-rounded">
         <div class="card-body">
-          <h4 class="card-title card-title-dash mb-3">{% trans 'New category' %}</h4>
-          <form method="post">
-            {% csrf_token %}
-            {% if form.non_field_errors %}
-              <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-            {% endif %}
-            <div class="mb-3">
-              <label class="form-label" for="id_name">{% trans 'Name' %}</label>
-              {{ form.name }}
-              {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors }}</div>{% endif %}
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="id_description">{% trans 'Description' %}</label>
-              {{ form.description }}
-              {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors }}</div>{% endif %}
-            </div>
-            <button class="btn btn-primary text-white" type="submit">{% trans 'Create category' %}</button>
-          </form>
+          <button
+            class="btn btn-light w-100 d-flex justify-content-between align-items-center"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#newCategoryCollapse"
+            aria-expanded="false"
+            aria-controls="newCategoryCollapse"
+          >
+            <span class="fw-semibold">{% trans 'New category' %}</span>
+            <i class="mdi mdi-chevron-down"></i>
+          </button>
+
+          <div class="collapse mt-3" id="newCategoryCollapse">
+            <form method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              {% if form.non_field_errors %}
+                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+              {% endif %}
+              <div class="mb-3">
+                <label class="form-label" for="id_name">{% trans 'Name' %}</label>
+                {{ form.name }}
+                {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors }}</div>{% endif %}
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="id_description">{% trans 'Description' %}</label>
+                {{ form.description }}
+                {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors }}</div>{% endif %}
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="id_display_order">{% trans 'Display order' %}</label>
+                {{ form.display_order }}
+                {% if form.display_order.errors %}<div class="text-danger small mt-1">{{ form.display_order.errors }}</div>{% endif %}
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="id_image">{% trans 'Category image' %}</label>
+                {{ form.image }}
+                {% if form.image.errors %}<div class="text-danger small mt-1">{{ form.image.errors }}</div>{% endif %}
+              </div>
+              <div class="form-check mb-2">
+                {{ form.allow_user_ratings }}
+                <label class="form-check-label" for="id_allow_user_ratings">{% trans 'Allow user ratings' %}</label>
+              </div>
+              <div class="form-check mb-2">
+                {{ form.default_expanded }}
+                <label class="form-check-label" for="id_default_expanded">{% trans 'Open by default in user catalog' %}</label>
+              </div>
+              <div class="form-check mb-3">
+                {{ form.include_in_untried }}
+                <label class="form-check-label" for="id_include_in_untried">{% trans 'Count for untried products' %}</label>
+              </div>
+              <button class="btn btn-primary text-white" type="submit">{% trans 'Create category' %}</button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
@@ -39,44 +106,48 @@
       <div class="card card-rounded">
         <div class="card-body">
           <h4 class="card-title card-title-dash mb-3">{% trans 'Categories' %}</h4>
-          <div class="table-responsive">
-            <table class="table select-table">
-              <thead>
-                <tr>
-                  <th>{% trans 'Name' %}</th>
-                  <th>{% trans 'Description' %}</th>
-                  <th>{% trans 'Products' %}</th>
-                  <th>{% trans 'Count for untried products' %}</th>
-                  <th class="text-end">{% trans 'Actions' %}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for category in categories %}
-                  <tr>
-                    <td>{{ category.name }}</td>
-                    <td>{{ category.description|default:'-' }}</td>
-                    <td>{{ category.products_count }}</td>
-                    <td>
-                      {% if category.include_in_untried %}
-                        <span class="badge badge-opacity-success">{% trans 'Enabled' %}</span>
-                      {% else %}
-                        <span class="badge badge-opacity-secondary">{% trans 'Disabled' %}</span>
-                      {% endif %}
-                    </td>
-                    <td class="text-end">
+          {% if categories %}
+            <div class="row g-3">
+              {% for category in categories %}
+                <div class="col-12 col-md-6">
+                  <div class="border rounded-3 h-100 p-3 bg-light-subtle">
+                    <div class="d-flex align-items-start gap-2 mb-3">
+                      <div class="d-flex align-items-center gap-2 min-w-0">
+                        {% if category.image %}
+                          <img src="{{ category.image.url }}" alt="{{ category.name }}" style="width: 42px; height: 42px; border-radius: 10px; object-fit: cover; border: 1px solid #d9e2ef;" />
+                        {% endif %}
+                        <div>
+                          <h6 class="mb-0 text-truncate" style="max-width: 220px;">{{ category.name }}</h6>
+                          <small class="text-muted">{% trans 'Order' %}: {{ category.display_order }}</small>
+                        </div>
+                      </div>
+                    </div>
+
+                    <p class="text-muted mb-3 small">{{ category.description|default:'-' }}</p>
+
+                    <div class="category-status-list mb-3">
+                      <span class="badge category-status-badge {% if category.allow_user_ratings %}badge-opacity-success{% else %}badge-opacity-secondary{% endif %}">
+                        {% trans 'Ratings' %}: {% if category.allow_user_ratings %}{% trans 'Enabled' %}{% else %}{% trans 'Disabled' %}{% endif %}
+                      </span>
+                      <span class="badge category-status-badge {% if category.default_expanded %}badge-opacity-success{% else %}badge-opacity-secondary{% endif %}">
+                        {% trans 'Default state' %}: {% if category.default_expanded %}{% trans 'Expanded' %}{% else %}{% trans 'Collapsed' %}{% endif %}
+                      </span>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
                       <a class="btn btn-sm btn-outline-primary" href="{% url 'category_update' category.id %}">{% trans 'Edit' %}</a>
-                      <form method="post" action="{% url 'category_delete' category.id %}" class="d-inline">
+                      <form method="post" action="{% url 'category_delete' category.id %}">
                         {% csrf_token %}
                         <button class="btn btn-sm btn-outline-danger" type="submit">{% trans 'Delete' %}</button>
                       </form>
-                    </td>
-                  </tr>
-                {% empty %}
-                  <tr><td colspan="5" class="text-center text-muted py-3">{% trans 'No categories yet.' %}</td></tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-center text-muted py-3">{% trans 'No categories yet.' %}</div>
+          {% endif %}
           <small class="text-muted d-block">{% trans 'Categories can only be deleted when no products are associated.' %}</small>
           <small class="text-muted">{% trans 'Categories enabled for untried products' %}: {{ categories_untried_enabled_count }}</small>
         </div>

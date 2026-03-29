@@ -389,13 +389,13 @@ class CategoryListCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffR
     template_name = 'admin/products/categories.html'
 
     def get(self, request):
-        categories = Category.objects.annotate(products_count=Count('products')).order_by('name')
+        categories = Category.objects.annotate(products_count=Count('products')).order_by('display_order', 'name')
         form = CategoryForm()
         return self._render(request, form=form, categories=categories)
 
     def post(self, request):
-        categories = Category.objects.annotate(products_count=Count('products')).order_by('name')
-        form = CategoryForm(request.POST)
+        categories = Category.objects.annotate(products_count=Count('products')).order_by('display_order', 'name')
+        form = CategoryForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             messages.success(request, _('Category created successfully.'))

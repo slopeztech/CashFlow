@@ -11,8 +11,30 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
+    html,
+    body,
+    .page-body-wrapper,
+    .main-panel,
+    .main-panel .content-wrapper {
+      overflow-x: hidden;
+      max-width: 100%;
+      width: 100%;
+    }
+
     .catalog-page {
       font-family: 'Inter', sans-serif;
+      overflow-x: clip;
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    .catalog-page .accordion,
+    .catalog-page .accordion-item,
+    .catalog-page .accordion-collapse,
+    .catalog-page .accordion-body {
+      max-width: 100%;
+      min-width: 0;
+      overflow-x: clip;
     }
 
     .catalog-section-title {
@@ -44,10 +66,91 @@
       color: #f6c343;
     }
 
-    .category-products-list {
+    .catalog-accordion {
       display: flex;
       flex-direction: column;
+      gap: .8rem;
+    }
+
+    .catalog-accordion .accordion-item {
+      border: 1px solid #dbe4ef;
+      border-radius: 14px;
+      overflow: hidden;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      box-shadow: 0 12px 24px -22px rgba(15, 23, 42, 0.45);
+    }
+
+    .catalog-accordion .accordion-header {
+      margin: 0;
+    }
+
+    .catalog-accordion .accordion-button {
+      display: flex;
+      align-items: center;
       gap: .7rem;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #0f172a;
+      background: #f8fbff;
+      box-shadow: none;
+      padding: .95rem 1rem;
+    }
+
+    .category-heading-thumb {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid #dbe4ef;
+      flex: 0 0 auto;
+    }
+
+    .catalog-accordion .accordion-button:not(.collapsed) {
+      color: #1e3a8a;
+      background: #eef4ff;
+    }
+
+    .category-products-viewport {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      contain: content;
+      scrollbar-width: thin;
+      scrollbar-color: #cbd5e1 #f1f5f9;
+    }
+
+    .category-products-scroller {
+      display: flex;
+      gap: .8rem;
+      width: 100%;
+      padding: .15rem 0 .7rem;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+      scroll-snap-type: x proximity;
+      overscroll-behavior-x: contain;
+    }
+
+    .catalog-accordion .accordion-body {
+      overflow: hidden;
+      padding-left: .85rem;
+      padding-right: .85rem;
+    }
+
+    .category-products-viewport::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .category-products-viewport::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 999px;
+    }
+
+    .category-products-viewport::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 999px;
     }
 
     .cart-highlight-card {
@@ -100,16 +203,23 @@
 
     .product-item {
       border: 1px solid #dbe4ef;
-      border-radius: 14px;
-      padding: .8rem;
+      border-radius: 16px;
+      padding: .85rem;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: .8rem;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      gap: .65rem;
       transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease;
       cursor: pointer;
       background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
       box-shadow: 0 10px 24px -22px rgba(15, 23, 42, 0.45);
+      min-height: 292px;
+      width: 320px;
+      max-width: 320px;
+      flex: 0 0 320px;
+      min-width: 0;
+      scroll-snap-align: start;
     }
 
     .product-item.product-item-featured {
@@ -136,11 +246,10 @@
 
     .product-thumb,
     .product-thumb-placeholder {
-      width: 62px;
-      height: 62px;
+      width: 100%;
+      height: 132px;
       border-radius: 12px;
       object-fit: cover;
-      flex: 0 0 auto;
       border: 1px solid #E5E7EB;
     }
 
@@ -150,40 +259,53 @@
       justify-content: center;
       background: linear-gradient(135deg, #EFF6FF 0%, #E0E7FF 100%);
       color: #6B7280;
-      font-size: 1.28rem;
+      font-size: 1.55rem;
     }
 
     .product-main {
       flex: 1 1 auto;
       min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: .25rem;
+    }
+
+    .product-title-row {
+      display: flex;
+      align-items: flex-start;
+      gap: .45rem;
+      margin-bottom: .15rem;
     }
 
     .product-name {
+      flex: 1 1 auto;
+      min-width: 0;
       font-weight: 700;
       color: #111827;
       line-height: 1.2;
-      margin-bottom: .2rem;
+      margin: 0;
+      min-height: 2.4em;
+      overflow-wrap: anywhere;
     }
 
-    .product-flags {
+    .product-title-badges {
       display: inline-flex;
       align-items: center;
-      flex-wrap: wrap;
-      gap: .35rem;
-      margin-bottom: .3rem;
+      gap: .32rem;
+      flex: 0 0 auto;
+      padding-top: .05rem;
     }
 
     .product-flag {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       border-radius: 999px;
-      padding: .14rem .52rem;
-      font-size: .67rem;
-      font-weight: 700;
-      letter-spacing: .01em;
+      width: 24px;
+      height: 24px;
+      font-size: .85rem;
       border: 1px solid transparent;
-      text-transform: uppercase;
-      line-height: 1.2;
+      line-height: 1;
     }
 
     .product-flag-featured {
@@ -198,126 +320,6 @@
       color: #312E81;
     }
 
-    .product-flag-untried {
-      background: #DCFCE7;
-      border-color: #86EFAC;
-      color: #166534;
-    }
-
-    .spotlight-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: .85rem;
-      margin-bottom: 1rem;
-    }
-
-    .spotlight-card {
-      border: 1px solid #dfe7f2;
-      border-radius: 16px;
-      padding: .85rem;
-      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
-      box-shadow: 0 14px 28px -24px rgba(15, 23, 42, 0.45);
-    }
-
-    .spotlight-card-featured {
-      border-color: #fed7aa;
-      background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
-    }
-
-    .spotlight-card-new {
-      border-color: #bbf7d0;
-      background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%);
-    }
-
-    .spotlight-card-untried {
-      border-color: #c7d2fe;
-      background: linear-gradient(180deg, #eef2ff 0%, #ffffff 100%);
-    }
-
-    .spotlight-heading {
-      margin: 0 0 .6rem;
-      font-size: .88rem;
-      font-weight: 800;
-      display: flex;
-      align-items: center;
-      gap: .45rem;
-      color: #111827;
-    }
-
-    .spotlight-heading i {
-      width: 24px;
-      height: 24px;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: .85rem;
-    }
-
-    .spotlight-icon-featured {
-      background: #ffedd5;
-      color: #c2410c;
-    }
-
-    .spotlight-icon-new {
-      background: #dcfce7;
-      color: #166534;
-    }
-
-    .spotlight-icon-untried {
-      background: #e0e7ff;
-      color: #3730a3;
-    }
-
-    .spotlight-card ul {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      gap: .35rem;
-    }
-
-    .spotlight-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: .6rem;
-      width: 100%;
-      text-decoration: none;
-      color: #111827;
-      padding: .35rem .45rem;
-      border-radius: 10px;
-      border: 1px solid transparent;
-    }
-
-    .spotlight-link:hover {
-      background: #F8FAFC;
-      border-color: #E2E8F0;
-    }
-
-    .spotlight-badge {
-      font-size: .68rem;
-      font-weight: 700;
-      padding: .1rem .46rem;
-      border-radius: 999px;
-      border: 1px solid #E2E8F0;
-      color: #475569;
-      white-space: nowrap;
-    }
-
-    .spotlight-price {
-      border-color: #bfdbfe;
-      color: #1e3a8a;
-      background: #eff6ff;
-    }
-
-    .spotlight-rating {
-      border-color: #c7d2fe;
-      color: #312e81;
-      background: #eef2ff;
-    }
-
     .product-price {
       font-size: 1.08rem;
       font-weight: 800;
@@ -328,12 +330,12 @@
 
     .add-btn {
       border-radius: 12px;
-      width: 44px;
-      height: 44px;
-      min-height: 44px;
-      min-width: 44px;
-      padding: 0;
-      display: inline-flex;
+      width: 100%;
+      height: 42px;
+      min-height: 42px;
+      min-width: 0;
+      padding: 0 .65rem;
+      display: flex;
       align-items: center;
       justify-content: center;
       background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
@@ -360,11 +362,18 @@
 
     @media (max-width: 767.98px) {
       .add-btn {
-        min-width: 88px;
+        width: 100%;
       }
 
-      .spotlight-grid {
-        grid-template-columns: 1fr;
+      .product-item {
+        width: 84vw;
+        max-width: 285px;
+        flex: 0 0 84vw;
+        min-height: 278px;
+      }
+
+      .category-products-scroller {
+        width: max-content;
       }
     }
 
@@ -433,64 +442,6 @@
     </a>
   {% endif %}
 
-  {% if featured_products or new_products or has_untried_products %}
-    <div class="spotlight-grid">
-      <div class="spotlight-card spotlight-card-featured">
-        <h6 class="spotlight-heading"><i class="mdi mdi-fire spotlight-icon-featured"></i>{% trans 'Featured products' %}</h6>
-        {% if featured_products %}
-          <ul>
-            {% for product in featured_products %}
-              <li>
-                <a class="spotlight-link" href="{% url 'user_product_detail' product.id %}">
-                  <span>{{ product.name }}</span>
-                  <span class="spotlight-badge spotlight-price">€ {{ product.price|truncate_2 }}</span>
-                </a>
-              </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <p class="catalog-support-text mb-0">{% trans 'No featured products at the moment.' %}</p>
-        {% endif %}
-      </div>
-
-      <div class="spotlight-card spotlight-card-new">
-        <h6 class="spotlight-heading"><i class="mdi mdi-sparkles spotlight-icon-new"></i>{% trans 'New products' %}</h6>
-        {% if new_products %}
-          <ul>
-            {% for product in new_products %}
-              <li>
-                <a class="spotlight-link" href="{% url 'user_product_detail' product.id %}">
-                  <span>{{ product.name }}</span>
-                  <span class="spotlight-badge spotlight-price">€ {{ product.price|truncate_2 }}</span>
-                </a>
-              </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <p class="catalog-support-text mb-0">{% trans 'No new products at the moment.' %}</p>
-        {% endif %}
-      </div>
-
-      {% if untried_products %}
-      <div class="spotlight-card spotlight-card-untried">
-        <h6 class="spotlight-heading"><i class="mdi mdi-thumb-up-outline spotlight-icon-untried"></i>{% trans 'Try these' %}</h6>
-          <ul>
-            {% for product in untried_products %}
-              <li>
-                <a class="spotlight-link" href="{% url 'user_product_detail' product.id %}">
-                  <span>{{ product.name }}</span>
-                  <span class="spotlight-badge spotlight-rating">
-                    {% if product.approved_avg_rating_others %}★ {{ product.approved_avg_rating_others|floatformat:1 }}{% else %}-{% endif %}
-                  </span>
-                </a>
-              </li>
-            {% endfor %}
-          </ul>
-      </div>
-      {% endif %}
-    </div>
-  {% endif %}
-
   <div class="card card-rounded mb-3">
     <div class="card-body">
       <button class="btn btn-light w-100 d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#catalogFilters" aria-expanded="false" aria-controls="catalogFilters">
@@ -519,71 +470,104 @@
     </div>
   </div>
 
-  {% for group in grouped_products %}
-    <div class="card card-rounded mb-3">
-      <div class="card-body">
-        <h4 class="card-title card-title-dash mb-3 catalog-section-title">{{ group.category_name }}</h4>
-        <div class="category-products-list">
-          {% for product in group.products %}
-            <div class="product-item js-product-row {% if product.is_featured %}product-item-featured{% endif %} {% if product.is_new %}product-item-new{% endif %} {% if product.is_untried_for_user %}product-item-untried{% endif %}" data-detail-url="{% url 'user_product_detail' product.id %}">
-              {% if product.images.all.0 %}
-                <img src="{{ product.images.all.0.image.url }}" alt="{{ product.name }}" class="product-thumb">
-              {% else %}
-                <span class="product-thumb-placeholder" aria-hidden="true"><i class="mdi mdi-image-outline"></i></span>
+  {% if grouped_products %}
+    <div class="accordion catalog-accordion mb-3" id="catalogCategoryAccordion">
+      {% for group in grouped_products %}
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="categoryHeading{{ forloop.counter }}">
+            <button
+              class="accordion-button {% if not group.default_expanded %}collapsed{% endif %}"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#categoryCollapse{{ forloop.counter }}"
+              aria-expanded="{% if group.default_expanded %}true{% else %}false{% endif %}"
+              aria-controls="categoryCollapse{{ forloop.counter }}"
+            >
+              {% if group.image %}
+                <img src="{{ group.image.url }}" alt="{{ group.category_name }}" class="category-heading-thumb">
               {% endif %}
+              <span class="catalog-section-title mb-0">{{ group.category_name }}</span>
+            </button>
+          </h2>
+          <div
+            id="categoryCollapse{{ forloop.counter }}"
+            class="accordion-collapse collapse {% if group.default_expanded %}show{% endif %}"
+            aria-labelledby="categoryHeading{{ forloop.counter }}"
+          >
+            <div class="accordion-body">
+              <div class="category-products-viewport">
+                <div class="category-products-scroller">
+                  {% for product in group.products %}
+                    <div class="product-item js-product-row {% if product.is_featured %}product-item-featured{% endif %} {% if product.is_new %}product-item-new{% endif %} {% if product.is_untried_for_user %}product-item-untried{% endif %}" data-detail-url="{% url 'user_product_detail' product.id %}">
+                    {% if product.images.all.0 %}
+                      <img src="{{ product.images.all.0.image.url }}" alt="{{ product.name }}" class="product-thumb">
+                    {% else %}
+                      <span class="product-thumb-placeholder" aria-hidden="true"><i class="mdi mdi-image-outline"></i></span>
+                    {% endif %}
 
-              <div class="product-main">
-                <div class="product-flags">
-                  {% if product.is_featured %}
-                    <span class="product-flag product-flag-featured">{% trans 'Featured' %}</span>
-                  {% endif %}
-                  {% if product.is_new %}
-                    <span class="product-flag product-flag-new">{% trans 'New' %}</span>
-                  {% endif %}
-                  {% if product.is_untried_for_user %}
-                    <span class="product-flag product-flag-untried">{% trans 'Untried' %}</span>
-                  {% endif %}
-                </div>
-                <div class="product-name">{{ product.name }}</div>
-                <div class="product-price">€ {{ product.price|truncate_2 }}</div>
-                <div>
-                  {% if product.approved_avg_rating %}
-                    {% widthratio product.approved_avg_rating 5 100 as rating_percent %}
-                    <span class="rating-stars" aria-label="{% trans 'Rating' %}">
-                      ★★★★★
-                      <span class="rating-stars-fill" style="width: {{ rating_percent }}%;">★★★★★</span>
-                    </span>
-                  {% else %}
-                    <span class="rating-stars" aria-label="{% trans 'No approved reviews' %}">☆☆☆☆☆</span>
-                  {% endif %}
+                    <div class="product-main">
+                      <div class="product-title-row">
+                        <div class="product-name">{{ product.name }}</div>
+                        <div class="product-title-badges">
+                          {% if product.is_featured %}
+                            <span class="product-flag product-flag-featured" title="{% trans 'Featured' %}" aria-label="{% trans 'Featured' %}">
+                              <i class="mdi mdi-fire" aria-hidden="true"></i>
+                              <span class="visually-hidden">{% trans 'Featured' %}</span>
+                            </span>
+                          {% endif %}
+                          {% if product.is_new %}
+                            <span class="product-flag product-flag-new" title="{% trans 'New' %}" aria-label="{% trans 'New' %}">
+                              <i class="mdi mdi-tag" aria-hidden="true"></i>
+                              <span class="visually-hidden">{% trans 'New' %}</span>
+                            </span>
+                          {% endif %}
+                        </div>
+                      </div>
+                      <div class="product-price">€ {{ product.price|truncate_2 }}</div>
+                      {% if product.user_ratings_enabled %}
+                        <div>
+                          {% if product.approved_avg_rating %}
+                            {% widthratio product.approved_avg_rating 5 100 as rating_percent %}
+                            <span class="rating-stars" aria-label="{% trans 'Rating' %}">
+                              ★★★★★
+                              <span class="rating-stars-fill" style="width: {{ rating_percent }}%;">★★★★★</span>
+                            </span>
+                          {% else %}
+                            <span class="rating-stars" aria-label="{% trans 'No approved reviews' %}">☆☆☆☆☆</span>
+                          {% endif %}
+                        </div>
+                      {% endif %}
+                    </div>
+
+                    <button
+                      class="btn add-btn js-add-cart"
+                      type="button"
+                      data-bs-toggle="modal"
+                      data-bs-target="#addToCartModal"
+                      data-product-id="{{ product.id }}"
+                      data-product-name="{{ product.name }}"
+                      data-unit-price="{{ product.price|truncate_2 }}"
+                      data-purchase-options="{{ product.purchase_options }}"
+                      title="{% trans 'Add to cart' %}"
+                      aria-label="{% trans 'Add to cart' %}"
+                    >
+                      <span class="add-btn-icon" aria-hidden="true"><i class="mdi mdi-cart-plus"></i></span>
+                      <span class="visually-hidden">{% trans 'Add to cart' %}</span>
+                    </button>
+                    </div>
+                  {% endfor %}
                 </div>
               </div>
-
-              <button
-                class="btn add-btn js-add-cart"
-                type="button"
-                data-bs-toggle="modal"
-                data-bs-target="#addToCartModal"
-                data-product-id="{{ product.id }}"
-                data-product-name="{{ product.name }}"
-                data-unit-price="{{ product.price|truncate_2 }}"
-                data-purchase-options="{{ product.purchase_options }}"
-                title="{% trans 'Add to cart' %}"
-                aria-label="{% trans 'Add to cart' %}"
-              >
-                <span class="add-btn-icon" aria-hidden="true"><i class="mdi mdi-cart-plus"></i></span>
-                <span class="visually-hidden">{% trans 'Add to cart' %}</span>
-              </button>
             </div>
-          {% endfor %}
+          </div>
         </div>
-      </div>
+      {% endfor %}
     </div>
-  {% empty %}
+  {% else %}
     <div class="card card-rounded">
       <div class="card-body text-center text-muted py-4">{% trans 'No public products available.' %}</div>
     </div>
-  {% endfor %}
+  {% endif %}
 
   <div class="modal fade" id="addToCartModal" tabindex="-1" aria-labelledby="addToCartModalLabel" aria-hidden="true">
     <div class="modal-dialog">

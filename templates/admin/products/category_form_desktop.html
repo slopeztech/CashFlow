@@ -14,7 +14,7 @@
       <div class="card card-rounded">
         <div class="card-body">
           <h4 class="card-title card-title-dash mb-3">{{ object.name }}</h4>
-          <form method="post">
+          <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {% if form.non_field_errors %}
               <div class="alert alert-danger">{{ form.non_field_errors }}</div>
@@ -30,6 +30,33 @@
               <label class="form-label" for="id_description">{% trans 'Description' %}</label>
               {{ form.description }}
               {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors }}</div>{% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="id_display_order">{% trans 'Display order' %}</label>
+              {{ form.display_order }}
+              {% if form.display_order.errors %}<div class="text-danger small mt-1">{{ form.display_order.errors }}</div>{% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="id_image">{% trans 'Category image' %}</label>
+              {{ form.image }}
+              {% if object.image %}
+                <div class="mt-2">
+                  <img src="{{ object.image.url }}" alt="{{ object.name }}" style="width: 54px; height: 54px; object-fit: cover; border-radius: 10px; border: 1px solid #e2e8f0;">
+                </div>
+              {% endif %}
+              {% if form.image.errors %}<div class="text-danger small mt-1">{{ form.image.errors }}</div>{% endif %}
+            </div>
+
+            <div class="form-check mb-2">
+              {{ form.allow_user_ratings }}
+              <label class="form-check-label" for="id_allow_user_ratings">{% trans 'Allow user ratings' %}</label>
+            </div>
+
+            <div class="form-check mb-2">
+              {{ form.default_expanded }}
+              <label class="form-check-label" for="id_default_expanded">{% trans 'Open by default in user catalog' %}</label>
             </div>
 
             <div class="form-check mb-3">

@@ -2383,6 +2383,39 @@ msgstr "Visibilidad:"
 msgid "Top buyers"
 msgstr "Top compradores"
 
+msgid "Display order"
+msgstr "Orden de visualización"
+
+msgid "Category image"
+msgstr "Imagen de categoría"
+
+msgid "Allow user ratings"
+msgstr "Permitir valoraciones de usuarios"
+
+msgid "Open by default in user catalog"
+msgstr "Abrir por defecto en el catálogo de usuario"
+
+msgid "Ratings"
+msgstr "Valoraciones"
+
+msgid "Default state"
+msgstr "Estado por defecto"
+
+msgid "Expanded"
+msgstr "Expandido"
+
+msgid "Collapsed"
+msgstr "Colapsado"
+
+msgid "Edit category"
+msgstr "Editar categoría"
+
+msgid "Back to categories"
+msgstr "Volver a categorías"
+
+msgid "Reviews are disabled for this category."
+msgstr "Las valoraciones están deshabilitadas para esta categoría."
+
 msgid "units"
 msgstr "unidades"
 

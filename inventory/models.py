@@ -7,6 +7,10 @@ class Category(models.Model):
 	name = models.CharField(max_length=100, unique=True)
 	description = models.TextField(blank=True)
 	include_in_untried = models.BooleanField(default=True)
+	display_order = models.PositiveIntegerField(default=0)
+	allow_user_ratings = models.BooleanField(default=True)
+	default_expanded = models.BooleanField(default=False)
+	image = models.ImageField(upload_to='categories/', null=True, blank=True)
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 

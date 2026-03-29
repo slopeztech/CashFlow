@@ -5,8 +5,9 @@ from .models import Category, Product, ProductImage, ProductReview, ProductStock
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-	list_display = ('name', 'created_at')
+	list_display = ('name', 'display_order', 'allow_user_ratings', 'default_expanded', 'created_at')
 	search_fields = ('name',)
+	list_filter = ('allow_user_ratings', 'default_expanded', 'include_in_untried')
 
 
 @admin.register(Product)

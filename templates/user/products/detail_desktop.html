@@ -212,7 +212,7 @@
     >
       <i class="mdi mdi-cart"></i>
     </button>
-    {% if can_review %}
+    {% if can_review and category_allows_ratings %}
       <a class="btn btn-light d-inline-flex align-items-center justify-content-center" style="width: 42px !important; min-width: 42px !important; max-width: 42px !important;" href="{% url 'user_product_review' product.id %}" aria-label="{% trans 'Rate product' %}" title="{% trans 'Rate product' %}"><i class="mdi mdi-star text-warning"></i></a>
     {% endif %}
   </div>
@@ -273,7 +273,7 @@
     </div>
   </div>
 
-  {% if show_pending_review_card %}
+  {% if show_pending_review_card and category_allows_ratings %}
     <div class="card card-rounded mb-3 pending-review-card">
       <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
         <div>
@@ -314,30 +314,32 @@
   </div>
   {% endif %}
 
-  <div class="card card-rounded">
-    <div class="card-body">
-      <h4 class="card-title card-title-dash mb-3">{% trans 'Reviews' %}</h4>
-      <div class="table-responsive reviews-responsive">
-        <table class="table select-table reviews-table">
-          <tbody>
-            {% for review in approved_reviews %}
-              <tr>
-                <td class="reviews-rating-cell">
-                  <span class="rating-stars" aria-label="{{ review.rating }} / 5">
-                    <span>★★★★★</span>
-                    <span class="rating-stars-fill" style="width: {% widthratio review.rating 5 100 %}%">★★★★★</span>
-                  </span>
-                </td>
-                <td class="review-message">{{ review.message }}</td>
-              </tr>
-            {% empty %}
-              <tr><td colspan="2" class="text-center text-muted py-3">{% trans 'No approved reviews for this product yet.' %}</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
+  {% if category_allows_ratings %}
+    <div class="card card-rounded">
+      <div class="card-body">
+        <h4 class="card-title card-title-dash mb-3">{% trans 'Reviews' %}</h4>
+        <div class="table-responsive reviews-responsive">
+          <table class="table select-table reviews-table">
+            <tbody>
+              {% for review in approved_reviews %}
+                <tr>
+                  <td class="reviews-rating-cell">
+                    <span class="rating-stars" aria-label="{{ review.rating }} / 5">
+                      <span>★★★★★</span>
+                      <span class="rating-stars-fill" style="width: {% widthratio review.rating 5 100 %}%">★★★★★</span>
+                    </span>
+                  </td>
+                  <td class="review-message">{{ review.message }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="2" class="text-center text-muted py-3">{% trans 'No approved reviews for this product yet.' %}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-  </div>
+  {% endif %}
 
   <div class="modal fade" id="addToCartModal" tabindex="-1" aria-labelledby="addToCartModalLabel" aria-hidden="true">
     <div class="modal-dialog">

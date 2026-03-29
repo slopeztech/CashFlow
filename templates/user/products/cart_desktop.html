@@ -1,5 +1,5 @@
 {% extends 'base_dashboard.html' %}
-{% load i18n core_numbers %}
+{% load i18n core_numbers l10n %}
 
 {% block title %}{% trans 'Cart' %} | CashFlow{% endblock %}
 {% block page_title %}{% trans 'Cart' %}{% endblock %}
@@ -200,8 +200,18 @@
 
     .cart-summary-actions {
       display: flex;
+      justify-content: space-between;
+      align-items: center;
       gap: .55rem;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
+      width: 100%;
+    }
+
+    .cart-summary-actions form {
+      margin: 0;
+    }
+
+    .cart-summary-actions form:last-child {
       margin-left: auto;
     }
 
@@ -212,17 +222,22 @@
       padding: .5rem .95rem;
     }
 
+    .cart-btn-submit-order {
+      background: #15803d;
+      border-color: #15803d;
+      color: #fff;
+    }
+
+    .cart-btn-submit-order:hover,
+    .cart-btn-submit-order:focus {
+      background: #166534;
+      border-color: #166534;
+      color: #fff;
+    }
+
     @media (max-width: 767.98px) {
       .cart-controls-inline {
         align-items: center;
-      }
-
-      .cart-summary-actions {
-        width: 100%;
-      }
-
-      .cart-summary-actions .btn {
-        flex: 1 1 auto;
       }
     }
   </style>
@@ -232,7 +247,7 @@
   <div class="card card-rounded">
     <div class="card-body">
       {% if cart_items %}
-        <div class="cart-summary-card" id="cart-summary-card" data-current-balance="{{ current_balance|default_if_none:0 }}">
+        <div class="cart-summary-card" id="cart-summary-card" data-current-balance="{{ current_balance|default_if_none:0|unlocalize }}">
           <div class="cart-summary-metrics">
             <h5 class="cart-total-label">{% trans 'Total' %}: € <span id="cart-total-live">{{ cart_total_amount|truncate_2 }}</span></h5>
             <p class="cart-balance-line">{% trans 'Current balance' %}: € <span id="cart-balance-current">{{ current_balance|truncate_2 }}</span></p>
@@ -245,7 +260,7 @@
             </form>
             <form method="post" action="{% url 'user_cart_submit' %}">
               {% csrf_token %}
-              <button class="btn btn-primary text-white" type="submit">{% trans 'Submit order' %}</button>
+              <button class="btn cart-btn-submit-order" type="submit">{% trans 'Submit order' %}</button>
             </form>
           </div>
         </div>
@@ -269,7 +284,7 @@
                   <form method="post" action="{% url 'user_cart_update' %}" class="cart-update-inline">
                     {% csrf_token %}
                     <input type="hidden" name="product_id" value="{{ item.product.id }}">
-                    <input id="cart-qty-{{ item.product.id }}" type="number" class="form-control cart-qty-input" name="quantity" min="0.01" step="0.01" value="{{ item.quantity|truncate_2 }}" data-unit-price="{{ item.product.price }}">
+                    <input id="cart-qty-{{ item.product.id }}" type="number" class="form-control cart-qty-input" name="quantity" min="0.01" step="0.01" value="{{ item.quantity|truncate_2|unlocalize }}" data-unit-price="{{ item.product.price|unlocalize }}">
                     <button class="btn cart-btn-update" type="submit">{% trans 'Update' %}</button>
                   </form>
 
@@ -309,7 +324,28 @@
         if (value === null || value === undefined) {
           return 0;
         }
-        const parsed = Number(String(value).replace(',', '.'));
+
+        let raw = String(value).trim();
+        if (!raw) {
+          return 0;
+        }
+
+        // Remove spaces (including non-breaking) and keep a single decimal separator.
+        raw = raw.replace(/[\s\u00A0]/g, '');
+
+        const hasComma = raw.includes(',');
+        const hasDot = raw.includes('.');
+        if (hasComma && hasDot) {
+          if (raw.lastIndexOf(',') > raw.lastIndexOf('.')) {
+            raw = raw.replace(/\./g, '').replace(',', '.');
+          } else {
+            raw = raw.replace(/,/g, '');
+          }
+        } else if (hasComma) {
+          raw = raw.replace(',', '.');
+        }
+
+        const parsed = Number(raw);
         return Number.isFinite(parsed) ? parsed : 0;
       };
 

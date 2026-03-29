@@ -2,6 +2,8 @@ from decimal import Decimal, InvalidOperation
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+from django.db import connection
+from django.db.utils import DatabaseError
 from django.db.models import Avg, Count, F, Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
@@ -158,11 +160,23 @@ class ProductDeleteView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequir
 class ProductStockAdjustView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMixin, View):
     template_name = 'admin/products/stock.html'
 
+    def _can_use_stock_adjustment_logs(self):
+        table_name = ProductStockAdjustmentLog._meta.db_table
+        try:
+            return table_name in connection.introspection.table_names()
+        except DatabaseError:
+            return False
+
     def _build_context(self, product, stock_delta=''):
+        if self._can_use_stock_adjustment_logs():
+            logs = ProductStockAdjustmentLog.objects.filter(product=product).select_related('adjusted_by')[:20]
+        else:
+            logs = []
+
         return {
             'product': product,
             'stock_delta': stock_delta,
-            'stock_adjustment_logs': ProductStockAdjustmentLog.objects.filter(product=product).select_related('adjusted_by')[:20],
+            'stock_adjustment_logs': logs,
         }
 
     def get(self, request, pk):
@@ -199,13 +213,19 @@ class ProductStockAdjustView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffR
         previous_stock = product.stock
         product.stock = new_stock
         product.save(update_fields=['stock', 'updated_at'])
-        ProductStockAdjustmentLog.objects.create(
-            product=product,
-            adjusted_by=request.user if request.user.is_authenticated else None,
-            previous_stock=previous_stock,
-            adjustment=stock_delta,
-            new_stock=new_stock,
-        )
+        if self._can_use_stock_adjustment_logs():
+            ProductStockAdjustmentLog.objects.create(
+                product=product,
+                adjusted_by=request.user if request.user.is_authenticated else None,
+                previous_stock=previous_stock,
+                adjustment=stock_delta,
+                new_stock=new_stock,
+            )
+        else:
+            messages.warning(
+                request,
+                _('Stock was updated, but adjustment history is unavailable until migrations are applied.'),
+            )
         messages.success(request, _('Stock updated successfully.'))
         return HttpResponseRedirect(reverse('product_list'))
 

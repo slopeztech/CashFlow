@@ -54,7 +54,7 @@ class ProductListView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
     def get_queryset(self):
         queryset = Product.objects.select_related('category', 'supplier').annotate(
             approved_avg_rating=Avg('reviews__rating', filter=Q(reviews__is_approved=True)),
-        ).order_by('category__name', 'name')
+        ).order_by('category__display_order', 'category__name', 'name')
 
         queryset = self._apply_category_filter(queryset)
 
@@ -78,7 +78,7 @@ class ProductListView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
         context['products_low_stock_items'] = low_stock_products
         context['products_active'] = base_queryset.filter(is_active=True).count()
         context['products_inactive'] = base_queryset.filter(is_active=False).count()
-        context['categories'] = Category.objects.annotate(products_count=Count('products')).order_by('name')
+        context['categories'] = Category.objects.annotate(products_count=Count('products')).order_by('display_order', 'name')
         context['filter_category'] = (self.request.GET.get('category') or '').strip()
         context['active_status_filter'] = self._get_status_filter()
         return context

@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import Avg, Count, Prefetch, Q
+from django.db.models import Avg, Case, Count, IntegerField, Prefetch, Q, Value, When
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -846,7 +846,28 @@ class UserProductCatalogView(ResponsiveTemplateMixin, LoginRequiredMixin, NonSta
             queryset = queryset.filter(name__icontains=query)
         if category_id.isdigit():
             queryset = queryset.filter(category_id=int(category_id))
-        return queryset.order_by('category__display_order', 'category__name', 'name')
+
+        queryset = queryset.annotate(
+            featured_first=Case(
+                When(is_featured=True, then=Value(0)),
+                default=Value(1),
+                output_field=IntegerField(),
+            ),
+            has_manual_order=Case(
+                When(display_order__gt=0, then=Value(0)),
+                default=Value(1),
+                output_field=IntegerField(),
+            ),
+        )
+
+        return queryset.order_by(
+            'category__display_order',
+            'category__name',
+            'featured_first',
+            'has_manual_order',
+            'display_order',
+            'name',
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -886,16 +907,6 @@ class UserProductCatalogView(ResponsiveTemplateMixin, LoginRequiredMixin, NonSta
                 }
                 grouped.append(grouped_index[key])
             grouped_index[key]['products'].append(product)
-
-        for group in grouped:
-            group['products'].sort(
-                key=lambda product: (
-                    0 if (product.is_featured or product.is_new) else 1,
-                    0 if product.is_featured else 1,
-                    0 if product.is_new else 1,
-                    product.name.lower(),
-                )
-            )
 
         context['categories'] = Category.objects.order_by('display_order', 'name')
         context['query'] = (self.request.GET.get('q') or '').strip()

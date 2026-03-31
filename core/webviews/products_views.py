@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.db import connection
 from django.db.utils import DatabaseError
-from django.db.models import Avg, Count, F, Q
+from django.db.models import Avg, Case, Count, F, IntegerField, Q, Value, When
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
@@ -56,7 +56,24 @@ class ProductListView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
     def get_queryset(self):
         queryset = Product.objects.select_related('category', 'supplier').annotate(
             approved_avg_rating=Avg('reviews__rating', filter=Q(reviews__is_approved=True)),
-        ).order_by('category__display_order', 'category__name', 'name')
+            featured_first=Case(
+                When(is_featured=True, then=Value(0)),
+                default=Value(1),
+                output_field=IntegerField(),
+            ),
+            has_manual_order=Case(
+                When(display_order__gt=0, then=Value(0)),
+                default=Value(1),
+                output_field=IntegerField(),
+            ),
+        ).order_by(
+            'category__display_order',
+            'category__name',
+            'featured_first',
+            'has_manual_order',
+            'display_order',
+            'name',
+        )
 
         queryset = self._apply_category_filter(queryset)
 

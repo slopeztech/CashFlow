@@ -105,6 +105,12 @@
                 {{ form.purchase_options }}
                 {% if form.purchase_options.errors %}<div class="text-danger small mt-1">{{ form.purchase_options.errors }}</div>{% endif %}
               </div>
+              <div class="col-md-6">
+                <label class="form-label" for="id_display_order">{% trans 'Display order' %}</label>
+                {{ form.display_order }}
+                <small class="text-muted d-block mt-1">{% trans 'Use 0 to keep alphabetical order inside the category.' %}</small>
+                {% if form.display_order.errors %}<div class="text-danger small mt-1">{{ form.display_order.errors }}</div>{% endif %}
+              </div>
               <div class="col-md-3 d-flex align-items-end">
                 <div class="form-check">
                   {{ form.is_public_listing }}

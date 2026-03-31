@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.http import Http404
 from django.core.exceptions import ValidationError
-from django.db.models import Sum
+from django.db.models import Case, IntegerField, Sum, Value, When
 from django.db.models.functions import Coalesce
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
@@ -65,6 +65,28 @@ def _normalize_sale_formset_post(post_data):
             mutable_data[quantity_key] = quantity_value
 
     return mutable_data
+
+
+def _ordered_products_queryset(queryset):
+    return queryset.annotate(
+        featured_first=Case(
+            When(is_featured=True, then=Value(0)),
+            default=Value(1),
+            output_field=IntegerField(),
+        ),
+        has_manual_order=Case(
+            When(display_order__gt=0, then=Value(0)),
+            default=Value(1),
+            output_field=IntegerField(),
+        ),
+    ).order_by(
+        'category__display_order',
+        'category__name',
+        'featured_first',
+        'has_manual_order',
+        'display_order',
+        'name',
+    )
 
 
 def _customer_balances_json():
@@ -353,7 +375,7 @@ class AdminOrderUpdateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffReq
             allowed_ids.add(item.product_id)
         allowed_ids.update(bound_product_ids)
 
-        products_qs = Product.objects.filter(pk__in=allowed_ids).order_by('name')
+        products_qs = _ordered_products_queryset(Product.objects.filter(pk__in=allowed_ids))
         for item_form in formset.forms:
             item_form.fields['product'].queryset = products_qs
         return formset

@@ -9,6 +9,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.db.models import Case, IntegerField, Value, When
 from django.forms import inlineformset_factory
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -31,6 +32,28 @@ from core.image_processing import optimize_uploaded_image
 
 
 backendlog = logging.getLogger('backendlog')
+
+
+def _ordered_products_queryset(queryset):
+    return queryset.annotate(
+        featured_first=Case(
+            When(is_featured=True, then=Value(0)),
+            default=Value(1),
+            output_field=IntegerField(),
+        ),
+        has_manual_order=Case(
+            When(display_order__gt=0, then=Value(0)),
+            default=Value(1),
+            output_field=IntegerField(),
+        ),
+    ).order_by(
+        'category__display_order',
+        'category__name',
+        'featured_first',
+        'has_manual_order',
+        'display_order',
+        'name',
+    )
 
 
 class MultipleFileInput(forms.ClearableFileInput):
@@ -103,6 +126,7 @@ class ProductForm(forms.ModelForm):
             'unit_type',
             'measure_label',
             'purchase_options',
+            'display_order',
             'is_public_listing',
             'is_active',
             'is_featured',
@@ -121,6 +145,7 @@ class ProductForm(forms.ModelForm):
             'measure_label': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. grams'}),
 
             'purchase_options': forms.Select(attrs={'class': 'form-select'}),
+            'display_order': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'step': 1}),
             'is_public_listing': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'is_featured': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
@@ -265,7 +290,9 @@ class SaleItemForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['product'].required = False
-        self.fields['product'].queryset = Product.objects.filter(is_active=True).order_by('name')
+        self.fields['product'].queryset = _ordered_products_queryset(
+            Product.objects.filter(is_active=True)
+        )
         self.fields['product'].label_from_instance = (
             lambda obj: f'{obj.category.name if obj.category else "Uncategorized"} | {obj.name} - € {obj.price}'
         )
@@ -410,10 +437,12 @@ class OrderItemForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['product'].queryset = Product.objects.filter(
-            is_active=True,
-            is_public_listing=True,
-        ).order_by('name')
+        self.fields['product'].queryset = _ordered_products_queryset(
+            Product.objects.filter(
+                is_active=True,
+                is_public_listing=True,
+            )
+        )
         self.fields['product'].label_from_instance = (
             lambda obj: f'{obj.category.name if obj.category else "Uncategorized"} | {obj.name} - € {obj.price}'
         )

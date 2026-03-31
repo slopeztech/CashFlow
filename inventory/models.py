@@ -57,6 +57,7 @@ class Product(models.Model):
 	unit_type = models.CharField(max_length=20, choices=UnitType.choices, default=UnitType.UNITS)
 	measure_label = models.CharField(max_length=50, blank=True)
 	purchase_options = models.CharField(max_length=20, choices=PurchaseOptions.choices, default=PurchaseOptions.BOTH)
+	display_order = models.PositiveIntegerField(default=0)
 	is_active = models.BooleanField(default=True)
 	is_public_listing = models.BooleanField(default=True)
 	is_featured = models.BooleanField(default=False)

@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import Avg, Count, Exists, F, Max, OuterRef, Prefetch, Q, Sum
+from django.db.models import Avg, Case, Count, Exists, F, IntegerField, Max, OuterRef, Prefetch, Q, Sum, Value, When
 from django.db.models.functions import TruncDate, TruncMonth
 from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -2159,7 +2159,25 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
 
     def _download_products_backup(self):
         timestamp = timezone.now().strftime('%Y%m%d-%H%M%S')
-        products = Product.objects.select_related('category', 'supplier').order_by('name')
+        products = Product.objects.select_related('category', 'supplier').annotate(
+            featured_first=Case(
+                When(is_featured=True, then=Value(0)),
+                default=Value(1),
+                output_field=IntegerField(),
+            ),
+            has_manual_order=Case(
+                When(display_order__gt=0, then=Value(0)),
+                default=Value(1),
+                output_field=IntegerField(),
+            ),
+        ).order_by(
+            'category__display_order',
+            'category__name',
+            'featured_first',
+            'has_manual_order',
+            'display_order',
+            'name',
+        )
 
         rows = []
         for product in products:
@@ -2518,7 +2536,26 @@ class AdminUserInfoView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequir
         untried_products = list(
             Product.objects.filter(is_active=True, is_public_listing=True)
             .exclude(id__in=tried_product_ids)
-            .order_by('name')[:12]
+            .annotate(
+                featured_first=Case(
+                    When(is_featured=True, then=Value(0)),
+                    default=Value(1),
+                    output_field=IntegerField(),
+                ),
+                has_manual_order=Case(
+                    When(display_order__gt=0, then=Value(0)),
+                    default=Value(1),
+                    output_field=IntegerField(),
+                ),
+            )
+            .order_by(
+                'category__display_order',
+                'category__name',
+                'featured_first',
+                'has_manual_order',
+                'display_order',
+                'name',
+            )[:12]
         )
 
         reviewed_product_ids = set(

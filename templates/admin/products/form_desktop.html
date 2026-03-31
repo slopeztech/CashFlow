@@ -37,6 +37,17 @@
       color: #1D4ED8;
       font-weight: 700;
     }
+
+    .field-with-error .form-control,
+    .field-with-error .form-select {
+      border-color: #dc3545 !important;
+      box-shadow: 0 0 0 .2rem rgba(220, 53, 69, .15);
+    }
+
+    .field-with-error .form-check-input {
+      border-color: #dc3545 !important;
+      box-shadow: 0 0 0 .2rem rgba(220, 53, 69, .12);
+    }
   </style>
 {% endblock %}
 
@@ -52,90 +63,109 @@
           <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
 
-            {% if form.non_field_errors %}
-              <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% if form.errors %}
+              <div class="alert alert-danger" role="alert">
+                <strong>Revisa los siguientes errores antes de guardar:</strong>
+                <ul class="mb-0 mt-2 ps-3">
+                  {% for field in form %}
+                    {% for error in field.errors %}
+                      <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                    {% endfor %}
+                  {% endfor %}
+                  {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
             {% endif %}
 
             <div class="row g-3">
-              <div class="col-md-6">
+              <div class="col-md-6{% if form.name.errors %} field-with-error{% endif %}">
                 <label class="form-label" for="id_name">{% trans 'Name' %}</label>
                 {{ form.name }}
+                {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors }}</div>{% endif %}
               </div>
-              <div class="col-md-6">
+              <div class="col-md-6{% if form.sku.errors %} field-with-error{% endif %}">
                 <label class="form-label" for="id_sku">SKU</label>
                 {{ form.sku }}
+                {% if form.sku.errors %}<div class="text-danger small mt-1">{{ form.sku.errors }}</div>{% endif %}
               </div>
-              <div class="col-md-6">
+              <div class="col-md-6{% if form.category.errors %} field-with-error{% endif %}">
                 <label class="form-label" for="id_category">{% trans 'Category' %}</label>
                 {{ form.category }}
                 {% if form.category.errors %}<div class="text-danger small mt-1">{{ form.category.errors }}</div>{% endif %}
               </div>
-              <div class="col-md-6">
+              <div class="col-md-6{% if form.supplier.errors %} field-with-error{% endif %}">
                 <label class="form-label" for="id_supplier">{% trans 'Supplier' %}</label>
                 {{ form.supplier }}
                 {% if form.supplier.errors %}<div class="text-danger small mt-1">{{ form.supplier.errors }}</div>{% endif %}
               </div>
-              <div class="col-12">
+              <div class="col-12{% if form.description.errors %} field-with-error{% endif %}">
                 <label class="form-label" for="id_description">{% trans 'Description' %}</label>
                 {{ form.description }}
+                {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors }}</div>{% endif %}
               </div>
-              <div class="col-md-4">
+              <div class="col-md-4{% if form.price.errors %} field-with-error{% endif %}">
                 <label class="form-label" for="id_price">{% trans 'Price' %}</label>
                 {{ form.price }}
+                {% if form.price.errors %}<div class="text-danger small mt-1">{{ form.price.errors }}</div>{% endif %}
               </div>
-              <div class="col-md-4">
+              <div class="col-md-4{% if form.stock.errors %} field-with-error{% endif %}">
                 <label class="form-label" for="id_stock">{% trans 'Stock' %}</label>
                 {{ form.stock }}
+                {% if form.stock.errors %}<div class="text-danger small mt-1">{{ form.stock.errors }}</div>{% endif %}
               </div>
-              <div class="col-md-4">
+              <div class="col-md-4{% if form.min_stock.errors %} field-with-error{% endif %}">
                 <label class="form-label" for="id_min_stock">{% trans 'Minimum stock' %}</label>
                 {{ form.min_stock }}
+                {% if form.min_stock.errors %}<div class="text-danger small mt-1">{{ form.min_stock.errors }}</div>{% endif %}
               </div>
-              <div class="col-md-4">
+              <div class="col-md-4{% if form.unit_type.errors %} field-with-error{% endif %}">
                 <label class="form-label" for="id_unit_type">{% trans 'Stock unit type' %}</label>
                 {{ form.unit_type }}
+                {% if form.unit_type.errors %}<div class="text-danger small mt-1">{{ form.unit_type.errors }}</div>{% endif %}
               </div>
-              <div class="col-md-6">
+              <div class="col-md-6{% if form.measure_label.errors %} field-with-error{% endif %}">
                 <label class="form-label" for="id_measure_label">{% trans 'Measure label (only for measure)' %}</label>
                 {{ form.measure_label }}
                 {% if form.measure_label.errors %}<div class="text-danger small mt-1">{{ form.measure_label.errors }}</div>{% endif %}
               </div>
-              <div class="col-md-6">
+              <div class="col-md-6{% if form.purchase_options.errors %} field-with-error{% endif %}">
                 <label class="form-label" for="id_purchase_options">{% trans 'Purchase options' %}</label>
                 {{ form.purchase_options }}
                 {% if form.purchase_options.errors %}<div class="text-danger small mt-1">{{ form.purchase_options.errors }}</div>{% endif %}
               </div>
-              <div class="col-md-6">
+              <div class="col-md-6{% if form.display_order.errors %} field-with-error{% endif %}">
                 <label class="form-label" for="id_display_order">{% trans 'Display order' %}</label>
                 {{ form.display_order }}
                 <small class="text-muted d-block mt-1">{% trans 'Use 0 to keep alphabetical order inside the category.' %}</small>
                 {% if form.display_order.errors %}<div class="text-danger small mt-1">{{ form.display_order.errors }}</div>{% endif %}
               </div>
-              <div class="col-md-3 d-flex align-items-end">
+              <div class="col-md-3 d-flex align-items-end{% if form.is_public_listing.errors %} field-with-error{% endif %}">
                 <div class="form-check">
                   {{ form.is_public_listing }}
                   <label class="form-check-label" for="id_is_public_listing">{% trans 'Visible in user catalog' %}</label>
                 </div>
               </div>
-              <div class="col-md-3 d-flex align-items-end">
+              <div class="col-md-3 d-flex align-items-end{% if form.is_active.errors %} field-with-error{% endif %}">
                 <div class="form-check">
                   {{ form.is_active }}
                   <label class="form-check-label" for="id_is_active">{% trans 'Active product' %}</label>
                 </div>
               </div>
-              <div class="col-md-3 d-flex align-items-end">
+              <div class="col-md-3 d-flex align-items-end{% if form.is_featured.errors %} field-with-error{% endif %}">
                 <div class="form-check">
                   {{ form.is_featured }}
                   <label class="form-check-label" for="id_is_featured">{% trans 'Featured product' %}</label>
                 </div>
               </div>
-              <div class="col-md-3 d-flex align-items-end">
+              <div class="col-md-3 d-flex align-items-end{% if form.is_new.errors %} field-with-error{% endif %}">
                 <div class="form-check">
                   {{ form.is_new }}
                   <label class="form-check-label" for="id_is_new">{% trans 'New product' %}</label>
                 </div>
               </div>
-              <div class="col-12">
+              <div class="col-12{% if form.new_images.errors %} field-with-error{% endif %}">
                 <label class="form-label" for="id_new_images">{% trans 'Product images' %}</label>
                 {{ form.new_images }}
                 {% if form.new_images.errors %}<div class="text-danger small mt-1">{{ form.new_images.errors }}</div>{% endif %}

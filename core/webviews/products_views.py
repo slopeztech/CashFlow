@@ -1,4 +1,5 @@
 from decimal import Decimal, InvalidOperation
+import logging
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
@@ -32,6 +33,9 @@ from inventory.models import (
     Supplier,
 )
 from sales.models import Order, OrderItem, SaleItem
+
+
+backendlog = logging.getLogger('backendlog')
 
 
 class ProductListView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMixin, ListView):
@@ -115,6 +119,11 @@ class ProductCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequir
         messages.success(self.request, _('Product saved successfully.'))
         return response
 
+    def form_invalid(self, form):
+        backendlog.warning('Product create form invalid: %s', form.errors.as_json())
+        messages.error(self.request, 'No se pudo guardar el producto. Revisa los errores marcados.')
+        return super().form_invalid(form)
+
     def _save_new_images(self, product):
         for uploaded_file in self.request.FILES.getlist('new_images'):
             optimized_file = optimize_uploaded_image(uploaded_file, crop_size=(1200, 1200), max_bytes=512 * 1024)
@@ -133,6 +142,11 @@ class ProductUpdateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequir
         self._save_new_images(self.object)
         messages.success(self.request, _('Product updated successfully.'))
         return response
+
+    def form_invalid(self, form):
+        backendlog.warning('Product update form invalid (pk=%s): %s', self.object.pk, form.errors.as_json())
+        messages.error(self.request, 'No se pudo actualizar el producto. Revisa los errores marcados.')
+        return super().form_invalid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

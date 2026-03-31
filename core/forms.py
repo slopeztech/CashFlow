@@ -161,6 +161,7 @@ class ProductForm(forms.ModelForm):
         self.fields['supplier'].required = False
         self.fields['min_stock'].required = False
         self.fields['purchase_options'].required = False
+        self.fields['display_order'].required = False
         self.fields['purchase_options'].initial = Product.PurchaseOptions.BOTH
 
     def clean_sku(self):
@@ -211,6 +212,12 @@ class ProductForm(forms.ModelForm):
 
     def clean_purchase_options(self):
         return self.cleaned_data.get('purchase_options') or Product.PurchaseOptions.BOTH
+
+    def clean_display_order(self):
+        display_order = self.cleaned_data.get('display_order')
+        if display_order is None:
+            return 0
+        return display_order
 
 
 class ProductPurchaseOptionsForm(forms.ModelForm):

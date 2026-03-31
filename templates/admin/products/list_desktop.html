@@ -147,18 +147,23 @@
 
     .admin-products-viewport {
       width: 100%;
-      overflow-x: auto;
-      overflow-y: hidden;
+      max-width: 100%;
+      min-width: 0;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      contain: content;
       scrollbar-width: thin;
       scrollbar-color: #cbd5e1 #f1f5f9;
     }
 
     .admin-products-track {
       display: flex;
+      align-items: flex-start;
       gap: .8rem;
-      padding: .15rem 0 .65rem;
       width: max-content;
       min-width: 100%;
+      box-sizing: border-box;
+      padding: .15rem 0 .7rem;
       scroll-snap-type: x proximity;
       overscroll-behavior-x: contain;
     }
@@ -167,6 +172,7 @@
       width: 320px;
       max-width: 320px;
       flex: 0 0 320px;
+      box-sizing: border-box;
       min-height: 292px;
       border: 1px solid #dbe4ef;
       border-radius: 16px;
@@ -175,6 +181,7 @@
       scroll-snap-align: start;
       box-shadow: 0 10px 24px -22px rgba(15, 23, 42, 0.45);
       transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease;
+      align-self: flex-start;
     }
 
     .admin-product-card:hover,
@@ -397,10 +404,20 @@
         width: 100%;
       }
 
+      .admin-products-viewport {
+        padding-right: .5rem;
+      }
+
+      .admin-products-track {
+        width: max-content;
+        padding-right: 1rem;
+      }
+
       .admin-product-card {
-        width: 84vw;
-        max-width: 285px;
-        flex: 0 0 84vw;
+        width: calc(100% - 4.25rem);
+        max-width: 248px;
+        min-width: 210px;
+        flex: 0 0 calc(100% - 4.25rem);
         min-height: 278px;
       }
 
@@ -535,7 +552,7 @@
                   >
                     <div class="accordion-body">
                       <div class="admin-products-viewport">
-                        <div class="admin-products-track">
+                        <div class="admin-products-track" id="adminProductActionsGroup{{ forloop.counter }}">
                           {% for product in group.list %}
                             <div class="admin-product-card" id="product-{{ product.pk }}">
                               <button
@@ -589,7 +606,11 @@
                                   </div>
                                 </div>
                               </button>
-                              <div id="product-actions-{{ product.pk }}" class="collapse admin-product-actions">
+                              <div
+                                id="product-actions-{{ product.pk }}"
+                                class="collapse admin-product-actions"
+                                data-bs-parent="#adminProductActionsGroup{{ forloop.parentloop.counter }}"
+                              >
                                 <div class="admin-product-actions-wrap">
                                   <a class="admin-action-link" href="{% url 'product_stock_adjust' product.pk %}">{% trans 'Adjust stock' %}</a>
                                   <a class="admin-action-link" href="{% url 'product_info' product.pk %}">{% trans 'Information' %}</a>
@@ -632,6 +653,21 @@
           }
           var isOpen = panel.classList.toggle('is-open');
           button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+      });
+
+      document.querySelectorAll('.admin-products-track').forEach(function (track) {
+        track.addEventListener('show.bs.collapse', function (event) {
+          var openingPanel = event.target;
+          if (!openingPanel || !openingPanel.classList.contains('admin-product-actions')) {
+            return;
+          }
+
+          track.querySelectorAll('.admin-product-actions.show').forEach(function (openPanel) {
+            if (openPanel !== openingPanel) {
+              bootstrap.Collapse.getOrCreateInstance(openPanel, { toggle: false }).hide();
+            }
+          });
         });
       });
     })();

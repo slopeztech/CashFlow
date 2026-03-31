@@ -128,11 +128,38 @@
       background: #eef4ff;
     }
 
+    .admin-category-main {
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .admin-category-thumb {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid #dbe4ef;
+      object-fit: cover;
+      background: #f8fafc;
+      flex: 0 0 auto;
+    }
+
+    .admin-category-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     .admin-category-meta {
       display: inline-flex;
       align-items: center;
       gap: .5rem;
       font-weight: 700;
+      flex: 0 0 auto;
+      margin-right: .35rem;
     }
 
     .admin-category-count {
@@ -533,12 +560,17 @@
                       aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}"
                       aria-controls="adminCategoryCollapse{{ forloop.counter }}"
                     >
-                      <span>
-                        {% if group.grouper %}
-                          {{ group.grouper.name }}
-                        {% else %}
-                          {% trans 'Uncategorized' %}
+                      <span class="admin-category-main">
+                        {% if group.grouper and group.grouper.image %}
+                          <img src="{{ group.grouper.image.url }}" alt="{{ group.grouper.name }}" class="admin-category-thumb" />
                         {% endif %}
+                        <span class="admin-category-name">
+                          {% if group.grouper %}
+                            {{ group.grouper.name }}
+                          {% else %}
+                            {% trans 'Uncategorized' %}
+                          {% endif %}
+                        </span>
                       </span>
                       <span class="admin-category-meta">
                         <span class="admin-category-count">{{ group.list|length }} {% trans 'Products' %}</span>

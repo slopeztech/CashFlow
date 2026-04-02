@@ -192,6 +192,43 @@
     .cart-modal-title i {
       color: #1D4ED8;
     }
+
+    .product-image-zoom {
+      border: 0;
+      padding: 0;
+      width: 100%;
+      background: transparent;
+      cursor: zoom-in;
+    }
+
+    .product-image-zoom img {
+      display: block;
+    }
+
+    .image-preview-modal .modal-dialog {
+      max-width: min(96vw, 1100px);
+    }
+
+    .image-preview-modal .modal-content {
+      background: #111827;
+      border: 0;
+    }
+
+    .image-preview-modal .modal-body {
+      padding: .5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 50vh;
+    }
+
+    .image-preview-modal img {
+      width: 100%;
+      max-height: 85vh;
+      object-fit: contain;
+      border-radius: 10px;
+      background: #0b1220;
+    }
   </style>
 {% endblock %}
 {% block page_actions %}
@@ -232,7 +269,14 @@
           <div class="carousel-inner rounded">
             {% for image in product.images.all %}
               <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                <img src="{{ image.image.url }}" class="d-block w-100" alt="{{ product.name }}" style="height: 320px; object-fit: cover;">
+                <button
+                  class="product-image-zoom js-product-image-zoom"
+                  type="button"
+                  data-image-url="{{ image.image.url }}"
+                  aria-label="{{ product.name }}"
+                >
+                  <img src="{{ image.image.url }}" class="d-block w-100" alt="{{ product.name }}" style="height: 320px; object-fit: cover;">
+                </button>
               </div>
             {% endfor %}
           </div>
@@ -244,6 +288,16 @@
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
             <span class="visually-hidden">{% trans 'Next' %}</span>
           </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade image-preview-modal" id="productImagePreviewModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+          <div class="modal-body">
+            <img id="productImagePreview" src="" alt="{{ product.name }}">
+          </div>
         </div>
       </div>
     </div>
@@ -505,6 +559,26 @@
 
       applyPurchaseOptionsMode(purchaseOptions);
       refreshByMode();
+
+      const imagePreviewModalEl = document.getElementById('productImagePreviewModal');
+      const imagePreviewEl = document.getElementById('productImagePreview');
+      if (imagePreviewModalEl && imagePreviewEl && window.bootstrap && window.bootstrap.Modal) {
+        const imagePreviewModal = new window.bootstrap.Modal(imagePreviewModalEl);
+        document.querySelectorAll('.js-product-image-zoom').forEach((button) => {
+          button.addEventListener('click', () => {
+            const imageUrl = button.getAttribute('data-image-url');
+            if (!imageUrl) {
+              return;
+            }
+            imagePreviewEl.src = imageUrl;
+            imagePreviewModal.show();
+          });
+        });
+
+        imagePreviewModalEl.addEventListener('hidden.bs.modal', () => {
+          imagePreviewEl.src = '';
+        });
+      }
     })();
   </script>
 {% endblock %}

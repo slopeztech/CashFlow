@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Product, ProductImage, ProductReview, ProductStockAdjustmentLog, Supplier
+from .models import Category, Product, ProductImage, ProductReview, ProductStockAdjustmentLog, Supplier, Tag
 
 
 @admin.register(Category)
@@ -30,6 +30,12 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Supplier)
 class SupplierAdmin(admin.ModelAdmin):
+	list_display = ('name', 'created_at')
+	search_fields = ('name',)
+
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
 	list_display = ('name', 'created_at')
 	search_fields = ('name',)
 

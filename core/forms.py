@@ -26,7 +26,7 @@ from core.models import (
     SystemSettings,
 )
 from customers.models import BalanceRequest, MonthlyFeeSettings, StoreUserProfile
-from inventory.models import Category, Product, ProductReview, ProductSheetField, ProductSheetUrl, Supplier
+from inventory.models import Category, Product, ProductReview, ProductSheetField, ProductSheetUrl, Supplier, Tag
 from sales.models import Order, OrderItem, Sale, SaleItem
 from core.image_processing import optimize_uploaded_image
 
@@ -119,6 +119,7 @@ class ProductForm(forms.ModelForm):
             'sku',
             'category',
             'supplier',
+            'tags',
             'description',
             'price',
             'stock',
@@ -137,6 +138,7 @@ class ProductForm(forms.ModelForm):
             'sku': forms.TextInput(attrs={'class': 'form-control'}),
             'category': forms.Select(attrs={'class': 'form-select'}),
             'supplier': forms.Select(attrs={'class': 'form-select'}),
+            'tags': forms.SelectMultiple(attrs={'class': 'form-select', 'size': 6}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'price': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
             'stock': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': 0}),
@@ -156,9 +158,11 @@ class ProductForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['category'].queryset = Category.objects.order_by('name')
         self.fields['supplier'].queryset = Supplier.objects.order_by('name')
+        self.fields['tags'].queryset = Tag.objects.order_by('name')
         self.fields['sku'].required = False
         self.fields['category'].required = True
         self.fields['supplier'].required = False
+        self.fields['tags'].required = False
         self.fields['min_stock'].required = False
         self.fields['purchase_options'].required = False
         self.fields['display_order'].required = False
@@ -746,6 +750,16 @@ class CategoryForm(forms.ModelForm):
 class SupplierForm(forms.ModelForm):
     class Meta:
         model = Supplier
+        fields = ['name', 'description']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+        }
+
+
+class TagForm(forms.ModelForm):
+    class Meta:
+        model = Tag
         fields = ['name', 'description']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),

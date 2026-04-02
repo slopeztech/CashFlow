@@ -19,6 +19,7 @@ from core.forms import (
     ProductSheetFieldForm,
     ProductSheetUrlForm,
     SupplierForm,
+    TagForm,
 )
 from core.image_processing import optimize_uploaded_image
 from core.webviews.mixins import ResponsiveTemplateMixin, StaffRequiredMixin
@@ -31,6 +32,7 @@ from inventory.models import (
     ProductSheetUrl,
     ProductStockAdjustmentLog,
     Supplier,
+    Tag,
 )
 from sales.models import Order, OrderItem, SaleItem
 
@@ -168,6 +170,16 @@ class ProductUpdateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequir
             if product_image.image:
                 product_image.image.delete(save=False)
             product_image.delete()
+
+
+class ProductTagUpdateView(LoginRequiredMixin, StaffRequiredMixin, View):
+    def post(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        tag_ids = [tag_id for tag_id in request.POST.getlist('tags') if tag_id.isdigit()]
+        selected_tags = Tag.objects.filter(id__in=tag_ids)
+        product.tags.set(selected_tags)
+        messages.success(request, _('Product tags updated successfully.'))
+        return HttpResponseRedirect(reverse('product_update', kwargs={'pk': product.pk}))
 
 
 class ProductDeleteView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMixin, DeleteView):
@@ -522,3 +534,51 @@ class SupplierDeleteView(LoginRequiredMixin, StaffRequiredMixin, View):
         supplier.delete()
         messages.success(request, _('Supplier deleted successfully.'))
         return HttpResponseRedirect(reverse_lazy('supplier_list'))
+
+
+class TagListCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMixin, View):
+    template_name = 'admin/products/tags.html'
+
+    def get(self, request):
+        tags = Tag.objects.annotate(products_count=Count('products')).order_by('name')
+        form = TagForm()
+        return self._render(request, form=form, tags=tags)
+
+    def post(self, request):
+        tags = Tag.objects.annotate(products_count=Count('products')).order_by('name')
+        form = TagForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _('Tag created successfully.'))
+            return HttpResponseRedirect(reverse_lazy('tag_list'))
+        return self._render(request, form=form, tags=tags)
+
+    def _render(self, request, form, tags):
+        return render(
+            request,
+            self.get_template_names()[0],
+            {'form': form, 'tags': tags},
+        )
+
+
+class TagUpdateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMixin, UpdateView):
+    template_name = 'admin/products/tag_form.html'
+    model = Tag
+    form_class = TagForm
+    success_url = reverse_lazy('tag_list')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, _('Tag updated successfully.'))
+        return response
+
+
+class TagDeleteView(LoginRequiredMixin, StaffRequiredMixin, View):
+    def post(self, request, pk):
+        tag = get_object_or_404(Tag, pk=pk)
+        if tag.products.exists():
+            messages.error(request, _('Tag cannot be deleted because it is associated with products.'))
+            return HttpResponseRedirect(reverse_lazy('tag_list'))
+        tag.delete()
+        messages.success(request, _('Tag deleted successfully.'))
+        return HttpResponseRedirect(reverse_lazy('tag_list'))

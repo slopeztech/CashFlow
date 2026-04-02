@@ -1,1 +1,254 @@
-{% extends 'admin/products/form_desktop.html' %}
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Product form' %} | CashFlow{% endblock %}
+{% block page_title %}{% if object %}{% trans 'Edit product' %}{% else %}{% trans 'Create product' %}{% endif %}{% endblock %}
+{% block page_subtitle %}{% trans 'Create or update product catalog records' %}{% endblock %}
+{% block page_actions %}
+	<a class="btn btn-light" href="{% url 'product_list' %}"><i class="icon-arrow-left"></i> {% trans 'Back to products' %}</a>
+{% endblock %}
+
+{% block extra_head %}
+	{{ block.super }}
+	<style>
+		.tag-cloud {
+			display: flex;
+			flex-wrap: wrap;
+			gap: .55rem;
+		}
+
+		.tag-cloud input[type="checkbox"] {
+			position: absolute;
+			opacity: 0;
+			pointer-events: none;
+		}
+
+		.tag-chip {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 999px;
+			padding: .45rem .8rem;
+			font-size: .82rem;
+			font-weight: 700;
+			cursor: pointer;
+			border: 1px solid #d1d5db;
+			background: #f3f4f6;
+			color: #4b5563;
+			transition: all .16s ease;
+			user-select: none;
+		}
+
+		.tag-cloud input[type="checkbox"]:checked + .tag-chip {
+			border-color: #86efac;
+			background: #dcfce7;
+			color: #166534;
+			box-shadow: inset 0 0 0 1px #86efac;
+		}
+
+		.product-review-list {
+			display: grid;
+			gap: .75rem;
+			margin-top: .5rem;
+		}
+
+		.product-review-item {
+			border: 1px solid #E5E7EB;
+			border-radius: 12px;
+			padding: .75rem;
+			background: #fff;
+		}
+	</style>
+{% endblock %}
+
+{% block content %}
+	<div class="row g-3">
+		<div class="col-12">
+			<div class="card card-rounded">
+				<div class="card-body">
+					<h4 class="card-title card-title-dash mb-3">{% if object %}{% trans 'Update product' %}{% else %}{% trans 'New product' %}{% endif %}</h4>
+
+					<form method="post" enctype="multipart/form-data">
+						{% csrf_token %}
+
+						{% if form.errors %}
+							<div class="alert alert-danger" role="alert">
+								<strong>Revisa los siguientes errores antes de guardar:</strong>
+								<ul class="mb-0 mt-2 ps-3">
+									{% for field in form %}
+										{% for error in field.errors %}
+											{% if field.name != 'tags' %}
+												<li><strong>{{ field.label }}:</strong> {{ error }}</li>
+											{% endif %}
+										{% endfor %}
+									{% endfor %}
+									{% for error in form.non_field_errors %}
+										<li>{{ error }}</li>
+									{% endfor %}
+								</ul>
+							</div>
+						{% endif %}
+
+						<div class="row g-3">
+							<div class="col-12">
+								<label class="form-label" for="id_name">{% trans 'Name' %}</label>
+								{{ form.name }}
+							</div>
+							<div class="col-12">
+								<label class="form-label" for="id_sku">SKU</label>
+								{{ form.sku }}
+							</div>
+							<div class="col-12">
+								<label class="form-label" for="id_category">{% trans 'Category' %}</label>
+								{{ form.category }}
+							</div>
+							<div class="col-12">
+								<label class="form-label" for="id_supplier">{% trans 'Supplier' %}</label>
+								{{ form.supplier }}
+							</div>
+							<div class="col-12">
+								<label class="form-label" for="id_description">{% trans 'Description' %}</label>
+								{{ form.description }}
+							</div>
+							<div class="col-6">
+								<label class="form-label" for="id_price">{% trans 'Price' %}</label>
+								{{ form.price }}
+							</div>
+							<div class="col-6">
+								<label class="form-label" for="id_stock">{% trans 'Stock' %}</label>
+								{{ form.stock }}
+							</div>
+							<div class="col-6">
+								<label class="form-label" for="id_min_stock">{% trans 'Minimum stock' %}</label>
+								{{ form.min_stock }}
+							</div>
+							<div class="col-6">
+								<label class="form-label" for="id_display_order">{% trans 'Display order' %}</label>
+								{{ form.display_order }}
+							</div>
+							<div class="col-12">
+								<label class="form-label" for="id_unit_type">{% trans 'Stock unit type' %}</label>
+								{{ form.unit_type }}
+							</div>
+							<div class="col-12">
+								<label class="form-label" for="id_measure_label">{% trans 'Measure label (only for measure)' %}</label>
+								{{ form.measure_label }}
+							</div>
+							<div class="col-12">
+								<label class="form-label" for="id_purchase_options">{% trans 'Purchase options' %}</label>
+								{{ form.purchase_options }}
+							</div>
+
+							{% if object %}
+								{% for tag in object.tags.all %}
+									<input type="hidden" name="tags" value="{{ tag.id }}">
+								{% endfor %}
+							{% else %}
+								<div class="col-12">
+									<label class="form-label" for="id_tags">{% trans 'Tags' %}</label>
+									{{ form.tags }}
+								</div>
+							{% endif %}
+
+							<div class="col-12 d-flex flex-column gap-2">
+								<div class="form-check">
+									{{ form.is_public_listing }}
+									<label class="form-check-label" for="id_is_public_listing">{% trans 'Visible in user catalog' %}</label>
+								</div>
+								<div class="form-check">
+									{{ form.is_active }}
+									<label class="form-check-label" for="id_is_active">{% trans 'Active product' %}</label>
+								</div>
+								<div class="form-check">
+									{{ form.is_featured }}
+									<label class="form-check-label" for="id_is_featured">{% trans 'Featured product' %}</label>
+								</div>
+								<div class="form-check">
+									{{ form.is_new }}
+									<label class="form-check-label" for="id_is_new">{% trans 'New product' %}</label>
+								</div>
+							</div>
+
+							<div class="col-12">
+								<label class="form-label" for="id_new_images">{% trans 'Product images' %}</label>
+								{{ form.new_images }}
+							</div>
+
+							{% if object and product_images %}
+								<div class="col-12">
+									<label class="form-label">{% trans 'Current images' %}</label>
+									<div class="row g-2">
+										{% for product_image in product_images %}
+											<div class="col-6">
+												<div class="border rounded p-2">
+													<img src="{{ product_image.image.url }}" alt="{{ object.name }}" class="img-fluid rounded mb-2" style="height: 95px; width: 100%; object-fit: cover;">
+													<div class="form-check">
+														<input class="form-check-input" type="checkbox" name="remove_images" value="{{ product_image.id }}" id="remove_image_{{ product_image.id }}">
+														<label class="form-check-label" for="remove_image_{{ product_image.id }}">{% trans 'Delete image' %}</label>
+													</div>
+												</div>
+											</div>
+										{% endfor %}
+									</div>
+								</div>
+							{% endif %}
+						</div>
+
+						<div class="mt-4">
+							<button class="btn btn-success text-white w-100" type="submit">{% trans 'Save product' %}</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		{% if object %}
+			<div class="col-12">
+				<div class="card card-rounded">
+					<div class="card-body">
+						<h4 class="card-title card-title-dash mb-3">{% trans 'Tags for this product' %}</h4>
+
+						<form method="post" action="{% url 'product_tags_update' object.pk %}">
+							{% csrf_token %}
+							<div class="tag-cloud mb-3">
+								{% for tag in form.fields.tags.queryset %}
+									<label>
+										<input type="checkbox" name="tags" value="{{ tag.id }}" {% if tag in object.tags.all %}checked{% endif %}>
+										<span class="tag-chip">{{ tag.name }}</span>
+									</label>
+								{% empty %}
+									<p class="text-muted mb-0">{% trans 'No tags available yet.' %}</p>
+								{% endfor %}
+							</div>
+							<button class="btn btn-success text-white w-100" type="submit">{% trans 'Save tags' %}</button>
+						</form>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-12">
+				<div class="card card-rounded">
+					<div class="card-body">
+						<h4 class="card-title card-title-dash mb-3">{% trans 'Received reviews' %}</h4>
+						{% if product_reviews %}
+							<div class="product-review-list">
+								{% for review in product_reviews %}
+									<div class="product-review-item">
+										<div class="d-flex justify-content-between align-items-center gap-2 mb-2">
+											<strong>{{ review.user.username }}</strong>
+											<span class="fw-bold text-primary">★ {{ review.rating }}/5</span>
+										</div>
+										<p class="mb-2">{{ review.message }}</p>
+										<small class="text-muted">{{ review.created_at }}</small>
+									</div>
+								{% endfor %}
+							</div>
+						{% else %}
+							<p class="text-muted mb-0">{% trans 'No reviews received yet.' %}</p>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		{% endif %}
+	</div>
+{% endblock %}

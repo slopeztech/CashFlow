@@ -7,6 +7,7 @@ from core.webviews.products_views import (
     ProductInfoView,
     ProductListView,
     ProductStockAdjustView,
+    ProductTagUpdateView,
     ProductSheetFieldDeleteView,
     ProductSheetFieldListCreateView,
     ProductSheetUrlCreateView,
@@ -14,6 +15,9 @@ from core.webviews.products_views import (
     ProductUpdateView,
     SupplierDeleteView,
     SupplierListCreateView,
+    TagDeleteView,
+    TagListCreateView,
+    TagUpdateView,
 )
 
 __all__ = [
@@ -25,6 +29,7 @@ __all__ = [
     'ProductInfoView',
     'ProductListView',
     'ProductStockAdjustView',
+    'ProductTagUpdateView',
     'ProductSheetFieldDeleteView',
     'ProductSheetFieldListCreateView',
     'ProductSheetUrlCreateView',
@@ -32,4 +37,7 @@ __all__ = [
     'ProductUpdateView',
     'SupplierDeleteView',
     'SupplierListCreateView',
+    'TagDeleteView',
+    'TagListCreateView',
+    'TagUpdateView',
 ]

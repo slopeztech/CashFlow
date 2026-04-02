@@ -260,6 +260,66 @@ msgstr "Administrador"
 msgid "Admin Dashboard"
 msgstr "Panel de administración"
 
+msgid "Tags"
+msgstr "Etiquetas"
+
+msgid "Create and manage product tags"
+msgstr "Crear y gestionar etiquetas de productos"
+
+msgid "New tag"
+msgstr "Nueva etiqueta"
+
+msgid "Create tag"
+msgstr "Crear etiqueta"
+
+msgid "Back to tags"
+msgstr "Volver a etiquetas"
+
+msgid "Edit tag"
+msgstr "Editar etiqueta"
+
+msgid "Update tag details for product classification"
+msgstr "Actualizar detalles de la etiqueta para clasificar productos"
+
+msgid "products"
+msgstr "productos"
+
+msgid "No tags yet."
+msgstr "Todavia no hay etiquetas."
+
+msgid "Tags can only be deleted when no products are associated."
+msgstr "Las etiquetas solo se pueden eliminar cuando no tienen productos asociados."
+
+msgid "Use Ctrl (Windows) or Cmd (Mac) to select multiple tags."
+msgstr "Usa Ctrl (Windows) o Cmd (Mac) para seleccionar varias etiquetas."
+
+msgid "Tag created successfully."
+msgstr "Etiqueta creada correctamente."
+
+msgid "Tag updated successfully."
+msgstr "Etiqueta actualizada correctamente."
+
+msgid "Tag deleted successfully."
+msgstr "Etiqueta eliminada correctamente."
+
+msgid "Tag cannot be deleted because it is associated with products."
+msgstr "La etiqueta no se puede eliminar porque esta asociada a productos."
+
+msgid "Product tags updated successfully."
+msgstr "Etiquetas del producto actualizadas correctamente."
+
+msgid "Tags for this product"
+msgstr "Etiquetas de este producto"
+
+msgid "Manage tags"
+msgstr "Gestionar etiquetas"
+
+msgid "No tags available yet."
+msgstr "Todavia no hay etiquetas disponibles."
+
+msgid "Save tags"
+msgstr "Guardar etiquetas"
+
 msgid "Current password"
 msgstr "Contraseña actual"
 

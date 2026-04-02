@@ -19,7 +19,7 @@ from core.models import (
 	UserSession,
 )
 from customers.models import BalanceLog, StoreUserProfile
-from inventory.models import Category, Product, ProductSheetField, ProductSheetUrl
+from inventory.models import Category, Product, ProductSheetField, ProductSheetUrl, Tag
 from inventory.models import ProductReview
 from sales.models import Order, Sale
 from sales.services import approve_order, create_order, create_sale
@@ -243,6 +243,94 @@ class ProductWebCrudTests(TestCase):
 		self.assertEqual(response.status_code, 200)
 		product.refresh_from_db()
 		self.assertEqual(product.stock, 4)
+
+	def test_admin_can_crud_tags(self):
+		create_response = self.client.post(
+			reverse('tag_list'),
+			{'name': 'Vegano', 'description': 'Sin ingredientes animales'},
+		)
+		self.assertEqual(create_response.status_code, 302)
+
+		tag = Tag.objects.get(name='Vegano')
+
+		update_response = self.client.post(
+			reverse('tag_update', kwargs={'pk': tag.pk}),
+			{'name': 'Vegetariano', 'description': 'Apto para vegetarianos'},
+		)
+		self.assertEqual(update_response.status_code, 302)
+
+		tag.refresh_from_db()
+		self.assertEqual(tag.name, 'Vegetariano')
+
+		delete_response = self.client.post(
+			reverse('tag_delete', kwargs={'pk': tag.pk}),
+		)
+		self.assertEqual(delete_response.status_code, 302)
+		self.assertFalse(Tag.objects.filter(pk=tag.pk).exists())
+
+	def test_admin_can_assign_tags_to_product_and_cannot_delete_used_tag(self):
+		tag = Tag.objects.create(name='Orgánico')
+		product = Product.objects.create(
+			name='Miel',
+			sku='MI-1',
+			category=self.category,
+			price='5.00',
+			stock=8,
+			is_active=True,
+		)
+
+		update_response = self.client.post(
+			reverse('product_update', kwargs={'pk': product.pk}),
+			{
+				'name': product.name,
+				'sku': product.sku,
+				'category': str(self.category.id),
+				'description': '',
+				'price': '5.00',
+				'stock': 8,
+				'min_stock': 0,
+				'unit_type': Product.UnitType.UNITS,
+				'measure_label': '',
+				'purchase_options': Product.PurchaseOptions.BOTH,
+				'tags': [str(tag.id)],
+				'is_public_listing': 'on',
+				'is_active': 'on',
+			},
+		)
+		self.assertEqual(update_response.status_code, 302)
+
+		product.refresh_from_db()
+		self.assertEqual(list(product.tags.values_list('id', flat=True)), [tag.id])
+
+		delete_response = self.client.post(
+			reverse('tag_delete', kwargs={'pk': tag.pk}),
+		)
+		self.assertEqual(delete_response.status_code, 302)
+		self.assertTrue(Tag.objects.filter(pk=tag.pk).exists())
+
+	def test_admin_can_update_product_tags_with_dedicated_endpoint(self):
+		tag_a = Tag.objects.create(name='Sin gluten')
+		tag_b = Tag.objects.create(name='Premium')
+		product = Product.objects.create(
+			name='Pan de arroz',
+			sku='PA-AR-1',
+			category=self.category,
+			price='3.90',
+			stock=6,
+			is_active=True,
+		)
+
+		response = self.client.post(
+			reverse('product_tags_update', kwargs={'pk': product.pk}),
+			{'tags': [str(tag_a.id), str(tag_b.id)]},
+		)
+		self.assertEqual(response.status_code, 302)
+
+		product.refresh_from_db()
+		self.assertEqual(
+			set(product.tags.values_list('id', flat=True)),
+			{tag_a.id, tag_b.id},
+		)
 
 
 class SaleWebCrudTests(TestCase):

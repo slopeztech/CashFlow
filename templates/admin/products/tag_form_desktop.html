@@ -1,0 +1,41 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Edit tag' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Edit tag' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Update tag details for product classification' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'tag_list' %}"><i class="icon-arrow-left"></i> {% trans 'Back to tags' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-lg-8 grid-margin stretch-card">
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h4 class="card-title card-title-dash mb-3">{{ object.name }}</h4>
+          <form method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="mb-3">
+              <label class="form-label" for="id_name">{% trans 'Name' %}</label>
+              {{ form.name }}
+              {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors }}</div>{% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="id_description">{% trans 'Description' %}</label>
+              {{ form.description }}
+              {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors }}</div>{% endif %}
+            </div>
+
+            <button class="btn btn-primary text-white" type="submit">{% trans 'Save changes' %}</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

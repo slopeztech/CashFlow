@@ -100,6 +100,12 @@
                 {{ form.supplier }}
                 {% if form.supplier.errors %}<div class="text-danger small mt-1">{{ form.supplier.errors }}</div>{% endif %}
               </div>
+              <div class="col-12{% if form.tags.errors %} field-with-error{% endif %}">
+                <label class="form-label" for="id_tags">{% trans 'Tags' %}</label>
+                {{ form.tags }}
+                <small class="text-muted d-block mt-1">{% trans 'Use Ctrl (Windows) or Cmd (Mac) to select multiple tags.' %}</small>
+                {% if form.tags.errors %}<div class="text-danger small mt-1">{{ form.tags.errors }}</div>{% endif %}
+              </div>
               <div class="col-12{% if form.description.errors %} field-with-error{% endif %}">
                 <label class="form-label" for="id_description">{% trans 'Description' %}</label>
                 {{ form.description }}

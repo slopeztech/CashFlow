@@ -3,6 +3,7 @@ import string
 import re
 import logging
 from decimal import Decimal
+from zoneinfo import available_timezones
 
 from PIL import Image, UnidentifiedImageError
 from django import forms
@@ -32,6 +33,22 @@ from core.image_processing import optimize_uploaded_image
 
 
 backendlog = logging.getLogger('backendlog')
+
+_all_time_zones = sorted(available_timezones())
+PREFERRED_TIME_ZONES = [
+    'UTC',
+    'Europe/Madrid',
+    'Atlantic/Canary',
+    'America/Mexico_City',
+    'America/Bogota',
+    'America/Lima',
+    'America/Santiago',
+    'America/Argentina/Buenos_Aires',
+    'America/Caracas',
+]
+_preferred_time_zones = [tz for tz in PREFERRED_TIME_ZONES if tz in _all_time_zones]
+_remaining_time_zones = [tz for tz in _all_time_zones if tz not in _preferred_time_zones]
+SYSTEM_TIME_ZONE_CHOICES = [(tz, tz) for tz in _preferred_time_zones + _remaining_time_zones]
 
 
 def _ordered_products_queryset(queryset):
@@ -1160,13 +1177,24 @@ class MonthlyFeeSettingsForm(forms.ModelForm):
 class SystemSettingsForm(forms.ModelForm):
     class Meta:
         model = SystemSettings
-        fields = ['store_name', 'brand_color_primary', 'brand_color_secondary', 'footer_signature']
+        fields = ['store_name', 'brand_color_primary', 'brand_color_secondary', 'footer_signature', 'app_time_zone']
         widgets = {
             'store_name': forms.TextInput(attrs={'class': 'form-control'}),
             'brand_color_primary': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '#111827'}),
             'brand_color_secondary': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '#5E8DF5'}),
             'footer_signature': forms.TextInput(attrs={'class': 'form-control'}),
+            'app_time_zone': forms.Select(attrs={'class': 'form-select'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['app_time_zone'].choices = SYSTEM_TIME_ZONE_CHOICES
+        self.fields['app_time_zone'].widget.choices = SYSTEM_TIME_ZONE_CHOICES
+        self.fields['app_time_zone'].label = _('Application time zone')
+        current_value = self.initial.get('app_time_zone') or getattr(self.instance, 'app_time_zone', None)
+        valid_time_zones = {choice[0] for choice in SYSTEM_TIME_ZONE_CHOICES}
+        if current_value not in valid_time_zones:
+            self.initial['app_time_zone'] = 'UTC'
 
     def _clean_hex_color(self, field_name):
         value = (self.cleaned_data.get(field_name) or '').strip()
@@ -1179,6 +1207,13 @@ class SystemSettingsForm(forms.ModelForm):
 
     def clean_brand_color_secondary(self):
         return self._clean_hex_color('brand_color_secondary')
+
+    def clean_app_time_zone(self):
+        value = (self.cleaned_data.get('app_time_zone') or 'UTC').strip()
+        valid_time_zones = {choice[0] for choice in SYSTEM_TIME_ZONE_CHOICES}
+        if value not in valid_time_zones:
+            raise forms.ValidationError(_('Invalid time zone selection.'))
+        return value
 
 
 class StrikeForm(forms.ModelForm):

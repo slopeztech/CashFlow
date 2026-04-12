@@ -415,6 +415,7 @@ class SystemSettings(models.Model):
 	brand_color_primary = models.CharField(max_length=7, default='#111827')
 	brand_color_secondary = models.CharField(max_length=7, default='#5E8DF5')
 	footer_signature = models.CharField(max_length=255, default='StarAdmin2 integrated template')
+	app_time_zone = models.CharField(max_length=64, default='UTC')
 	updated_by = models.ForeignKey(
 		User,
 		on_delete=models.SET_NULL,

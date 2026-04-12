@@ -2449,6 +2449,21 @@ msgstr "Community reviews"
 msgid "There are no approved reviews from other users yet."
 msgstr "There are no approved reviews from other users yet."
 
+msgid "Application time zone"
+msgstr "Application time zone"
+
+msgid "Invalid time zone selection."
+msgstr "Invalid time zone selection."
+
+msgid "Time zone"
+msgstr "Time zone"
+
+msgid "Select the canonical time zone used to display dates and times across admin and user views."
+msgstr "Select the canonical time zone used to display dates and times across admin and user views."
+
+msgid "Data is stored in UTC in database; this setting only affects what users see."
+msgstr "Data is stored in UTC in database; this setting only affects what users see."
+
 msgid "reviews"
 msgstr "reviews"
 

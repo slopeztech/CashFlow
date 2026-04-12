@@ -2659,6 +2659,21 @@ msgstr "Valoraciones de la comunidad"
 msgid "There are no approved reviews from other users yet."
 msgstr "Aún no hay valoraciones aprobadas de otros usuarios."
 
+msgid "Application time zone"
+msgstr "Zona horaria de la aplicación"
+
+msgid "Invalid time zone selection."
+msgstr "Selección de zona horaria no válida."
+
+msgid "Time zone"
+msgstr "Zona horaria"
+
+msgid "Select the canonical time zone used to display dates and times across admin and user views."
+msgstr "Selecciona la zona horaria canónica usada para mostrar fechas y horas en vistas de administración y usuarios."
+
+msgid "Data is stored in UTC in database; this setting only affects what users see."
+msgstr "Los datos se guardan en UTC en la base de datos; esta configuración solo afecta a lo que ven los usuarios."
+
 msgid "This event does not require registration."
 msgstr "Este evento no requiere registro."
 

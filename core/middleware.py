@@ -1,11 +1,13 @@
 import logging
 from datetime import timedelta
+from zoneinfo import ZoneInfo
 
 from django.conf import settings
+from django.db.utils import OperationalError, ProgrammingError
 from django.utils import timezone
 from django.utils import translation
 
-from core.models import UserSession
+from core.models import SystemSettings, UserSession
 from customers.services import process_monthly_fee_for_user
 
 
@@ -33,12 +35,26 @@ def _safe_user_language(user):
     return getattr(profile, 'language', None)
 
 
+def _safe_system_time_zone():
+    try:
+        settings_obj = SystemSettings.objects.only('app_time_zone').get(pk=1)
+        return (settings_obj.app_time_zone or 'UTC').strip() or 'UTC'
+    except (SystemSettings.DoesNotExist, OperationalError, ProgrammingError):
+        return 'UTC'
+
+
 class UserLanguageMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
         language = settings.LANGUAGE_CODE
+        configured_time_zone = _safe_system_time_zone()
+        try:
+            timezone.activate(ZoneInfo(configured_time_zone))
+        except Exception:
+            timezone.activate(ZoneInfo('UTC'))
+
         user = getattr(request, 'user', None)
         user_language = _safe_user_language(user)
         available_languages = {code for code, _name in settings.LANGUAGES}

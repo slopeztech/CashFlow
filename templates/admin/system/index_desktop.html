@@ -208,6 +208,23 @@
                 </div>
               </div>
             </div>
+
+            <div class="col-lg-6">
+              <div class="card card-rounded h-100 border">
+                <div class="card-body">
+                  <h5 class="card-title">{% trans 'Time zone' %}</h5>
+                  <p class="text-muted small mb-3">{% trans 'Select the canonical time zone used to display dates and times across admin and user views.' %}</p>
+                  <div class="mb-2">
+                    <label class="form-label" for="{{ system_form.app_time_zone.id_for_label }}">{{ system_form.app_time_zone.label }}</label>
+                    {{ system_form.app_time_zone }}
+                    {% if system_form.app_time_zone.errors %}
+                      <div class="text-danger small mt-1">{{ system_form.app_time_zone.errors }}</div>
+                    {% endif %}
+                  </div>
+                  <div class="form-text">{% trans 'Data is stored in UTC in database; this setting only affects what users see.' %}</div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <button class="btn btn-primary text-white" type="submit">{% trans 'Save settings' %}</button>

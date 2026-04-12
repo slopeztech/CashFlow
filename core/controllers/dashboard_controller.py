@@ -255,18 +255,77 @@ def build_user_dashboard_context(user):
     direct_sales = Sale.objects.filter(
         Q(customer=user) | Q(customer__isnull=True, customer_name__iexact=user.username),
         is_voided=False,
-    ).only('id', 'total_amount', 'created_at')
+    ).prefetch_related('items__product').only(
+        'id',
+        'total_amount',
+        'created_at',
+        'items__quantity',
+        'items__unit_price',
+        'items__is_gift',
+        'items__product__name',
+    )
     for sale in direct_sales:
         sale_total = _truncate_money(sale.total_amount)
+        products = [
+            {
+                'label': f'{item.quantity}x {item.product.name}',
+                'total': _truncate_money(item.subtotal),
+                'is_gift': item.is_gift,
+            }
+            for item in sale.items.all()
+            if item.product_id
+        ]
         timeline_events.append(
             {
                 'kind': 'purchase',
                 'title': _('Direct purchase #%(id)s') % {'id': sale.id},
                 'description': _('Purchase registered by admin. Total: € %(total)s') % {'total': sale_total},
                 'event_date': sale.created_at,
-                'event_url': reverse('user_orders'),
+                'event_url': reverse('user_sale_detail', kwargs={'pk': sale.id}),
+                'products': products,
             }
         )
+
+    consumed_product_ids = set(
+        Order.objects.filter(
+            created_by=user,
+            status=Order.Status.APPROVED,
+        ).values_list('items__product_id', flat=True)
+    )
+    consumed_product_ids.update(
+        Sale.objects.filter(
+            Q(customer=user) | Q(customer__isnull=True, customer_name__iexact=user.username),
+            is_voided=False,
+        ).values_list('items__product_id', flat=True)
+    )
+    consumed_product_ids.discard(None)
+
+    if consumed_product_ids:
+        reviewed_product_ids = set(
+            ProductReview.objects.filter(
+                user=user,
+                product_id__in=consumed_product_ids,
+            ).values_list('product_id', flat=True)
+        )
+
+        unreviewed_products = Product.objects.filter(
+            id__in=(consumed_product_ids - reviewed_product_ids),
+            is_active=True,
+            is_public_listing=True,
+        ).select_related('category').order_by('name')
+
+        for product in unreviewed_products:
+            if product.category and not product.category.allow_user_ratings:
+                continue
+            timeline_events.append(
+                {
+                    'kind': 'pending_review',
+                    'title': _('Review pending: %(product)s') % {'product': product.name},
+                    'description': _('You already tried this product. Tap here to submit your review.'),
+                    'event_date': now,
+                    'event_url': reverse('user_product_review', kwargs={'product_id': product.id}),
+                }
+            )
 
     visible_events = Event.objects.filter(end_at__gte=now).prefetch_related('registrations', 'images')
     for event in visible_events:
@@ -399,15 +458,17 @@ def build_user_dashboard_context(user):
     def _timeline_sort_key(item):
         if item.get('kind') == 'gamification':
             return (0, item['event_date'])
+        if item.get('kind') == 'pending_review':
+            return (1, item['event_date'])
         if item.get('kind') == 'event':
-            return (1, item['event_date'])
+            return (2, item['event_date'])
         if item.get('kind') == 'survey':
-            return (1, item['event_date'])
-        return (2, -item['event_date'].timestamp())
+            return (2, item['event_date'])
+        return (3, -item['event_date'].timestamp())
 
     timeline_events.sort(key=_timeline_sort_key)
 
-    priority_kinds = {'event', 'survey', 'gamification'}
+    priority_kinds = {'event', 'survey', 'gamification', 'pending_review'}
     priority_events = [item for item in timeline_events if item.get('kind') in priority_kinds]
     highlighted_product_events = [item for item in timeline_events if item.get('kind') == 'product']
     recent_activity_events = [

@@ -2584,6 +2584,24 @@ msgstr "Nombre del evento"
 msgid "Links"
 msgstr "Enlaces"
 
+msgid "Could not save the product. Please review the highlighted errors."
+msgstr "No se pudo guardar el producto. Revisa los errores resaltados."
+
+msgid "Could not update the product. Please review the highlighted errors."
+msgstr "No se pudo actualizar el producto. Revisa los errores resaltados."
+
+msgid "Please fix the following errors before saving:"
+msgstr "Corrige los siguientes errores antes de guardar:"
+
+msgid "Gift item"
+msgstr "Item de regalo"
+
+msgid "Review pending: %(product)s"
+msgstr "Valoración pendiente: %(product)s"
+
+msgid "You already tried this product. Tap here to submit your review."
+msgstr "Ya probaste este producto. Pulsa aquí para enviar tu valoración."
+
 msgid "Requires prior registration"
 msgstr "Requiere registro previo"
 

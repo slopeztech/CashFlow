@@ -15,7 +15,7 @@
                 <h6 class="order-event-title mb-0 d-flex align-items-center gap-2">
                   {% if event.kind == 'sale' %}
                     <span class="order-event-icon order-icon-direct"><i class="mdi mdi-cash-register"></i></span>
-                    Compra
+                    {% trans 'Purchase' %}
                   {% else %}
                     <span class="order-event-icon order-icon-purchase"><i class="mdi mdi-cart-outline"></i></span>
                     {% trans 'Order' %}

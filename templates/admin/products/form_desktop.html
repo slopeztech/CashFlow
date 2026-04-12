@@ -65,7 +65,7 @@
 
             {% if form.errors %}
               <div class="alert alert-danger" role="alert">
-                <strong>Revisa los siguientes errores antes de guardar:</strong>
+                <strong>{% trans 'Please fix the following errors before saving:' %}</strong>
                 <ul class="mb-0 mt-2 ps-3">
                   {% for field in form %}
                     {% for error in field.errors %}

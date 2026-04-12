@@ -123,7 +123,7 @@ class ProductCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequir
 
     def form_invalid(self, form):
         backendlog.warning('Product create form invalid: %s', form.errors.as_json())
-        messages.error(self.request, 'No se pudo guardar el producto. Revisa los errores marcados.')
+        messages.error(self.request, _('Could not save the product. Please review the highlighted errors.'))
         return super().form_invalid(form)
 
     def _save_new_images(self, product):
@@ -147,7 +147,7 @@ class ProductUpdateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequir
 
     def form_invalid(self, form):
         backendlog.warning('Product update form invalid (pk=%s): %s', self.object.pk, form.errors.as_json())
-        messages.error(self.request, 'No se pudo actualizar el producto. Revisa los errores marcados.')
+        messages.error(self.request, _('Could not update the product. Please review the highlighted errors.'))
         return super().form_invalid(form)
 
     def get_context_data(self, **kwargs):

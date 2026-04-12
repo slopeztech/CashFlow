@@ -2380,6 +2380,24 @@ msgstr "Display order"
 msgid "Category image"
 msgstr "Category image"
 
+msgid "Could not save the product. Please review the highlighted errors."
+msgstr "Could not save the product. Please review the highlighted errors."
+
+msgid "Could not update the product. Please review the highlighted errors."
+msgstr "Could not update the product. Please review the highlighted errors."
+
+msgid "Please fix the following errors before saving:"
+msgstr "Please fix the following errors before saving:"
+
+msgid "Gift item"
+msgstr "Gift item"
+
+msgid "Review pending: %(product)s"
+msgstr "Review pending: %(product)s"
+
+msgid "You already tried this product. Tap here to submit your review."
+msgstr "You already tried this product. Tap here to submit your review."
+
 msgid "Allow user ratings"
 msgstr "Allow user ratings"
 

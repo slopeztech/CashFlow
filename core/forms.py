@@ -696,8 +696,8 @@ class ProductReviewForm(forms.ModelForm):
             'message': forms.Textarea(
                 attrs={
                     'class': 'form-control',
-                    'rows': 3,
-                    'placeholder': 'Share your experience',
+                    'rows': 6,
+                    'placeholder': _('Share your experience'),
                 }
             ),
         }

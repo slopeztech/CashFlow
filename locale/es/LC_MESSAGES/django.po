@@ -2644,6 +2644,21 @@ msgstr "Usuarios registrados:"
 msgid "Register"
 msgstr "Registrarse"
 
+msgid "Share your experience"
+msgstr "Comparte tu experiencia"
+
+msgid "Rate this product"
+msgstr "Valora este producto"
+
+msgid "Tell us what you liked, what could improve, and any detail that helps other users."
+msgstr "Cuéntanos qué te gustó, qué podría mejorar y cualquier detalle que ayude a otros usuarios."
+
+msgid "Community reviews"
+msgstr "Valoraciones de la comunidad"
+
+msgid "There are no approved reviews from other users yet."
+msgstr "Aún no hay valoraciones aprobadas de otros usuarios."
+
 msgid "This event does not require registration."
 msgstr "Este evento no requiere registro."
 

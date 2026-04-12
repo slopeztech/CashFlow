@@ -8,33 +8,222 @@
   <a class="btn btn-light" href="{% url 'user_products_catalog' %}">{% trans 'Back to catalog' %}</a>
 {% endblock %}
 
+{% block extra_head %}
+  {{ block.super }}
+  <style>
+    .review-shell {
+      display: grid;
+      grid-template-columns: 1.25fr .95fr;
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .review-card {
+      border: 1px solid #dbe4ef;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      box-shadow: 0 14px 30px -24px rgba(15, 23, 42, 0.5);
+    }
+
+    .review-title {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      margin-bottom: .85rem;
+      color: #0f172a;
+      font-weight: 800;
+      font-size: 1.02rem;
+    }
+
+    .review-title i {
+      color: #1e3a8a;
+    }
+
+    .review-image-card {
+      border: 1px solid #dbe4ef;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 12px 26px -22px rgba(15, 23, 42, .55);
+    }
+
+    .review-image-header {
+      padding: .8rem .95rem;
+      color: #0f172a;
+      font-weight: 800;
+      border-bottom: 1px solid #e2e8f0;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      display: flex;
+      align-items: center;
+      gap: .45rem;
+    }
+
+    .review-image-header i {
+      color: #1d4ed8;
+    }
+
+    .review-image-card img {
+      width: 100%;
+      max-height: 240px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .review-image-description {
+      margin: 0;
+      padding: .8rem .95rem;
+      color: #475569;
+      font-weight: 500;
+      text-align: center;
+      border-top: 1px solid #e2e8f0;
+      background: #ffffff;
+      white-space: pre-line;
+      word-break: break-word;
+    }
+
+    .review-label {
+      font-size: .79rem;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      font-weight: 700;
+      color: #64748b;
+      margin-bottom: .35rem;
+    }
+
+    #id_rating {
+      border-color: #fcd34d;
+      background: linear-gradient(180deg, #fffdf5 0%, #fef3c7 100%);
+      color: #92400e;
+      font-weight: 700;
+    }
+
+    #id_rating:focus {
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 .2rem rgba(245, 158, 11, .25);
+    }
+
+    #id_rating option {
+      color: #0f172a;
+      font-weight: 600;
+      background: #ffffff;
+    }
+
+    #id_message {
+      min-height: 180px;
+      resize: vertical;
+    }
+
+    .review-help {
+      font-size: .78rem;
+      color: #64748b;
+      margin-top: .35rem;
+    }
+
+    .public-reviews-list {
+      display: grid;
+      gap: .65rem;
+    }
+
+    .public-review-item {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: .75rem .85rem;
+      background: #fff;
+    }
+
+    .public-review-stars {
+      letter-spacing: 1px;
+      color: #f59e0b;
+      font-size: .93rem;
+      margin-bottom: .3rem;
+      display: inline-block;
+    }
+
+    .public-review-text {
+      margin: 0;
+      color: #334155;
+      white-space: pre-line;
+      word-break: break-word;
+    }
+
+    @media (max-width: 991.98px) {
+      .review-shell {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+{% endblock %}
+
 {% block content %}
-  <div class="card card-rounded">
-    <div class="card-body">
-      <form method="post">
-        {% csrf_token %}
-        {% if form.non_field_errors %}
-          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+  {% if product_cover_image %}
+    <div class="review-image-card mb-3">
+      <div class="review-image-header">
+        <i class="mdi mdi-image-outline"></i>
+        <span>
+          {{ product.name }}
+          {% if product.category %}({{ product.category.name }}){% endif %}
+        </span>
+      </div>
+      <img src="{{ product_cover_image.image.url }}" alt="{{ product.name }}">
+      {% if product.description %}
+        <p class="review-image-description">{{ product.description }}</p>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <div class="review-shell">
+    <div class="card card-rounded review-card">
+      <div class="card-body">
+        <h5 class="review-title"><i class="mdi mdi-star-circle-outline"></i>{% trans 'Rate this product' %}</h5>
+        <form method="post">
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+          {% endif %}
+
+          <div class="mb-3">
+            <label class="review-label" for="id_rating">{% trans 'Rating' %}</label>
+            {{ form.rating }}
+            {% if form.rating.errors %}<div class="text-danger small mt-1">{{ form.rating.errors }}</div>{% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label class="review-label" for="id_message">{% trans 'Message' %}</label>
+            {{ form.message }}
+            <p class="review-help">{% trans 'Tell us what you liked, what could improve, and any detail that helps other users.' %}</p>
+            {% if form.message.errors %}<div class="text-danger small mt-1">{{ form.message.errors }}</div>{% endif %}
+          </div>
+
+          {% if review and review.is_approved %}
+            <div class="alert alert-success">{% trans 'Your previous review is currently public. Updating it will require approval again.' %}</div>
+          {% endif %}
+
+          <button class="btn btn-primary text-white d-inline-flex align-items-center gap-2" type="submit">
+            <i class="mdi mdi-send"></i>
+            <span>{% trans 'Submit review' %}</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card card-rounded review-card">
+      <div class="card-body">
+        <h5 class="review-title"><i class="mdi mdi-message-star-outline"></i>{% trans 'Community reviews' %}</h5>
+        {% if approved_reviews %}
+          <div class="public-reviews-list">
+            {% for item in approved_reviews %}
+              <article class="public-review-item">
+                <span class="public-review-stars" aria-label="{{ item.rating }}/5">
+                  {% if item.rating >= 1 %}★{% endif %}{% if item.rating >= 2 %}★{% endif %}{% if item.rating >= 3 %}★{% endif %}{% if item.rating >= 4 %}★{% endif %}{% if item.rating >= 5 %}★{% endif %}
+                </span>
+                <p class="public-review-text">{{ item.message }}</p>
+              </article>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted mb-0">{% trans 'There are no approved reviews from other users yet.' %}</p>
         {% endif %}
-
-        <div class="mb-3">
-          <label class="form-label" for="id_rating">{% trans 'Rating' %}</label>
-          {{ form.rating }}
-          {% if form.rating.errors %}<div class="text-danger small mt-1">{{ form.rating.errors }}</div>{% endif %}
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label" for="id_message">{% trans 'Message' %}</label>
-          {{ form.message }}
-          {% if form.message.errors %}<div class="text-danger small mt-1">{{ form.message.errors }}</div>{% endif %}
-        </div>
-
-        {% if review and review.is_approved %}
-          <div class="alert alert-success">{% trans 'Your previous review is currently public. Updating it will require approval again.' %}</div>
-        {% endif %}
-
-        <button class="btn btn-primary text-white" type="submit">{% trans 'Submit review' %}</button>
-      </form>
+      </div>
     </div>
   </div>
 {% endblock %}

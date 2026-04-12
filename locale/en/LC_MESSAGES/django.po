@@ -2434,6 +2434,21 @@ msgstr "No buyer data yet."
 msgid "User reviews"
 msgstr "User reviews"
 
+msgid "Share your experience"
+msgstr "Share your experience"
+
+msgid "Rate this product"
+msgstr "Rate this product"
+
+msgid "Tell us what you liked, what could improve, and any detail that helps other users."
+msgstr "Tell us what you liked, what could improve, and any detail that helps other users."
+
+msgid "Community reviews"
+msgstr "Community reviews"
+
+msgid "There are no approved reviews from other users yet."
+msgstr "There are no approved reviews from other users yet."
+
 msgid "reviews"
 msgstr "reviews"
 

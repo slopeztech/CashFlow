@@ -1093,8 +1093,27 @@ class UserProductDetailView(ResponsiveTemplateMixin, LoginRequiredMixin, NonStaf
 class UserProductReviewCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, NonStaffRequiredMixin, View):
     template_name = 'user/products/review_form.html'
 
+    @staticmethod
+    def _build_context(product, form, review, current_user):
+        approved_reviews = ProductReview.objects.filter(
+            product=product,
+            is_approved=True,
+        ).exclude(user=current_user).only('rating', 'message', 'updated_at').order_by('-updated_at')
+        return {
+            'product': product,
+            'form': form,
+            'review': review,
+            'approved_reviews': approved_reviews,
+            'product_cover_image': product.images.first(),
+        }
+
     def get(self, request, product_id):
-        product = get_object_or_404(Product, id=product_id, is_active=True, is_public_listing=True)
+        product = get_object_or_404(
+            Product.objects.prefetch_related('images'),
+            id=product_id,
+            is_active=True,
+            is_public_listing=True,
+        )
         if product.category and not product.category.allow_user_ratings:
             messages.error(request, _('Reviews are disabled for this category.'))
             return redirect('user_product_detail', product_id=product.id)
@@ -1104,10 +1123,15 @@ class UserProductReviewCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, N
 
         review = ProductReview.objects.filter(product=product, user=request.user).first()
         form = ProductReviewForm(instance=review)
-        return render(request, self.get_template_names()[0], {'product': product, 'form': form, 'review': review})
+        return render(request, self.get_template_names()[0], self._build_context(product, form, review, request.user))
 
     def post(self, request, product_id):
-        product = get_object_or_404(Product, id=product_id, is_active=True, is_public_listing=True)
+        product = get_object_or_404(
+            Product.objects.prefetch_related('images'),
+            id=product_id,
+            is_active=True,
+            is_public_listing=True,
+        )
         if product.category and not product.category.allow_user_ratings:
             messages.error(request, _('Reviews are disabled for this category.'))
             return redirect('user_product_detail', product_id=product.id)
@@ -1125,7 +1149,7 @@ class UserProductReviewCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, N
             review_obj.save()
             messages.success(request, _('Review submitted for admin approval.'))
             return redirect('user_products_catalog')
-        return render(request, self.get_template_names()[0], {'product': product, 'form': form, 'review': review})
+        return render(request, self.get_template_names()[0], self._build_context(product, form, review, request.user))
 
 
 class UserBalanceRequestListCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, NonStaffRequiredMixin, View):

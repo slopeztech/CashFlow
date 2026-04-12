@@ -50,6 +50,7 @@
                   <div class="sale-item-card sale-item-card--basket" data-item-row>
                     {{ item_form.id }}
                     <span class="d-none">{{ item_form.DELETE }}</span>
+                    <span class="d-none">{{ item_form.is_gift }}</span>
                     <div class="sale-item-summary">
                       <p class="sale-item-summary-name" data-item-product-name>-</p>
                       <p class="sale-item-summary-meta">
@@ -77,6 +78,9 @@
                       </div>
                     </div>
                     <div class="sale-item-actions">
+                      <button class="sale-gift-toggle{% if item_form.is_gift.value %} is-active{% endif %}" type="button" data-gift-toggle title="{% trans 'Gift item' %}">
+                        <i class="mdi mdi-gift"></i>
+                      </button>
                       <button class="btn btn-sm btn-outline-danger remove-item-btn" type="button">{% trans 'Remove' %}</button>
                     </div>
                   </div>
@@ -98,6 +102,7 @@
                     <div class="d-none">
                       {{ item_form.quantity }}
                       {{ item_form.display_unit_price }}
+                      {{ item_form.is_gift }}
                     </div>
                     <div class="sale-item-summary">
                       <p class="sale-item-summary-name" data-item-product-name>-</p>
@@ -137,6 +142,9 @@
                       </div>
                     </div>
                     <div class="sale-item-actions">
+                      <button class="sale-gift-toggle{% if item_form.is_gift.value %} is-active{% endif %}" type="button" data-gift-toggle title="{% trans 'Gift item' %}">
+                        <i class="mdi mdi-gift"></i>
+                      </button>
                       <button class="btn btn-sm btn-outline-primary add-item-btn" type="button">{% trans 'Add item' %}</button>
                       <button class="btn btn-sm btn-outline-danger remove-item-btn" type="button">{% trans 'Remove' %}</button>
                     </div>
@@ -153,6 +161,7 @@
               <div class="d-none">
                 {{ formset.empty_form.quantity }}
                 {{ formset.empty_form.display_unit_price }}
+                {{ formset.empty_form.is_gift }}
               </div>
               <div class="sale-item-summary">
                 <p class="sale-item-summary-name" data-item-product-name>-</p>
@@ -190,6 +199,9 @@
                 </div>
               </div>
               <div class="sale-item-actions">
+                <button class="sale-gift-toggle" type="button" data-gift-toggle title="{% trans 'Gift item' %}">
+                  <i class="mdi mdi-gift"></i>
+                </button>
                 <button class="btn btn-sm btn-outline-primary add-item-btn" type="button">{% trans 'Add item' %}</button>
                 <button class="btn btn-sm btn-outline-danger remove-item-btn" type="button">{% trans 'Remove' %}</button>
               </div>
@@ -400,9 +412,30 @@
     .sale-item-actions {
       display: flex;
       justify-content: flex-end;
+      align-items: center;
       min-width: 92px;
       margin-top: .55rem;
       gap: .45rem;
+    }
+
+    .sale-gift-toggle {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid #cbd5e1;
+      background: #f1f5f9;
+      color: #64748b;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color .16s ease, color .16s ease, border-color .16s ease;
+      flex: 0 0 auto;
+    }
+
+    .sale-gift-toggle.is-active {
+      color: #166534;
+      border-color: #86efac;
+      background: #dcfce7;
     }
 
     .sale-item-card--composer .remove-item-btn {
@@ -584,6 +617,10 @@
       const calculateTotal = () => {
         let total = 0;
         getBasketRows().forEach((row) => {
+          const giftInput = row.querySelector('input[name$="-is_gift"]');
+          if (giftInput && giftInput.checked) {
+            return;
+          }
           const quantityInput = row.querySelector('input[name$="-quantity"]');
           const priceInput = row.querySelector('input[name$="-display_unit_price"]');
           const quantity = parseFloat(quantityInput ? quantityInput.value : '0') || 0;
@@ -800,9 +837,19 @@
         const addButton = row.querySelector('.add-item-btn');
         const removeButton = row.querySelector('.remove-item-btn');
         const deleteInput = row.querySelector('input[name$="-DELETE"]');
+        const giftInput = row.querySelector('input[name$="-is_gift"]');
+        const giftToggle = row.querySelector('[data-gift-toggle]');
         if (!productSelect || !priceInput) {
           return;
         }
+
+        const syncGiftUI = () => {
+          if (!giftToggle || !giftInput) {
+            return;
+          }
+          giftToggle.classList.toggle('is-active', giftInput.checked);
+          giftToggle.setAttribute('aria-pressed', giftInput.checked ? 'true' : 'false');
+        };
 
         const updatePriceFromProduct = () => {
           const selected = productSelect.options[productSelect.selectedIndex];
@@ -920,9 +967,19 @@
             refreshBalancePreview();
           });
         }
+
+        if (giftToggle && giftInput) {
+          giftToggle.addEventListener('click', () => {
+            giftInput.checked = !giftInput.checked;
+            syncGiftUI();
+            refreshBalancePreview();
+          });
+        }
+
         initializeModeInputs();
         setRowModeUI(row, row.dataset.saleMode || 'units');
         syncRowMode(row);
+        syncGiftUI();
         updatePriceFromProduct();
       };
 

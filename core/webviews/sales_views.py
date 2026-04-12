@@ -39,6 +39,7 @@ def _formset_items(formset):
             {
                 'product': product,
                 'quantity': quantity,
+                'is_gift': bool(data.get('is_gift')),
             }
         )
     return items

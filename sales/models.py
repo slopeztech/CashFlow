@@ -34,6 +34,7 @@ class SaleItem(models.Model):
 	product = models.ForeignKey(Product, on_delete=models.PROTECT)
 	quantity = models.DecimalField(max_digits=12, decimal_places=2, default=1)
 	unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+	is_gift = models.BooleanField(default=False)
 
 	class Meta:
 		verbose_name = 'Sale item'
@@ -91,6 +92,7 @@ class OrderItem(models.Model):
 	product = models.ForeignKey(Product, on_delete=models.PROTECT)
 	quantity = models.DecimalField(max_digits=12, decimal_places=2, default=1)
 	unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+	is_gift = models.BooleanField(default=False)
 
 	class Meta:
 		verbose_name = 'Order item'

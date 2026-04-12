@@ -60,6 +60,7 @@
                     <tr>
                       <td data-label="Product">
                         {{ item_form.id }}
+                        <span class="d-none">{{ item_form.is_gift }}</span>
                         {{ item_form.product }}
                         {% if item_form.product.errors %}<div class="text-danger small mt-1">{{ item_form.product.errors }}</div>{% endif %}
                       </td>
@@ -82,6 +83,7 @@
               <tr>
                 <td data-label="Product">
                   {{ formset.empty_form.id }}
+                  <span class="d-none">{{ formset.empty_form.is_gift }}</span>
                   {{ formset.empty_form.product }}
                 </td>
                 <td data-label="Quantity">{{ formset.empty_form.quantity }}</td>

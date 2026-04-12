@@ -2383,11 +2383,16 @@ class AdminOrderApprovalView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffR
     def _build_context(order, form):
         profile, _created = StoreUserProfile.objects.get_or_create(user=order.created_by)
         current_balance = profile.current_balance
+        charge_total = sum(
+            ((item.quantity * item.unit_price) for item in order.items.all() if not item.is_gift),
+            Decimal('0.00'),
+        )
         return {
             'order': order,
             'form': form,
             'order_user_current_balance': current_balance,
-            'order_user_balance_after_approval': current_balance - order.total_amount,
+            'order_charge_total': charge_total,
+            'order_user_balance_after_approval': current_balance - charge_total,
         }
 
     def get(self, request, pk):
@@ -2403,7 +2408,8 @@ class AdminOrderApprovalView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffR
 
         if action == 'approve':
             try:
-                approve_order(order=order, approved_by=request.user)
+                gift_item_ids = request.POST.getlist('gift_item_ids')
+                approve_order(order=order, approved_by=request.user, gift_item_ids=gift_item_ids)
                 messages.success(request, _('Order approved and stock updated.'))
                 return redirect(next_page)
             except ValidationError as exc:

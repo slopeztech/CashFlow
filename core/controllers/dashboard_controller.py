@@ -225,6 +225,7 @@ def build_user_dashboard_context(user):
             'created_at',
             'items__quantity',
             'items__unit_price',
+            'items__is_gift',
             'items__product__name',
         )
     )
@@ -235,6 +236,7 @@ def build_user_dashboard_context(user):
             {
                 'label': f'{item.quantity}x {item.product.name}',
                 'total': _truncate_money(item.subtotal),
+                'is_gift': item.is_gift,
             }
             for item in order.items.all()
             if item.product_id

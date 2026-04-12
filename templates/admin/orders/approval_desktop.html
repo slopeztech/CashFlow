@@ -154,6 +154,25 @@
       font-weight: 700;
     }
 
+    .order-gift-toggle {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid #cbd5e1;
+      background: #f1f5f9;
+      color: #64748b;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color .16s ease, color .16s ease, border-color .16s ease;
+    }
+
+    .order-gift-toggle.is-active {
+      color: #166534;
+      border-color: #86efac;
+      background: #dcfce7;
+    }
+
     @media (max-width: 767.98px) {
       .order-highlight-card--primary {
         grid-template-columns: 1fr;
@@ -177,15 +196,16 @@
       <div class="order-highlight-main">
         <p class="order-highlight-line">{% trans 'User:' %} <strong>{{ order.created_by.username }}</strong></p>
         <p class="order-highlight-line">{% trans 'Status:' %} <strong>{{ order.get_status_display }}</strong></p>
+        <p class="order-highlight-line">{% trans 'Requested total:' %} <strong>€ {{ order.total_amount|truncate_2 }}</strong></p>
       </div>
       <div class="order-total-emphasis" aria-label="{% trans 'Total:' %}">
-        <p class="order-total-value">€ {{ order.total_amount|truncate_2 }}</p>
+        <p class="order-total-value" id="order-charge-total-value">€ {{ order_charge_total|truncate_2 }}</p>
       </div>
     </div>
     <div class="order-highlight-card order-highlight-card--balance">
       <p class="order-highlight-line order-highlight-line--break">{% trans 'Current balance' %}: <strong class="order-highlight-amount">€ {{ order_user_current_balance|truncate_2 }}</strong></p>
       <p class="order-highlight-line order-highlight-line--break order-balance-after {% if order_user_balance_after_approval < 0 %}is-negative{% endif %}">
-        {% trans 'After' %}: <strong class="order-highlight-amount">€ {{ order_user_balance_after_approval|truncate_2 }}</strong>
+        {% trans 'After' %}: <strong class="order-highlight-amount" id="order-balance-after-value">€ {{ order_user_balance_after_approval|truncate_2 }}</strong>
       </p>
     </div>
   </div>
@@ -198,12 +218,26 @@
           <div class="order-item-card">
             <div class="order-item-head">
               <h6 class="order-item-name">{{ item.product.name }}</h6>
-              <span class="order-item-category">{{ item.product.category.name|default:'-' }}</span>
+              <span class="d-inline-flex align-items-center gap-2">
+                {% if order.status == 'pending' %}
+                  <button
+                    type="button"
+                    class="order-gift-toggle{% if item.is_gift %} is-active{% endif %}"
+                    data-gift-toggle
+                    data-item-id="{{ item.id }}"
+                    aria-pressed="{% if item.is_gift %}true{% else %}false{% endif %}"
+                    title="{% trans 'Gift item' %}"
+                  >
+                    <i class="mdi mdi-gift"></i>
+                  </button>
+                {% endif %}
+                <span class="order-item-category">{{ item.product.category.name|default:'-' }}</span>
+              </span>
             </div>
             <div class="order-item-meta">
               <p class="order-item-meta-line">{% trans 'Quantity' %}: <strong>{{ item.quantity }}</strong></p>
               <p class="order-item-meta-line">{% trans 'Unit price' %}: <strong>€ {{ item.unit_price|truncate_2 }}</strong></p>
-              <p class="order-item-meta-line">{% trans 'Subtotal' %}: <strong>€ {{ item.subtotal|truncate_2 }}</strong></p>
+              <p class="order-item-meta-line">{% trans 'Subtotal' %}: <strong class="order-item-subtotal-value">€ {{ item.subtotal|truncate_2 }}</strong></p>
             </div>
           </div>
         {% endfor %}
@@ -218,6 +252,17 @@
           <form method="post">
             {% csrf_token %}
             <input type="hidden" name="action" value="approve">
+            {% for item in order.items.all %}
+              <input
+                type="checkbox"
+                class="d-none"
+                name="gift_item_ids"
+                value="{{ item.id }}"
+                data-gift-input
+                data-item-id="{{ item.id }}"
+                {% if item.is_gift %}checked{% endif %}
+              >
+            {% endfor %}
             <button class="btn btn-success text-white" type="submit">{% trans 'Approve order' %}</button>
           </form>
         </div>
@@ -235,4 +280,81 @@
       </div>
     </div>
   {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+  {{ block.super }}
+  <script>
+    (function () {
+      const toggles = Array.from(document.querySelectorAll('[data-gift-toggle]'));
+      if (!toggles.length) {
+        return;
+      }
+
+      const giftInputsById = new Map();
+      document.querySelectorAll('[data-gift-input]').forEach((input) => {
+        giftInputsById.set(String(input.dataset.itemId || ''), input);
+      });
+
+      const parseEuro = (raw) => {
+        const text = String(raw || '').replace(/[^0-9,.-]/g, '').trim();
+        let normalized = text;
+        if (text.includes('.') && text.includes(',')) {
+          normalized = text.replace(/\./g, '').replace(',', '.');
+        } else if (text.includes(',')) {
+          normalized = text.replace(',', '.');
+        }
+        const value = parseFloat(normalized);
+        return Number.isFinite(value) ? value : 0;
+      };
+
+      const formatEuro = (value) => `€ ${value.toFixed(2)}`;
+
+      const currentBalanceNode = document.querySelector('.order-highlight-card--balance .order-highlight-amount');
+      const chargeTotalNode = document.getElementById('order-charge-total-value');
+      const afterBalanceNode = document.getElementById('order-balance-after-value');
+      const afterLine = afterBalanceNode ? afterBalanceNode.closest('.order-balance-after') : null;
+      const currentBalance = parseEuro(currentBalanceNode ? currentBalanceNode.textContent : '0');
+
+      const recalc = () => {
+        let chargeTotal = 0;
+        toggles.forEach((toggle) => {
+          const card = toggle.closest('.order-item-card');
+          const subtotalNode = card ? card.querySelector('.order-item-subtotal-value') : null;
+          const subtotal = parseEuro(subtotalNode ? subtotalNode.textContent : '0');
+          if (!toggle.classList.contains('is-active')) {
+            chargeTotal += subtotal;
+          }
+        });
+
+        const after = currentBalance - chargeTotal;
+        if (chargeTotalNode) {
+          chargeTotalNode.textContent = formatEuro(chargeTotal);
+        }
+        if (afterBalanceNode) {
+          afterBalanceNode.textContent = formatEuro(after);
+        }
+        if (afterLine) {
+          afterLine.classList.toggle('is-negative', after < 0);
+        }
+      };
+
+      toggles.forEach((toggle) => {
+        toggle.addEventListener('click', () => {
+          const itemId = String(toggle.dataset.itemId || '');
+          const input = giftInputsById.get(itemId);
+          const nextActive = !toggle.classList.contains('is-active');
+
+          toggle.classList.toggle('is-active', nextActive);
+          toggle.setAttribute('aria-pressed', nextActive ? 'true' : 'false');
+          if (input) {
+            input.checked = nextActive;
+          }
+          recalc();
+        });
+      });
+
+      recalc();
+    })();
+  </script>
 {% endblock %}

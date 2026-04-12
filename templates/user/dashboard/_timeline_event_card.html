@@ -24,7 +24,12 @@
           <tbody>
             {% for row in event.products %}
               <tr>
-                <td class="timeline-product-name">{{ row.label }}</td>
+                <td class="timeline-product-name">
+                  {% if row.is_gift %}
+                    <span class="timeline-gift-icon" title="{% trans 'Gift item' %}"><i class="mdi mdi-gift"></i></span>
+                  {% endif %}
+                  {{ row.label }}
+                </td>
                 <td class="timeline-product-total text-end">€ {{ row.total|truncate_2 }}</td>
               </tr>
             {% endfor %}

@@ -40,7 +40,12 @@
                 <div class="order-products-list mt-2">
                   {% for item in event.items %}
                     <div class="order-product-row">
-                      <span>{{ item.quantity|trim_zeros }}x {{ item.product.name }}</span>
+                      <span>
+                        {% if item.is_gift %}
+                          <span class="order-gift-icon" title="{% trans 'Gift item' %}"><i class="mdi mdi-gift"></i></span>
+                        {% endif %}
+                        {{ item.quantity|trim_zeros }}x {{ item.product.name }}
+                      </span>
                       <strong>€ {{ item.subtotal|truncate_2 }}</strong>
                     </div>
                   {% endfor %}
@@ -116,6 +121,21 @@
       color: #111827;
       font-weight: 700;
       white-space: nowrap;
+    }
+
+    .order-gift-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+      font-size: .78rem;
+      margin-right: .35rem;
+      vertical-align: middle;
     }
 
     .order-status-badge {

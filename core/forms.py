@@ -292,15 +292,17 @@ class SaleItemForm(forms.ModelForm):
 
     class Meta:
         model = SaleItem
-        fields = ['product', 'quantity']
+        fields = ['product', 'quantity', 'is_gift']
         widgets = {
             'product': forms.Select(attrs={'class': 'form-select'}),
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'min': '0.01', 'step': '0.01'}),
+            'is_gift': forms.CheckboxInput(attrs={'class': 'form-check-input d-none'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['product'].required = False
+        self.fields['is_gift'].required = False
         self.fields['product'].queryset = _ordered_products_queryset(
             Product.objects.filter(is_active=True)
         )
@@ -440,14 +442,16 @@ class OrderItemForm(forms.ModelForm):
 
     class Meta:
         model = OrderItem
-        fields = ['product', 'quantity']
+        fields = ['product', 'quantity', 'is_gift']
         widgets = {
             'product': forms.Select(attrs={'class': 'form-select'}),
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'min': '0.01', 'step': '0.01'}),
+            'is_gift': forms.CheckboxInput(attrs={'class': 'form-check-input d-none'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['is_gift'].required = False
         self.fields['product'].queryset = _ordered_products_queryset(
             Product.objects.filter(
                 is_active=True,

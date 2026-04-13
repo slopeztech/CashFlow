@@ -299,7 +299,10 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-WHITE_NOISE_USE_MANIFEST = _env_bool('WHITENOISE_USE_MANIFEST', default=True)
+WHITE_NOISE_USE_MANIFEST = _env_bool(
+    'WHITENOISE_USE_MANIFEST',
+    default=not IS_TESTING,
+)
 
 if WHITE_NOISE_USE_MANIFEST:
     staticfiles_backend = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

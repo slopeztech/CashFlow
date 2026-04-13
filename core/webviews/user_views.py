@@ -154,6 +154,13 @@ def _write_cart(request, cart):
     request.session.modified = True
 
 
+def _quantity_input_value(quantity):
+    text = format(Decimal(quantity).normalize(), 'f')
+    if '.' in text:
+        text = text.rstrip('0').rstrip('.')
+    return text or '0'
+
+
 def _build_cart_summary(request):
     cart = _read_cart(request)
     if not cart:
@@ -179,6 +186,7 @@ def _build_cart_summary(request):
             {
                 'product': product,
                 'quantity': quantity,
+                'quantity_input': _quantity_input_value(quantity),
                 'subtotal': subtotal,
             }
         )
@@ -984,6 +992,18 @@ class UserProductCatalogView(ResponsiveTemplateMixin, LoginRequiredMixin, NonSta
                 else True
             )
 
+        featured_products = [product for product in products if product.is_featured]
+        new_products = [product for product in products if product.is_new]
+        untried_products = [product for product in products if product.is_untried_for_user]
+        untried_products.sort(
+            key=lambda product: (
+                product.approved_avg_rating_others or Decimal('0'),
+                product.approved_reviews_others_count or 0,
+                product.name.lower(),
+            ),
+            reverse=True,
+        )
+
         grouped = []
         grouped_index = {}
         for product in products:
@@ -1004,6 +1024,10 @@ class UserProductCatalogView(ResponsiveTemplateMixin, LoginRequiredMixin, NonSta
         context['query'] = (self.request.GET.get('q') or '').strip()
         context['filter_category'] = (self.request.GET.get('category') or '').strip()
         context['grouped_products'] = grouped
+        context['featured_products'] = featured_products
+        context['new_products'] = new_products
+        context['untried_products'] = untried_products
+        context['has_untried_products'] = bool(untried_products)
         context.update(_build_cart_summary(self.request))
         return context
 

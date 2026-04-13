@@ -512,6 +512,10 @@ def delete_order(*, order, modified_by):
     if order.status == Order.Status.CANCELED:
         return order
 
+    if order.status != Order.Status.APPROVED:
+        order.delete()
+        return order
+
     if order.status == Order.Status.APPROVED:
         order_items = list(order.items.select_related('product'))
         quantities = {}

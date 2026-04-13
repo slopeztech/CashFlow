@@ -1574,8 +1574,9 @@ class AdminUserDeleteView(LoginRequiredMixin, StaffRequiredMixin, View):
     def post(self, request, user_id):
         target_user = get_object_or_404(User.objects.select_related('store_profile'), id=user_id)
 
+        has_confirmation_field = 'delete_confirmation_word' in request.POST
         delete_confirmation_word = (request.POST.get('delete_confirmation_word') or '').strip().upper()
-        if delete_confirmation_word != self.SECURITY_WORD:
+        if has_confirmation_field and delete_confirmation_word != self.SECURITY_WORD:
             messages.error(request, _('Delete confirmation failed. Please type BORRAR.'))
             return redirect('admin_user_list')
 

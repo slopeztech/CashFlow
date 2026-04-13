@@ -53,6 +53,9 @@ class Event(models.Model):
 	capacity = models.PositiveIntegerField(null=True, blank=True)
 	is_paid_event = models.BooleanField(default=False)
 	registration_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+	allow_companions = models.BooleanField(default=False)
+	max_companions = models.PositiveIntegerField(null=True, blank=True)
+	allow_negative_balance = models.BooleanField(default=False)
 	created_by = models.ForeignKey(
 		User,
 		on_delete=models.SET_NULL,
@@ -84,7 +87,11 @@ class Event(models.Model):
 	def is_full(self):
 		if not self.capacity:
 			return False
-		return self.registrations.count() >= self.capacity
+		return self.total_registered_attendees >= self.capacity
+
+	@property
+	def total_registered_attendees(self):
+		return sum(registration.total_attendees for registration in self.registrations.all())
 
 	def clean(self):
 		if self.start_at and self.end_at and self.end_at < self.start_at:
@@ -96,6 +103,17 @@ class Event(models.Model):
 				raise ValidationError({'requires_registration': _('Paid events require registration.')})
 			if self.registration_fee is None or self.registration_fee <= 0:
 				raise ValidationError({'registration_fee': _('Fee amount must be greater than zero.')})
+
+		if self.allow_companions:
+			if not self.requires_registration:
+				raise ValidationError({'allow_companions': _('Companions are only available for events with registration.')})
+			if self.max_companions is None or self.max_companions <= 0:
+				raise ValidationError({'max_companions': _('Set a maximum companions value greater than zero.')})
+		else:
+			self.max_companions = None
+
+		if self.allow_negative_balance and not self.is_paid_event:
+			self.allow_negative_balance = False
 
 
 class EventImage(models.Model):
@@ -168,6 +186,26 @@ class EventRegistration(models.Model):
 
 	def __str__(self):
 		return f'{self.user.username} -> {self.event.name}'
+
+	@property
+	def companion_names(self):
+		companions = (self.answers or {}).get('_companions')
+		if not isinstance(companions, list):
+			return []
+		cleaned = []
+		for companion_name in companions:
+			name = str(companion_name).strip()
+			if name:
+				cleaned.append(name)
+		return cleaned
+
+	@property
+	def companion_count(self):
+		return len(self.companion_names)
+
+	@property
+	def total_attendees(self):
+		return 1 + self.companion_count
 
 
 class EventComment(models.Model):

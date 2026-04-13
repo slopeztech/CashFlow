@@ -372,7 +372,7 @@ def build_user_dashboard_context(user):
 
     visible_events = Event.objects.filter(end_at__gte=now).prefetch_related('registrations', 'images')
     for event in visible_events:
-        registrations_count = event.registrations.count()
+        registrations_count = event.total_registered_attendees
         is_full = bool(event.capacity and registrations_count >= event.capacity)
         is_registered = any(registration.user_id == user.id for registration in event.registrations.all())
         first_image = event.images.first()

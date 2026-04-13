@@ -11,6 +11,245 @@
 {% block extra_head %}
   {{ block.super }}
   <style>
+    .event-shell-card {
+      border: 1px solid #e3e8f1;
+      border-radius: 1rem;
+      background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%);
+      box-shadow: 0 10px 26px rgba(32, 48, 78, 0.06);
+    }
+
+    .event-card-title-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: #e9efff;
+      color: #304f9b;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      margin-right: .5rem;
+    }
+
+    .event-meta-hero {
+      border: 1px solid #d6e3fb;
+      border-radius: .9rem;
+      background: linear-gradient(140deg, #eef4ff 0%, #f5f8ff 100%);
+      padding: .95rem;
+      margin-bottom: .9rem;
+    }
+
+    .event-meta-hero.event-meta-hero-registered {
+      border-color: #89d9c8;
+      background: linear-gradient(140deg, #e7fbf5 0%, #f2fffb 100%);
+      box-shadow: inset 0 0 0 1px rgba(92, 176, 155, 0.35);
+    }
+
+    .event-meta-top {
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+      flex-wrap: wrap;
+      margin-bottom: .75rem;
+    }
+
+    .event-meta-date {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font-weight: 600;
+      color: #2f3d5e;
+      background: #ffffff;
+      border: 1px solid #d9e1f0;
+      border-radius: 999px;
+      padding: .35rem .7rem;
+      font-size: .92rem;
+    }
+
+    .event-badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .45rem;
+    }
+
+    .event-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      padding: .3rem .6rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: .82rem;
+      font-weight: 600;
+      line-height: 1;
+      box-shadow: 0 1px 0 rgba(19, 34, 66, 0.05);
+    }
+
+    .event-chip-main {
+      font-weight: 700;
+      padding: .4rem .72rem;
+    }
+
+    .event-chip-info {
+      color: #31558a;
+      background: #e9f1ff;
+      border-color: #cfe0ff;
+    }
+
+    .event-chip-success {
+      color: #0f7f66;
+      background: #e9fbf6;
+      border-color: #bfeee2;
+    }
+
+    .event-chip-warning {
+      color: #8a5f07;
+      background: #fff4d8;
+      border-color: #f5df9f;
+    }
+
+    .event-chip-danger {
+      color: #9a2c2c;
+      background: #ffe8e8;
+      border-color: #f8c5c5;
+    }
+
+    .event-chip-neutral {
+      color: #4c5d81;
+      background: #eef2f8;
+      border-color: #d5deeb;
+    }
+
+    .event-description-box {
+      border: 1px solid #e2e8f2;
+      border-radius: .85rem;
+      background: #ffffff;
+      padding: .85rem .95rem;
+      margin-bottom: .9rem;
+      color: #2d3752;
+      line-height: 1.55;
+    }
+
+    .event-registration-summary {
+      margin-top: .75rem;
+      border: 1px solid #d4e2db;
+      border-radius: .75rem;
+      background: rgba(255, 255, 255, 0.72);
+      padding: .75rem;
+    }
+
+    .event-registration-summary-title {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .86rem;
+      font-weight: 700;
+      color: #1b6f5a;
+      margin-bottom: .55rem;
+    }
+
+    .event-registration-summary-grid {
+      display: grid;
+      gap: .55rem;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      margin-bottom: .55rem;
+    }
+
+    .event-registration-summary-item {
+      border: 1px solid #d6e0ec;
+      border-radius: .65rem;
+      background: #ffffff;
+      padding: .48rem .58rem;
+    }
+
+    .event-registration-summary-label {
+      font-size: .74rem;
+      color: #6a7488;
+      margin-bottom: .1rem;
+    }
+
+    .event-registration-summary-value {
+      font-size: .88rem;
+      color: #25324f;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .event-registration-summary-list {
+      margin: 0;
+      padding-left: 1rem;
+      color: #2a3653;
+      font-size: .84rem;
+    }
+
+    .event-registration-summary-list li {
+      margin-bottom: .2rem;
+    }
+
+    .event-registration-summary-list li:last-child {
+      margin-bottom: 0;
+    }
+
+    .event-registration-summary-section {
+      margin-top: .45rem;
+    }
+
+    .event-registration-summary-section-title {
+      font-size: .78rem;
+      color: #61708f;
+      font-weight: 700;
+      margin-bottom: .25rem;
+      text-transform: uppercase;
+      letter-spacing: .02em;
+    }
+
+    .event-description-box .mdi {
+      color: #5573b4;
+      margin-right: .35rem;
+    }
+
+    .event-stats-grid {
+      display: grid;
+      gap: .7rem;
+      margin-bottom: .9rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    .event-stat-card {
+      border: 1px solid #dde5f1;
+      border-radius: .8rem;
+      background: #fff;
+      padding: .75rem .8rem;
+      display: flex;
+      gap: .65rem;
+      align-items: flex-start;
+    }
+
+    .event-stat-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: .6rem;
+      background: #eef3ff;
+      color: #3557a4;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1rem;
+    }
+
+    .event-stat-label {
+      font-size: .8rem;
+      color: #6a7488;
+      margin-bottom: .1rem;
+    }
+
+    .event-stat-value {
+      font-weight: 700;
+      color: #27324b;
+      line-height: 1.25;
+    }
+
     .event-registration-form .event-registration-panel {
       margin-top: 0.5rem;
       padding: 1rem;
@@ -27,6 +266,38 @@
       margin-top: 1.5rem !important;
       padding-top: 0.5rem !important;
     }
+
+      .event-registration-form .event-companions-panel {
+        margin-top: 1rem;
+        border: 1px solid #dbe4ef;
+        border-radius: 12px;
+        padding: .9rem;
+        background: #f8fafc;
+      }
+
+      .event-registration-form .event-companion-card {
+        border: 1px solid #d9e2ee;
+        border-radius: .7rem;
+        background: #fff;
+        padding: .75rem;
+        margin-bottom: .65rem;
+      }
+
+      .event-registration-form .event-companion-card:last-child {
+        margin-bottom: 0;
+      }
+
+      .event-registration-form .event-companion-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: .5rem;
+        margin-bottom: .5rem;
+      }
+
+      .event-registration-form .event-companion-fields {
+        margin-top: .55rem;
+      }
 
     .event-registration-form .event-radio-group-title {
       margin-bottom: 0.25rem;
@@ -101,6 +372,21 @@
       display: block;
     }
 
+    .event-comment-avatar-fallback {
+      width: 34px;
+      height: 34px;
+      min-width: 34px;
+      border-radius: 999px;
+      border: 1px solid #d9dee8;
+      background: #f1f4fa;
+      color: #7a8397;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
     .event-comment-meta {
       line-height: 1.2;
     }
@@ -125,14 +411,25 @@
     .event-comment-reply-item {
       background: #ffffff;
     }
+
+    .event-comment-form-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .event-comment-submit {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+    }
   </style>
 {% endblock %}
 
 {% block content %}
   {% if event_images %}
-    <div class="card card-rounded mb-3">
+    <div class="card card-rounded mb-3 event-shell-card">
       <div class="card-body">
-        <h4 class="card-title card-title-dash mb-3">{% trans 'Event photos' %}</h4>
+        <h4 class="card-title card-title-dash mb-3 d-flex align-items-center"><span class="event-card-title-icon"><i class="mdi mdi-image-multiple"></i></span>{% trans 'Event photos' %}</h4>
         <div id="eventImagesCarousel" class="carousel slide" data-bs-ride="carousel">
           <div class="carousel-indicators">
             {% for image in event_images %}
@@ -159,27 +456,107 @@
     </div>
   {% endif %}
 
-  <div class="card card-rounded mb-3">
+  <div class="card card-rounded mb-3 event-shell-card">
     <div class="card-body">
-      <div class="d-flex justify-content-between flex-wrap gap-2 mb-3">
-        <span class="badge badge-opacity-primary">{{ event.start_at|date:"Y/m/d H:i" }} → {{ event.end_at|date:"Y/m/d H:i" }}</span>
-        {% if event.requires_registration %}
-          {% if is_full %}
-            <span class="badge badge-opacity-danger">{% trans 'Full capacity' %}</span>
-          {% elif is_registered %}
-            <span class="badge badge-opacity-success">{% trans 'Registered' %}</span>
+      <div class="event-meta-hero {% if is_registered %}event-meta-hero-registered{% endif %}">
+        <div class="event-meta-top">
+          <div class="event-meta-date"><i class="mdi mdi-calendar-clock"></i> {{ event.start_at|date:"Y/m/d H:i" }} → {{ event.end_at|date:"Y/m/d H:i" }}</div>
+        </div>
+        <div class="event-badge-row">
+          {% if event.requires_registration %}
+            {% if is_full %}
+              <span class="event-chip event-chip-main event-chip-danger"><i class="mdi mdi-account-off"></i> {% trans 'Full capacity' %}</span>
+            {% elif is_registered %}
+              <span class="event-chip event-chip-main event-chip-success"><i class="mdi mdi-check-decagram"></i> {% trans 'Registered' %}</span>
+            {% else %}
+              <span class="event-chip event-chip-main event-chip-warning"><i class="mdi mdi-account-plus"></i> {% trans 'Registration required' %}</span>
+            {% endif %}
+            {% if event.is_paid_event %}
+              <span class="event-chip event-chip-neutral"><i class="mdi mdi-cash"></i> {% trans 'Paid event' %} · € {{ event.registration_fee|truncate_2 }}</span>
+            {% endif %}
           {% else %}
-            <span class="badge badge-opacity-warning">{% trans 'Registration required' %}</span>
+            <span class="event-chip event-chip-main event-chip-info"><i class="mdi mdi-door-open"></i> {% trans 'Open event' %}</span>
+            {% if event.is_paid_event %}
+              <span class="event-chip event-chip-neutral"><i class="mdi mdi-cash"></i> {% trans 'Paid event' %} · € {{ event.registration_fee|truncate_2 }}</span>
+            {% endif %}
           {% endif %}
-          {% if event.is_paid_event %}
-            <span class="badge badge-opacity-warning">{% trans 'Paid event' %} · € {{ event.registration_fee|truncate_2 }}</span>
-          {% endif %}
-        {% else %}
-          <span class="badge badge-opacity-secondary">{% trans 'Open event' %}</span>
+        </div>
+        {% if registration_summary %}
+          <div class="event-registration-summary">
+            <div class="event-registration-summary-title"><i class="mdi mdi-card-account-details-outline"></i> {% trans 'Detalles de tu registro' %}</div>
+            <div class="event-registration-summary-grid">
+              <div class="event-registration-summary-item">
+                <div class="event-registration-summary-label">{% trans 'Asistentes totales' %}</div>
+                <div class="event-registration-summary-value">{{ registration_summary.attendees_count }}</div>
+              </div>
+              <div class="event-registration-summary-item">
+                <div class="event-registration-summary-label">{% trans 'Companions' %}</div>
+                <div class="event-registration-summary-value">{{ registration_summary.companions_count }}</div>
+              </div>
+              {% if registration_summary.paid_amount is not None %}
+                <div class="event-registration-summary-item">
+                  <div class="event-registration-summary-label">{% trans 'Importe pagado' %}</div>
+                  <div class="event-registration-summary-value">€ {{ registration_summary.paid_amount|truncate_2 }}</div>
+                </div>
+              {% endif %}
+            </div>
+
+            {% if registration_summary.user_answers %}
+              <div class="event-registration-summary-section">
+                <div class="event-registration-summary-section-title">{% trans 'Tus opciones' %}</div>
+                <ul class="event-registration-summary-list">
+                  {% for answer in registration_summary.user_answers %}
+                    <li><strong>{{ answer.label }}:</strong> {{ answer.value }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+
+            {% if registration_summary.companions %}
+              <div class="event-registration-summary-section">
+                <div class="event-registration-summary-section-title">{% trans 'Acompañantes' %}</div>
+                <ul class="event-registration-summary-list">
+                  {% for companion in registration_summary.companions %}
+                    <li>
+                      <strong>{{ companion.name|default:'Acompañante' }}</strong>
+                      {% if companion.answers %}
+                        <ul class="event-registration-summary-list mt-1">
+                          {% for companion_answer in companion.answers %}
+                            <li><strong>{{ companion_answer.label }}:</strong> {{ companion_answer.value }}</li>
+                          {% endfor %}
+                        </ul>
+                      {% endif %}
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+          </div>
         {% endif %}
       </div>
 
-      <p class="mb-3">{{ event.description|linebreaksbr }}</p>
+      <div class="event-description-box"><i class="mdi mdi-text-box-outline"></i>{{ event.description|linebreaksbr }}</div>
+
+      <div class="event-stats-grid">
+        {% if event.requires_registration %}
+          <div class="event-stat-card">
+            <span class="event-stat-icon"><i class="mdi mdi-account-group"></i></span>
+            <div>
+              <div class="event-stat-label">{% trans 'Registered users:' %}</div>
+              <div class="event-stat-value">{{ registrations_count }}{% if event.capacity %}/{{ event.capacity }}{% endif %}</div>
+            </div>
+          </div>
+        {% endif %}
+        {% if event.is_paid_event %}
+          <div class="event-stat-card">
+            <span class="event-stat-icon"><i class="mdi mdi-currency-eur"></i></span>
+            <div>
+              <div class="event-stat-label">{% trans 'Registration fee' %}</div>
+              <div class="event-stat-value">€ {{ event.registration_fee|truncate_2 }} · {% trans 'per attendee' %}</div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
 
       {% if event_links %}
         <div class="mb-3">
@@ -193,12 +570,8 @@
       {% endif %}
 
       {% if event.requires_registration %}
-        <p class="mb-3 text-muted">{% trans 'Registered users:' %} {{ registrations_count }}{% if event.capacity %}/{{ event.capacity }}{% endif %}</p>
-        {% if event.is_paid_event %}
-          <p class="mb-3 text-muted">{% trans 'Registration fee' %}: € {{ event.registration_fee|truncate_2 }}</p>
-        {% endif %}
         {% if can_register %}
-          <form method="post" action="{% url 'user_event_register' event.pk %}" class="js-event-confirm-form event-registration-form" data-confirm-message="{% if event.is_paid_event %}{% blocktrans with fee=event.registration_fee|truncate_2 %}Are you sure you want to register for this event? This registration will deduct € {{ fee }} from your balance.{% endblocktrans %}{% else %}{% trans 'Are you sure you want to register for this event?' %}{% endif %}">
+          <form method="post" action="{% url 'user_event_register' event.pk %}" class="js-event-confirm-form js-event-register-form event-registration-form" data-event-fee="{{ event.registration_fee|floatformat:2 }}" data-event-is-paid="{{ event.is_paid_event|yesno:'1,0' }}" data-confirm-free="{% trans 'Are you sure you want to register for this event?' %}" data-confirm-paid="{% trans 'Are you sure you want to register for this event? This registration will deduct € __TOTAL__ from your balance.' %}">
             {% csrf_token %}
             {% if registration_form.notice_fields %}
               <div class="mb-3">
@@ -245,13 +618,89 @@
                   {% endfor %}
                 </div>
               {% endif %}
-              <div class="event-registration-actions mt-4 pt-2">
-                <button class="btn btn-primary text-white btn-lg w-100 d-block" style="min-height: 54px; font-size: 1.1rem; font-weight: 600;" type="submit">{% trans 'Register' %}</button>
+            </div>
+
+            {% if event.allow_companions %}
+              <div class="event-companions-panel">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                  <div>
+                    <div class="fw-semibold">{% trans 'Companions' %}</div>
+                  </div>
+                  <button class="btn btn-outline-primary btn-sm js-add-companion" type="button">{% trans 'Add companion' %}</button>
+                </div>
+                {% if max_companions %}
+                  <p class="small text-muted mb-2">{% blocktrans with max=max_companions %}Maximum companions allowed: {{ max }}{% endblocktrans %}</p>
+                {% endif %}
+                <div class="js-companions-list" data-max-companions="{{ max_companions|default:0 }}"></div>
+                <template class="js-companion-card-template">
+                  <div class="event-companion-card" data-companion-index="__INDEX__">
+                    <div class="event-companion-card-header">
+                      <div class="fw-semibold">{% trans 'Companion' %} #__NUMBER__</div>
+                      <button type="button" class="btn btn-outline-danger btn-sm js-remove-companion">{% trans 'Remove' %}</button>
+                    </div>
+                    <div>
+                      <label class="form-label">{% trans 'Companion full name' %} *</label>
+                      <input type="text" class="form-control" name="companion_names" maxlength="120" required>
+                    </div>
+                    {% if registration_form.input_fields %}
+                      <div class="event-companion-fields row g-3">
+                        {% for dynamic_field in registration_form.input_fields %}
+                          <div class="col-12">
+                            {% if dynamic_field.field_type == 'radio' %}
+                              <div class="event-radio-group-title">{{ dynamic_field.label }}{% if dynamic_field.is_required %} *{% endif %}</div>
+                              {% if dynamic_field.help_text %}<small class="text-muted d-block mb-2">{{ dynamic_field.help_text }}</small>{% endif %}
+                              <div class="event-radio-options">
+                                {% for option in dynamic_field.options_list %}
+                                  <div class="event-radio-option">
+                                    <input type="radio" name="companion___INDEX___field_{{ dynamic_field.id }}" value="{{ option }}" {% if dynamic_field.is_required %}required{% endif %}>
+                                    <label class="event-radio-option-label">{{ option }}</label>
+                                  </div>
+                                {% endfor %}
+                              </div>
+                            {% elif dynamic_field.field_type == 'checkbox' %}
+                              <label class="form-label">{{ dynamic_field.label }}{% if dynamic_field.is_required %} *{% endif %}</label>
+                              <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="companion___INDEX___field_{{ dynamic_field.id }}" value="1">
+                                {% if dynamic_field.help_text %}<small class="text-muted d-block">{{ dynamic_field.help_text }}</small>{% endif %}
+                              </div>
+                            {% elif dynamic_field.field_type == 'long_text' %}
+                              <label class="form-label">{{ dynamic_field.label }}{% if dynamic_field.is_required %} *{% endif %}</label>
+                              <textarea class="form-control" rows="3" name="companion___INDEX___field_{{ dynamic_field.id }}" {% if dynamic_field.is_required %}required{% endif %}></textarea>
+                              {% if dynamic_field.help_text %}<small class="text-muted d-block">{{ dynamic_field.help_text }}</small>{% endif %}
+                            {% elif dynamic_field.field_type == 'select' %}
+                              <label class="form-label">{{ dynamic_field.label }}{% if dynamic_field.is_required %} *{% endif %}</label>
+                              <select class="form-select" name="companion___INDEX___field_{{ dynamic_field.id }}" {% if dynamic_field.is_required %}required{% endif %}>
+                                {% if not dynamic_field.is_required %}
+                                  <option value="">-</option>
+                                {% endif %}
+                                {% for option in dynamic_field.options_list %}
+                                  <option value="{{ option }}">{{ option }}</option>
+                                {% endfor %}
+                              </select>
+                              {% if dynamic_field.help_text %}<small class="text-muted d-block">{{ dynamic_field.help_text }}</small>{% endif %}
+                            {% else %}
+                              <label class="form-label">{{ dynamic_field.label }}{% if dynamic_field.is_required %} *{% endif %}</label>
+                              <input type="text" class="form-control" name="companion___INDEX___field_{{ dynamic_field.id }}" {% if dynamic_field.is_required %}required{% endif %}>
+                              {% if dynamic_field.help_text %}<small class="text-muted d-block">{{ dynamic_field.help_text }}</small>{% endif %}
+                            {% endif %}
+                          </div>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                  </div>
+                </template>
+                {% if event.is_paid_event %}
+                  <p class="small text-muted mb-0 mt-2">{% trans 'Estimated total to charge' %}: € <span class="js-registration-total">{{ event.registration_fee|truncate_2 }}</span></p>
+                {% endif %}
               </div>
+            {% endif %}
+
+            <div class="event-registration-actions mt-4 pt-2">
+              <button class="btn btn-primary text-white btn-lg w-100 d-block" style="min-height: 54px; font-size: 1.1rem; font-weight: 600;" type="submit">{% trans 'Register' %}</button>
             </div>
           </form>
         {% elif is_registered %}
-          <form method="post" action="{% url 'user_event_unregister' event.pk %}" class="js-event-confirm-form" data-confirm-message="{% if event.is_paid_event %}{% blocktrans with fee=event.registration_fee|truncate_2 %}Are you sure you want to cancel your registration? If you cancel now, € {{ fee }} will be refunded to your balance.{% endblocktrans %}{% else %}{% trans 'Are you sure you want to cancel your registration?' %}{% endif %}">
+          <form method="post" action="{% url 'user_event_unregister' event.pk %}" class="js-event-confirm-form" data-confirm-message="{% if event.is_paid_event %}{% trans 'Are you sure you want to cancel your registration? The full paid amount for your registration will be refunded to your balance if cancellation is still allowed.' %}{% else %}{% trans 'Are you sure you want to cancel your registration?' %}{% endif %}">
             {% csrf_token %}
             <button class="btn btn-outline-danger" type="submit">{% trans 'Cancel registration' %}</button>
           </form>
@@ -260,9 +709,9 @@
     </div>
   </div>
 
-  <div class="card card-rounded mb-3">
+  <div class="card card-rounded mb-3 event-shell-card">
     <div class="card-body">
-      <h5 class="card-title mb-3">{% trans 'Comments' %}</h5>
+      <h5 class="card-title mb-3 d-flex align-items-center"><span class="event-card-title-icon"><i class="mdi mdi-comment-text-multiple-outline"></i></span>{% trans 'Comments' %}</h5>
 
       <form method="post" action="{% url 'user_event_comment_create' event.pk %}" class="mb-4">
         {% csrf_token %}
@@ -270,7 +719,9 @@
         {% if comment_form.errors.content %}
           <div class="text-danger small mt-1">{{ comment_form.errors.content }}</div>
         {% endif %}
-        <button class="btn btn-outline-primary mt-2" type="submit">{% trans 'Post comment' %}</button>
+        <div class="event-comment-form-actions mt-2">
+          <button class="btn btn-outline-primary event-comment-submit" type="submit"><i class="mdi mdi-send"></i> {% trans 'Post comment' %}</button>
+        </div>
       </form>
 
       {% if event_comments %}
@@ -279,9 +730,10 @@
             <article class="event-comment-item">
               <div class="event-comment-header">
                 {% if comment.profile_image_url %}
-                  <img class="event-comment-avatar" src="{{ comment.profile_image_url }}" alt="{{ comment.user.username }}">
+                  <img class="event-comment-avatar" src="{{ comment.profile_image_url }}" alt="{{ comment.user.username }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                  <span class="event-comment-avatar-fallback" style="display:none;"><i class="mdi mdi-account"></i></span>
                 {% else %}
-                  <div class="event-comment-avatar"></div>
+                  <span class="event-comment-avatar-fallback"><i class="mdi mdi-account"></i></span>
                 {% endif %}
                 <div class="event-comment-meta">
                   <div class="event-comment-user">{{ comment.user|public_name }}</div>
@@ -296,9 +748,10 @@
                     <article class="event-comment-reply-item">
                       <div class="event-comment-header">
                         {% if reply.profile_image_url %}
-                          <img class="event-comment-avatar" src="{{ reply.profile_image_url }}" alt="{{ reply.user.username }}">
+                          <img class="event-comment-avatar" src="{{ reply.profile_image_url }}" alt="{{ reply.user.username }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                          <span class="event-comment-avatar-fallback" style="display:none;"><i class="mdi mdi-account"></i></span>
                         {% else %}
-                          <div class="event-comment-avatar"></div>
+                          <span class="event-comment-avatar-fallback"><i class="mdi mdi-account"></i></span>
                         {% endif %}
                         <div class="event-comment-meta">
                           <div class="event-comment-user">{{ reply.user|public_name }}</div>
@@ -324,9 +777,87 @@
   {{ block.super }}
   <script>
     (function () {
+      const formatMoney = (value) => {
+        return new Intl.NumberFormat('es-ES', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(value);
+      };
+
+      const toNumber = (value) => {
+        const parsed = Number(String(value || '').replace(',', '.'));
+        return Number.isFinite(parsed) ? parsed : 0;
+      };
+
+      document.querySelectorAll('.js-event-register-form').forEach((form) => {
+        const list = form.querySelector('.js-companions-list');
+        const addButton = form.querySelector('.js-add-companion');
+        const template = form.querySelector('.js-companion-card-template');
+        const totalEl = form.querySelector('.js-registration-total');
+        const eventFee = toNumber(form.dataset.eventFee);
+        const isPaid = form.dataset.eventIsPaid === '1';
+        const maxCompanions = Number(list?.dataset.maxCompanions || '0');
+
+        if (!list || !addButton || !template) {
+          return;
+        }
+
+        const refreshTotals = () => {
+          if (!isPaid || !totalEl) {
+            return;
+          }
+          const companions = Array.from(form.querySelectorAll('input[name="companion_names"]'));
+          const namedCompanions = companions.filter((input) => input.value.trim().length > 0).length;
+          const attendees = 1 + namedCompanions;
+          totalEl.textContent = formatMoney(attendees * eventFee);
+        };
+
+        const appendCompanionRow = () => {
+          if (maxCompanions > 0 && list.children.length >= maxCompanions) {
+            return;
+          }
+          const companionIndex = list.children.length;
+          const companionNumber = companionIndex + 1;
+          const wrapper = document.createElement('div');
+          let html = template.innerHTML;
+          html = html.replace(/__INDEX__/g, String(companionIndex));
+          html = html.replace(/__NUMBER__/g, String(companionNumber));
+          wrapper.innerHTML = html.trim();
+          const row = wrapper.firstElementChild;
+
+          const input = row.querySelector('input[name="companion_names"]');
+          const removeButton = row.querySelector('.js-remove-companion');
+          input.addEventListener('input', refreshTotals);
+          removeButton.addEventListener('click', () => {
+            row.remove();
+            if (maxCompanions > 0) {
+              addButton.disabled = false;
+            }
+            refreshTotals();
+          });
+          list.appendChild(row);
+          if (maxCompanions > 0 && list.children.length >= maxCompanions) {
+            addButton.disabled = true;
+          }
+          input.focus();
+          refreshTotals();
+        };
+
+        addButton.addEventListener('click', appendCompanionRow);
+        refreshTotals();
+      });
+
       document.querySelectorAll('.js-event-confirm-form').forEach((form) => {
         form.addEventListener('submit', (event) => {
-          const message = form.dataset.confirmMessage || '';
+          let message = form.dataset.confirmMessage || form.dataset.confirmFree || '';
+          if (form.classList.contains('js-event-register-form') && form.dataset.eventIsPaid === '1') {
+            const fee = toNumber(form.dataset.eventFee);
+            const companions = Array.from(form.querySelectorAll('input[name="companion_names"]'));
+            const namedCompanions = companions.filter((input) => input.value.trim().length > 0).length;
+            const attendees = 1 + namedCompanions;
+            const total = formatMoney(attendees * fee);
+            message = (form.dataset.confirmPaid || message).replace('__TOTAL__', total);
+          }
           if (!window.confirm(message)) {
             event.preventDefault();
           }

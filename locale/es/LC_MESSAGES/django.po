@@ -3383,6 +3383,57 @@ msgstr "Total estimado adeudado"
 msgid "Charge this user now? This action will apply all pending monthly fees."
 msgstr "¿Cobrar a este usuario ahora? Esta accion aplicara todas las mensualidades pendientes."
 
+msgid "per attendee"
+msgstr "por asistente"
+
+msgid "Companions"
+msgstr "Acompanantes"
+
+msgid "Add companion names if you are not attending alone."
+msgstr "Añade nombres de acompañantes si no asistes solo."
+
+msgid "Add companion"
+msgstr "Añadir acompañante"
+
+msgid "Estimated total to charge"
+msgstr "Total estimado a cobrar"
+
+msgid "Companion full name"
+msgstr "Nombre completo del acompanante"
+
+msgid "Are you sure you want to register for this event? This registration will deduct € __TOTAL__ from your balance."
+msgstr "¿Seguro que quieres registrarte en este evento? Este registro descontara € __TOTAL__ de tu saldo."
+
+msgid "Are you sure you want to cancel your registration? The full paid amount for your registration will be refunded to your balance if cancellation is still allowed."
+msgstr "¿Seguro que quieres cancelar tu registro? El importe completo pagado por tu registro se reembolsara a tu saldo si la cancelacion aun esta permitida."
+
+msgid "Paid registration for event: %(event)s (%(people)s attendees)"
+msgstr "Registro de pago para el evento: %(event)s (%(people)s asistentes)"
+
+msgid "Refund for event cancellation: %(event)s (%(people)s attendees)"
+msgstr "Reembolso por cancelacion del evento: %(event)s (%(people)s asistentes)"
+
+msgid "Allow companions"
+msgstr "Permitir acompañantes"
+
+msgid "Max companions"
+msgstr "Máximo de acompañantes"
+
+msgid "Allow registration with negative balance"
+msgstr "Permitir registro con saldo negativo"
+
+msgid "Companions are only available for events with registration."
+msgstr "Los acompañantes solo están disponibles en eventos con registro."
+
+msgid "Set a maximum companions value greater than zero."
+msgstr "Define un máximo de acompañantes mayor que cero."
+
+msgid "Maximum companions allowed: %(max)s"
+msgstr "Máximo de acompañantes permitido: %(max)s"
+
+msgid "This event allows up to %(max)s companions."
+msgstr "Este evento permite hasta %(max)s acompañantes."
+
 msgid "View detail"
 msgstr "Ver detalle"
 

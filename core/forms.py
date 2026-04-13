@@ -845,8 +845,11 @@ class EventForm(forms.ModelForm):
             'links',
             'requires_registration',
             'capacity',
+            'allow_companions',
+            'max_companions',
             'is_paid_event',
             'registration_fee',
+            'allow_negative_balance',
         ]
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -868,8 +871,11 @@ class EventForm(forms.ModelForm):
             ),
             'requires_registration': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'capacity': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'allow_companions': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'max_companions': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
             'is_paid_event': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'registration_fee': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': 0}),
+            'allow_negative_balance': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -877,6 +883,7 @@ class EventForm(forms.ModelForm):
         self.fields['start_at'].input_formats = ['%Y-%m-%dT%H:%M']
         self.fields['end_at'].input_formats = ['%Y-%m-%dT%H:%M']
         self.fields['capacity'].required = False
+        self.fields['max_companions'].required = False
         self.fields['registration_fee'].required = False
 
     def clean_capacity(self):
@@ -895,6 +902,9 @@ class EventForm(forms.ModelForm):
         is_paid_event = cleaned_data.get('is_paid_event')
         requires_registration = cleaned_data.get('requires_registration')
         registration_fee = cleaned_data.get('registration_fee')
+        allow_companions = cleaned_data.get('allow_companions')
+        max_companions = cleaned_data.get('max_companions')
+        allow_negative_balance = cleaned_data.get('allow_negative_balance')
         if start_at and end_at and end_at < start_at:
             self.add_error('end_at', _('End date must be greater than or equal to start date.'))
         if is_paid_event:
@@ -904,6 +914,17 @@ class EventForm(forms.ModelForm):
                 self.add_error('registration_fee', _('Fee amount must be greater than zero.'))
         elif not registration_fee:
             cleaned_data['registration_fee'] = 0
+
+        if allow_companions:
+            if not requires_registration:
+                self.add_error('allow_companions', _('Companions are only available for events with registration.'))
+            if max_companions is None or max_companions <= 0:
+                self.add_error('max_companions', _('Set a maximum companions value greater than zero.'))
+        else:
+            cleaned_data['max_companions'] = None
+
+        if allow_negative_balance and not is_paid_event:
+            cleaned_data['allow_negative_balance'] = False
         return cleaned_data
 
     def clean_new_images(self):

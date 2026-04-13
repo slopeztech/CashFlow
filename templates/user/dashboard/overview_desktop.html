@@ -223,6 +223,30 @@
       font-weight: 400;
     }
 
+    .timeline-event-meta-badges {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      margin-left: auto;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .timeline-event-registered-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .25rem;
+      color: #324b97;
+      background: #e8eeff;
+      border: 1px solid #c9d7ff;
+      border-radius: 999px;
+      padding: 2px 9px;
+      white-space: nowrap;
+      font-size: .75rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
     .timeline-event-description {
       color: #6B7280;
       line-height: 1.45;
@@ -399,10 +423,11 @@
       }
 
       .timeline-event-card.timeline-event-registered {
-        box-shadow: 0 0 0 2px rgba(87, 182, 87, 0.22), 0 10px 24px rgba(87, 182, 87, 0.28) !important;
-        -webkit-box-shadow: 0 0 0 2px rgba(87, 182, 87, 0.22), 0 10px 24px rgba(87, 182, 87, 0.28) !important;
-        border-color: rgba(87, 182, 87, 0.5) !important;
-        background: linear-gradient(0deg, rgba(87, 182, 87, 0.06), rgba(87, 182, 87, 0.06)), #ffffff !important;
+        box-shadow: 0 0 0 2px rgba(75, 73, 172, 0.14), 0 8px 20px rgba(75, 73, 172, 0.18) !important;
+        -webkit-box-shadow: 0 0 0 2px rgba(75, 73, 172, 0.14), 0 8px 20px rgba(75, 73, 172, 0.18) !important;
+        border-color: rgba(75, 73, 172, 0.34) !important;
+        border-left-color: rgba(75, 73, 172, 0.72) !important;
+        background: linear-gradient(0deg, rgba(75, 73, 172, 0.05), rgba(75, 73, 172, 0.05)), #ffffff !important;
       }
 
       .notice-card {

@@ -1232,6 +1232,194 @@ class UserEventFlowTests(TestCase):
 			).exists()
 		)
 
+	def test_paid_event_registration_with_companions_charges_per_attendee(self):
+		event = Event.objects.create(
+			name='Premium workshop with companions',
+			description='Paid access with companions.',
+			start_at=timezone.localtime() + timedelta(hours=2),
+			end_at=timezone.localtime() + timedelta(days=1),
+			requires_registration=True,
+			is_paid_event=True,
+			registration_fee='5.00',
+			allow_companions=True,
+			max_companions=3,
+			created_by=self.admin,
+		)
+
+		self.client.force_login(self.user)
+		response = self.client.post(
+			reverse('user_event_register', kwargs={'pk': event.pk}),
+			{
+				'companion_names': ['Ana Lopez', 'Luis Perez'],
+			},
+			follow=True,
+		)
+		self.assertEqual(response.status_code, 200)
+
+		registration = EventRegistration.objects.get(event=event, user=self.user)
+		self.assertEqual(registration.answers.get('_companions'), ['Ana Lopez', 'Luis Perez'])
+
+		profile = StoreUserProfile.objects.get(user=self.user)
+		self.assertEqual(str(profile.current_balance), '5.00')
+		self.assertTrue(
+			BalanceLog.objects.filter(
+				user=self.user,
+				source=BalanceLog.Source.EVENT_REGISTRATION_CHARGE,
+				amount_delta='-15.00',
+			).exists()
+		)
+
+	def test_event_capacity_considers_companions(self):
+		event = Event.objects.create(
+			name='Companion capacity event',
+			description='Capacity includes companions.',
+			start_at=timezone.localtime() + timedelta(hours=2),
+			end_at=timezone.localtime() + timedelta(days=1),
+			requires_registration=True,
+			capacity=2,
+			allow_companions=True,
+			max_companions=2,
+			created_by=self.admin,
+		)
+
+		self.client.force_login(self.user)
+		first_response = self.client.post(
+			reverse('user_event_register', kwargs={'pk': event.pk}),
+			{
+				'companion_names': ['Invitado Uno'],
+			},
+			follow=True,
+		)
+		self.assertEqual(first_response.status_code, 200)
+		self.assertTrue(EventRegistration.objects.filter(event=event, user=self.user).exists())
+
+		self.client.force_login(self.other_user)
+		second_response = self.client.post(reverse('user_event_register', kwargs={'pk': event.pk}), follow=True)
+		self.assertEqual(second_response.status_code, 200)
+		self.assertFalse(EventRegistration.objects.filter(event=event, user=self.other_user).exists())
+
+	def test_event_registration_rejects_more_companions_than_allowed(self):
+		event = Event.objects.create(
+			name='Companion limit event',
+			description='Companion limit.',
+			start_at=timezone.localtime() + timedelta(hours=2),
+			end_at=timezone.localtime() + timedelta(days=1),
+			requires_registration=True,
+			allow_companions=True,
+			max_companions=1,
+			created_by=self.admin,
+		)
+
+		self.client.force_login(self.user)
+		response = self.client.post(
+			reverse('user_event_register', kwargs={'pk': event.pk}),
+			{
+				'companion_names': ['Uno', 'Dos'],
+			},
+			follow=True,
+		)
+		self.assertEqual(response.status_code, 200)
+		self.assertFalse(EventRegistration.objects.filter(event=event, user=self.user).exists())
+
+	def test_companion_dynamic_required_fields_must_be_completed(self):
+		event = Event.objects.create(
+			name='Companion dynamic required fields',
+			description='Companion fields required.',
+			start_at=timezone.localtime() + timedelta(hours=2),
+			end_at=timezone.localtime() + timedelta(days=1),
+			requires_registration=True,
+			allow_companions=True,
+			max_companions=2,
+			created_by=self.admin,
+		)
+		text_field = EventRegistrationField.objects.create(
+			event=event,
+			label='Dieta',
+			field_type=EventRegistrationField.FieldType.SHORT_TEXT,
+			is_required=True,
+		)
+
+		self.client.force_login(self.user)
+		response = self.client.post(
+			reverse('user_event_register', kwargs={'pk': event.pk}),
+			{
+				f'event_field_{text_field.id}': 'Normal',
+				'companion_names': ['Invitado Uno'],
+				f'companion_0_field_{text_field.id}': '',
+			},
+			follow=True,
+		)
+
+		self.assertEqual(response.status_code, 200)
+		self.assertFalse(EventRegistration.objects.filter(event=event, user=self.user).exists())
+
+	def test_companion_dynamic_answers_are_stored(self):
+		event = Event.objects.create(
+			name='Companion dynamic answers',
+			description='Companion answers stored.',
+			start_at=timezone.localtime() + timedelta(hours=2),
+			end_at=timezone.localtime() + timedelta(days=1),
+			requires_registration=True,
+			allow_companions=True,
+			max_companions=2,
+			created_by=self.admin,
+		)
+		text_field = EventRegistrationField.objects.create(
+			event=event,
+			label='Dieta',
+			field_type=EventRegistrationField.FieldType.SHORT_TEXT,
+			is_required=True,
+		)
+		radio_field = EventRegistrationField.objects.create(
+			event=event,
+			label='Nivel',
+			field_type=EventRegistrationField.FieldType.RADIO,
+			options_text='Basico\nPro',
+			is_required=True,
+		)
+
+		self.client.force_login(self.user)
+		response = self.client.post(
+			reverse('user_event_register', kwargs={'pk': event.pk}),
+			{
+				f'event_field_{text_field.id}': 'Sin gluten',
+				f'event_field_{radio_field.id}': 'Pro',
+				'companion_names': ['Invitado Uno'],
+				f'companion_0_field_{text_field.id}': 'Vegetariano',
+				f'companion_0_field_{radio_field.id}': 'Basico',
+			},
+			follow=True,
+		)
+
+		self.assertEqual(response.status_code, 200)
+		registration = EventRegistration.objects.get(event=event, user=self.user)
+		companion_answers = registration.answers.get('_companion_answers', {})
+		self.assertEqual(companion_answers.get('type'), 'companions')
+		self.assertEqual(companion_answers.get('value')[0]['name'], 'Invitado Uno')
+		self.assertEqual(companion_answers.get('value')[0]['answers'][0]['value'], 'Vegetariano')
+		self.assertEqual(companion_answers.get('value')[0]['answers'][1]['value'], 'Basico')
+
+	def test_paid_event_registration_can_allow_negative_balance(self):
+		event = Event.objects.create(
+			name='Paid negative balance event',
+			description='Paid event allowing negative balance.',
+			start_at=timezone.localtime() + timedelta(hours=2),
+			end_at=timezone.localtime() + timedelta(days=1),
+			requires_registration=True,
+			is_paid_event=True,
+			registration_fee='25.00',
+			allow_negative_balance=True,
+			created_by=self.admin,
+		)
+
+		self.client.force_login(self.user)
+		response = self.client.post(reverse('user_event_register', kwargs={'pk': event.pk}), follow=True)
+		self.assertEqual(response.status_code, 200)
+		self.assertTrue(EventRegistration.objects.filter(event=event, user=self.user).exists())
+
+		profile = StoreUserProfile.objects.get(user=self.user)
+		self.assertEqual(str(profile.current_balance), '-5.00')
+
 	def test_paid_event_unregister_before_start_refunds_balance(self):
 		event = Event.objects.create(
 			name='Premium workshop refund',

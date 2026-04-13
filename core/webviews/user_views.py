@@ -29,6 +29,7 @@ from core.models import (
     Event,
     EventComment,
     EventRegistration,
+    EventRegistrationField,
     Gamification,
     Survey,
     SurveyOption,
@@ -264,20 +265,124 @@ def _build_event_registration_form(event, data=None):
     return form
 
 
+def _read_companion_names(post_data):
+    companion_names = []
+    for index, raw_name in enumerate(post_data.getlist('companion_names')):
+        name = (raw_name or '').strip()
+        if name:
+            companion_names.append((index, name))
+    return companion_names
+
+
+def _parse_companion_field_value(field, raw_value):
+    if field.field_type == field.FieldType.CHECKBOX:
+        return str(raw_value).lower() in {'1', 'true', 'on', 'yes'}
+
+    value = (raw_value or '').strip()
+    if field.field_type in {field.FieldType.RADIO, field.FieldType.SELECT} and value:
+        if value not in field.options_list:
+            return None
+    return value
+
+
 def _attach_profile_image(comments):
+    def _profile_image_url(profile):
+        if not profile:
+            return ''
+        image = getattr(profile, 'profile_image', None)
+        if not image:
+            return ''
+        try:
+            image_name = getattr(image, 'name', '')
+            if not image_name:
+                return ''
+            if image.storage.exists(image_name):
+                return image.url
+        except Exception:
+            return ''
+        return ''
+
     for comment in comments:
         profile = getattr(comment.user, 'store_profile', None)
-        comment.profile_image_url = (
-            profile.profile_image.url if profile and profile.profile_image else ''
-        )
+        comment.profile_image_url = _profile_image_url(profile)
         for reply in comment.replies.all():
             reply_profile = getattr(reply.user, 'store_profile', None)
-            reply.profile_image_url = (
-                reply_profile.profile_image.url
-                if reply_profile and reply_profile.profile_image
-                else ''
-            )
+            reply.profile_image_url = _profile_image_url(reply_profile)
     return comments
+
+
+def _render_registration_answer_value(answer_type, raw_value):
+    if answer_type == EventRegistrationField.FieldType.CHECKBOX:
+        return _('Yes') if raw_value else _('No')
+
+    if isinstance(raw_value, list):
+        cleaned_values = [str(value).strip() for value in raw_value if str(value).strip()]
+        return ', '.join(cleaned_values)
+
+    if raw_value is None:
+        return ''
+    return str(raw_value).strip()
+
+
+def _build_user_registration_summary(event, registration):
+    if not registration:
+        return None
+
+    raw_answers = registration.answers if isinstance(registration.answers, dict) else {}
+    user_answers = []
+    for key, answer in raw_answers.items():
+        if str(key).startswith('_'):
+            continue
+        if not isinstance(answer, dict):
+            continue
+
+        label = str(answer.get('label') or '').strip()
+        answer_type = answer.get('type')
+        rendered_value = _render_registration_answer_value(answer_type, answer.get('value'))
+        if label and rendered_value:
+            user_answers.append({'label': label, 'value': rendered_value})
+
+    companion_names = registration.companion_names
+    companions = [{'name': companion_name, 'answers': []} for companion_name in companion_names]
+    companion_answers_block = raw_answers.get('_companion_answers')
+    if isinstance(companion_answers_block, dict):
+        companion_rows = companion_answers_block.get('value')
+        if isinstance(companion_rows, list):
+            for index, companion_row in enumerate(companion_rows):
+                if not isinstance(companion_row, dict):
+                    continue
+                companion_name = str(companion_row.get('name') or '').strip()
+                answers = []
+                for companion_answer in companion_row.get('answers', []):
+                    if not isinstance(companion_answer, dict):
+                        continue
+                    label = str(companion_answer.get('label') or '').strip()
+                    answer_type = companion_answer.get('type')
+                    rendered_value = _render_registration_answer_value(
+                        answer_type,
+                        companion_answer.get('value'),
+                    )
+                    if label and rendered_value:
+                        answers.append({'label': label, 'value': rendered_value})
+
+                if index < len(companions):
+                    if companion_name:
+                        companions[index]['name'] = companion_name
+                    companions[index]['answers'] = answers
+                elif companion_name or answers:
+                    companions.append({'name': companion_name, 'answers': answers})
+
+    paid_amount = None
+    if event.is_paid_event:
+        paid_amount = _truncate_money(event.registration_fee * Decimal(str(registration.total_attendees)))
+
+    return {
+        'attendees_count': registration.total_attendees,
+        'companions_count': registration.companion_count,
+        'paid_amount': paid_amount,
+        'user_answers': user_answers,
+        'companions': companions,
+    }
 
 
 class UserDashboardView(ResponsiveTemplateMixin, LoginRequiredMixin, NonStaffRequiredMixin, TemplateView):
@@ -684,10 +789,11 @@ class UserEventDetailView(ResponsiveTemplateMixin, LoginRequiredMixin, NonStaffR
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         event = self.object
-        registrations_count = event.registrations.count()
+        registrations_count = event.total_registered_attendees
         capacity = event.capacity
         is_full = bool(capacity and registrations_count >= capacity)
-        is_registered = event.registrations.filter(user=self.request.user).exists()
+        registration = event.registrations.filter(user=self.request.user).first()
+        is_registered = registration is not None
         comments = EventComment.objects.filter(event=event, parent__isnull=True).select_related(
             'user',
             'user__store_profile',
@@ -709,6 +815,8 @@ class UserEventDetailView(ResponsiveTemplateMixin, LoginRequiredMixin, NonStaffR
                 'is_registered': is_registered,
                 'is_full': is_full,
                 'can_register': event.requires_registration and not is_registered and not is_full,
+                'registration_summary': _build_user_registration_summary(event, registration),
+                'max_companions': event.max_companions or 0,
                 'registration_form': _build_event_registration_form(event),
                 'comment_form': EventCommentForm(),
                 'event_comments': _attach_profile_image(comments),
@@ -750,8 +858,21 @@ class UserEventRegisterView(LoginRequiredMixin, NonStaffRequiredMixin, View):
             messages.info(request, _('You are already registered for this event.'))
             return redirect('user_event_detail', pk=event.pk)
 
-        current_registrations = EventRegistration.objects.filter(event=event).count()
-        if event.capacity and current_registrations >= event.capacity:
+        companions = _read_companion_names(request.POST)
+        companion_names = [name for _, name in companions]
+        if not event.allow_companions:
+            companions = []
+            companion_names = []
+        elif event.max_companions and len(companion_names) > event.max_companions:
+            messages.error(
+                request,
+                _('This event allows up to %(max)s companions.') % {'max': event.max_companions},
+            )
+            return redirect('user_event_detail', pk=event.pk)
+        requested_attendees = 1 + len(companion_names)
+
+        current_registrations = event.total_registered_attendees
+        if event.capacity and (current_registrations + requested_attendees) > event.capacity:
             messages.error(request, _('This event is full.'))
             return redirect('user_event_detail', pk=event.pk)
 
@@ -760,24 +881,73 @@ class UserEventRegisterView(LoginRequiredMixin, NonStaffRequiredMixin, View):
             messages.error(request, _('Please complete the registration form fields.'))
             return redirect('user_event_detail', pk=event.pk)
 
+        companion_answers = []
+        if companions and registration_form.input_fields:
+            has_companion_errors = False
+            for companion_index, companion_name in companions:
+                companion_field_answers = []
+                for field in registration_form.input_fields:
+                    field_key = f'companion_{companion_index}_field_{field.id}'
+                    raw_value = request.POST.get(field_key)
+                    value = _parse_companion_field_value(field, raw_value)
+
+                    if value is None:
+                        has_companion_errors = True
+                        break
+
+                    if field.is_required:
+                        if field.field_type == field.FieldType.CHECKBOX and not value:
+                            has_companion_errors = True
+                            break
+                        if field.field_type != field.FieldType.CHECKBOX and not value:
+                            has_companion_errors = True
+                            break
+
+                    companion_field_answers.append(
+                        {
+                            'label': field.label,
+                            'type': field.field_type,
+                            'value': value,
+                        }
+                    )
+
+                if has_companion_errors:
+                    break
+
+                companion_answers.append(
+                    {
+                        'name': companion_name,
+                        'answers': companion_field_answers,
+                    }
+                )
+
+            if has_companion_errors:
+                messages.error(request, _('Please complete the registration form fields.'))
+                return redirect('user_event_detail', pk=event.pk)
+
         profile, created = StoreUserProfile.objects.select_for_update().get_or_create(user=request.user)
+        total_event_fee = event.registration_fee * Decimal(str(requested_attendees))
         if event.is_paid_event:
-            if profile.current_balance < event.registration_fee:
+            projected_balance = profile.current_balance - total_event_fee
+            if projected_balance < 0 and not event.allow_negative_balance:
                 messages.error(request, _('Insufficient balance for this paid event.'))
                 return redirect('user_event_detail', pk=event.pk)
 
             balance_before = profile.current_balance
-            balance_after = balance_before - event.registration_fee
+            balance_after = balance_before - total_event_fee
             profile.current_balance = balance_after
             profile.save(update_fields=['current_balance', 'updated_at'])
             BalanceLog.objects.create(
                 user=request.user,
                 changed_by=None,
                 source=BalanceLog.Source.EVENT_REGISTRATION_CHARGE,
-                amount_delta=-event.registration_fee,
+                amount_delta=-total_event_fee,
                 balance_before=balance_before,
                 balance_after=balance_after,
-                note=_('Paid registration for event: %(event)s') % {'event': event.name},
+                note=(
+                    _('Paid registration for event: %(event)s (%(people)s attendees)')
+                    % {'event': event.name, 'people': requested_attendees}
+                ),
             )
 
         answers = {}
@@ -788,6 +958,13 @@ class UserEventRegisterView(LoginRequiredMixin, NonStaffRequiredMixin, View):
                 'label': field.label,
                 'type': field.field_type,
                 'value': value,
+            }
+        answers['_companions'] = companion_names
+        if companion_answers:
+            answers['_companion_answers'] = {
+                'label': _('Companion form answers'),
+                'type': 'companions',
+                'value': companion_answers,
             }
 
         EventRegistration.objects.create(event=event, user=request.user, answers=answers)
@@ -810,18 +987,22 @@ class UserEventUnregisterView(LoginRequiredMixin, NonStaffRequiredMixin, View):
         now = timezone.localtime()
         if event.is_paid_event and now < event.start_at:
             profile, created = StoreUserProfile.objects.select_for_update().get_or_create(user=request.user)
+            refund_amount = event.registration_fee * Decimal(str(registration.total_attendees))
             balance_before = profile.current_balance
-            balance_after = balance_before + event.registration_fee
+            balance_after = balance_before + refund_amount
             profile.current_balance = balance_after
             profile.save(update_fields=['current_balance', 'updated_at'])
             BalanceLog.objects.create(
                 user=request.user,
                 changed_by=None,
                 source=BalanceLog.Source.EVENT_REGISTRATION_REFUND,
-                amount_delta=event.registration_fee,
+                amount_delta=refund_amount,
                 balance_before=balance_before,
                 balance_after=balance_after,
-                note=_('Refund for event cancellation: %(event)s') % {'event': event.name},
+                note=(
+                    _('Refund for event cancellation: %(event)s (%(people)s attendees)')
+                    % {'event': event.name, 'people': registration.total_attendees}
+                ),
             )
 
         messages.success(request, _('Your event registration was cancelled.'))

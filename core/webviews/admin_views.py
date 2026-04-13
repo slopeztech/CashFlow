@@ -6,6 +6,7 @@ import socket
 import subprocess
 import time
 import shutil
+from collections import defaultdict
 from io import BytesIO
 from urllib.parse import urlparse
 from decimal import Decimal, ROUND_DOWN
@@ -258,6 +259,7 @@ class AdminEventCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffReq
                 'form': form,
                 'formset': formset,
                 'mode': 'create',
+                'registration_fields_locked': False,
             },
         )
 
@@ -280,6 +282,7 @@ class AdminEventCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffReq
                 'form': form,
                 'formset': formset,
                 'mode': 'create',
+                'registration_fields_locked': False,
             },
         )
 
@@ -292,10 +295,24 @@ class AdminEventCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffReq
 class AdminEventUpdateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMixin, View):
     template_name = 'admin/events/form.html'
 
+    @staticmethod
+    def _registration_fields_locked(event):
+        return EventRegistration.objects.filter(event=event).exists()
+
+    @staticmethod
+    def _lock_registration_formset(formset):
+        for item in formset.forms:
+            for field_name in ['label', 'help_text', 'field_type', 'options_text', 'is_required', 'sort_order', 'is_active', 'DELETE']:
+                if field_name in item.fields:
+                    item.fields[field_name].disabled = True
+
     def get(self, request, pk):
         event = get_object_or_404(Event, pk=pk)
         form = EventForm(instance=event)
         formset = EventRegistrationFieldFormSet(instance=event, prefix='reg_fields')
+        registration_fields_locked = self._registration_fields_locked(event)
+        if registration_fields_locked:
+            self._lock_registration_formset(formset)
         return render(
             request,
             self.get_template_names()[0],
@@ -305,13 +322,40 @@ class AdminEventUpdateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffReq
                 'mode': 'edit',
                 'event': event,
                 'event_images': event.images.all(),
+                'registration_fields_locked': registration_fields_locked,
             },
         )
 
     def post(self, request, pk):
         event = get_object_or_404(Event, pk=pk)
+        registration_fields_locked = self._registration_fields_locked(event)
         form = EventForm(request.POST, request.FILES, instance=event)
         formset = EventRegistrationFieldFormSet(request.POST, instance=event, prefix='reg_fields')
+
+        if registration_fields_locked:
+            if form.is_valid():
+                updated = form.save()
+                self._remove_selected_images(updated)
+                self._save_new_images(updated)
+                messages.success(request, _('Event updated successfully.'))
+                messages.info(request, _('Registration form fields are locked because this event already has user responses.'))
+                return redirect('admin_events')
+
+            locked_formset = EventRegistrationFieldFormSet(instance=event, prefix='reg_fields')
+            self._lock_registration_formset(locked_formset)
+            return render(
+                request,
+                self.get_template_names()[0],
+                {
+                    'form': form,
+                    'formset': locked_formset,
+                    'mode': 'edit',
+                    'event': event,
+                    'event_images': event.images.all(),
+                    'registration_fields_locked': True,
+                },
+            )
+
         if form.is_valid() and formset.is_valid():
             updated = form.save()
             formset.save()
@@ -328,6 +372,7 @@ class AdminEventUpdateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffReq
                 'mode': 'edit',
                 'event': event,
                 'event_images': event.images.all(),
+                'registration_fields_locked': False,
             },
         )
 
@@ -521,12 +566,75 @@ class AdminSurveyInfoView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequ
 class AdminEventInfoView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMixin, TemplateView):
     template_name = 'admin/events/info.html'
 
+    @staticmethod
+    def _format_answer_value(answer_type, raw_value):
+        if answer_type == 'checkbox':
+            return _('Sí') if raw_value else _('No')
+        if isinstance(raw_value, list):
+            return ', '.join(str(item).strip() for item in raw_value if str(item).strip())
+        if raw_value is None:
+            return ''
+        return str(raw_value).strip()
+
+    def _build_registration_option_summary(self, registrations):
+        field_counts = defaultdict(lambda: defaultdict(int))
+
+        for registration in registrations:
+            answers = registration.answers if isinstance(registration.answers, dict) else {}
+            for answer in answers.values():
+                if not isinstance(answer, dict):
+                    continue
+
+                answer_type = answer.get('type')
+                if answer_type == 'companions':
+                    companion_rows = answer.get('value')
+                    if not isinstance(companion_rows, list):
+                        continue
+                    for companion in companion_rows:
+                        if not isinstance(companion, dict):
+                            continue
+                        for companion_answer in companion.get('answers', []):
+                            if not isinstance(companion_answer, dict):
+                                continue
+                            label = str(companion_answer.get('label') or '').strip()
+                            value = self._format_answer_value(
+                                companion_answer.get('type'),
+                                companion_answer.get('value'),
+                            )
+                            if label and value:
+                                field_counts[label][value] += 1
+                    continue
+
+                label = str(answer.get('label') or '').strip()
+                value = self._format_answer_value(answer_type, answer.get('value'))
+                if label and value:
+                    field_counts[label][value] += 1
+
+        summary = []
+        for field_label, options in field_counts.items():
+            sorted_options = sorted(options.items(), key=lambda item: (-item[1], item[0]))
+            summary.append(
+                {
+                    'field_label': field_label,
+                    'options': [
+                        {
+                            'value': option_value,
+                            'count': option_count,
+                        }
+                        for option_value, option_count in sorted_options
+                    ],
+                }
+            )
+        summary.sort(key=lambda row: row['field_label'].lower())
+        return summary
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         event = get_object_or_404(Event.objects.select_related('created_by'), pk=self.kwargs['pk'])
         registrations = EventRegistration.objects.filter(event=event).select_related('user').order_by('-created_at')
-        registrations_count = registrations.count()
+        registrations_count = sum(registration.total_attendees for registration in registrations)
         total_collected = (event.registration_fee * registrations_count) if event.is_paid_event else Decimal('0.00')
+        registration_option_summary = self._build_registration_option_summary(registrations)
         registration_fields = event.registration_fields.filter(is_active=True).order_by('sort_order', 'id')
         comments = EventComment.objects.filter(event=event, parent__isnull=True).select_related(
             'user',
@@ -542,6 +650,7 @@ class AdminEventInfoView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequi
                 'registrations': registrations,
                 'registrations_count': registrations_count,
                 'total_collected': total_collected,
+                'registration_option_summary': registration_option_summary,
                 'registration_fields': registration_fields,
                 'event_comments': comments,
                 'comment_reply_form': AdminEventCommentReplyForm(),
@@ -602,15 +711,16 @@ class AdminEventRegistrationRemoveView(LoginRequiredMixin, StaffRequiredMixin, V
 
         if event.is_paid_event and timezone.localtime() < event.start_at:
             profile, created = StoreUserProfile.objects.select_for_update().get_or_create(user=registration.user)
+            refund_amount = event.registration_fee * Decimal(str(registration.total_attendees))
             balance_before = profile.current_balance
-            balance_after = balance_before + event.registration_fee
+            balance_after = balance_before + refund_amount
             profile.current_balance = balance_after
             profile.save(update_fields=['current_balance', 'updated_at'])
             BalanceLog.objects.create(
                 user=registration.user,
                 changed_by=request.user,
                 source=BalanceLog.Source.EVENT_REGISTRATION_REFUND,
-                amount_delta=event.registration_fee,
+                amount_delta=refund_amount,
                 balance_before=balance_before,
                 balance_after=balance_after,
                 note=_('Admin removed event registration: %(event)s') % {'event': event.name},

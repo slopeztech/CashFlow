@@ -3066,3 +3066,54 @@ msgstr "Unable to share automatically. Copy this URL manually:"
 
 msgid "QR is unavailable. Install QR dependencies and refresh."
 msgstr "QR is unavailable. Install QR dependencies and refresh."
+
+msgid "Allow companions"
+msgstr "Allow companions"
+
+msgid "Max companions"
+msgstr "Max companions"
+
+msgid "Allow registration with negative balance"
+msgstr "Allow registration with negative balance"
+
+msgid "Companions are only available for events with registration."
+msgstr "Companions are only available for events with registration."
+
+msgid "Set a maximum companions value greater than zero."
+msgstr "Set a maximum companions value greater than zero."
+
+msgid "Maximum companions allowed: %(max)s"
+msgstr "Maximum companions allowed: %(max)s"
+
+msgid "This event allows up to %(max)s companions."
+msgstr "This event allows up to %(max)s companions."
+
+msgid "per attendee"
+msgstr "per attendee"
+
+msgid "Companions"
+msgstr "Companions"
+
+msgid "Add companion names if you are not attending alone."
+msgstr "Add companion names if you are not attending alone."
+
+msgid "Add companion"
+msgstr "Add companion"
+
+msgid "Estimated total to charge"
+msgstr "Estimated total to charge"
+
+msgid "Companion full name"
+msgstr "Companion full name"
+
+msgid "Are you sure you want to register for this event? This registration will deduct € __TOTAL__ from your balance."
+msgstr "Are you sure you want to register for this event? This registration will deduct € __TOTAL__ from your balance."
+
+msgid "Are you sure you want to cancel your registration? The full paid amount for your registration will be refunded to your balance if cancellation is still allowed."
+msgstr "Are you sure you want to cancel your registration? The full paid amount for your registration will be refunded to your balance if cancellation is still allowed."
+
+msgid "Paid registration for event: %(event)s (%(people)s attendees)"
+msgstr "Paid registration for event: %(event)s (%(people)s attendees)"
+
+msgid "Refund for event cancellation: %(event)s (%(people)s attendees)"
+msgstr "Refund for event cancellation: %(event)s (%(people)s attendees)"

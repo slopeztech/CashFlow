@@ -10,7 +10,12 @@
           {{ event.title }}
         </h6>
       </div>
-      <small class="timeline-event-date">{{ event.event_date|date:"d/m/Y" }}</small>
+      <div class="timeline-event-meta-badges">
+        {% if event.kind == 'event' and event.is_registered %}
+          <span class="timeline-event-registered-badge"><i class="mdi mdi-check-decagram-outline"></i> {% trans 'Registrado' %}</span>
+        {% endif %}
+        <small class="timeline-event-date">{{ event.event_date|date:"d/m/Y" }}</small>
+      </div>
     </div>
     <p class="timeline-event-description mb-0">{{ event.description }}</p>
     {% if event.kind == 'event' and event.event_image_url %}

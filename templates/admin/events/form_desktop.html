@@ -64,6 +64,19 @@
 
           <div class="col-md-6 d-flex align-items-end">
             <div class="form-check">
+              {{ form.allow_companions }}
+              <label class="form-check-label" for="id_allow_companions">{% trans 'Allow companions' %}</label>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="id_max_companions">{% trans 'Max companions' %}</label>
+            {{ form.max_companions }}
+            {% if form.max_companions.errors %}<div class="text-danger small mt-1">{{ form.max_companions.errors }}</div>{% endif %}
+          </div>
+
+          <div class="col-md-6 d-flex align-items-end">
+            <div class="form-check">
               {{ form.is_paid_event }}
               <label class="form-check-label" for="id_is_paid_event">{% trans 'Paid event' %}</label>
             </div>
@@ -73,6 +86,13 @@
             <label class="form-label" for="id_registration_fee">{% trans 'Registration fee' %}</label>
             {{ form.registration_fee }}
             {% if form.registration_fee.errors %}<div class="text-danger small mt-1">{{ form.registration_fee.errors }}</div>{% endif %}
+          </div>
+
+          <div class="col-md-6 d-flex align-items-end">
+            <div class="form-check">
+              {{ form.allow_negative_balance }}
+              <label class="form-check-label" for="id_allow_negative_balance">{% trans 'Allow registration with negative balance' %}</label>
+            </div>
           </div>
 
           <div class="col-12">
@@ -104,6 +124,11 @@
             <hr>
             <h5 class="mb-3">{% trans 'Registration form fields' %}</h5>
             <p class="text-muted small mb-3">{% trans 'Configure which fields users must complete when registering for this event.' %}</p>
+            {% if registration_fields_locked %}
+              <div class="alert alert-warning py-2">
+                {% trans 'These fields cannot be edited because this event already has user responses.' %}
+              </div>
+            {% endif %}
 
             {{ formset.management_form }}
             {% if formset.non_form_errors %}
@@ -155,7 +180,7 @@
               </table>
             </div>
 
-            <button type="button" class="btn btn-sm btn-outline-primary" id="add-registration-field-btn">{% trans 'Add field' %}</button>
+            <button type="button" class="btn btn-sm btn-outline-primary" id="add-registration-field-btn" {% if registration_fields_locked %}disabled{% endif %}>{% trans 'Add field' %}</button>
 
             <template id="registration-field-empty-row">
               <tr>
@@ -200,6 +225,10 @@
       }
 
       const emptyPrototype = '{{ formset.empty_form.as_p|escapejs }}';
+
+      if (addButton.disabled) {
+        return;
+      }
 
       addButton.addEventListener('click', function () {
         const formIndex = Number(totalForms.value);

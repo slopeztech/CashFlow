@@ -1,4 +1,4 @@
-{% extends 'base_dashboard.html' %}
+﻿{% extends 'base_dashboard.html' %}
 {% load i18n %}
 
 {% block title %}{% trans 'Event information' %} | CashFlow{% endblock %}
@@ -11,6 +11,162 @@
 {% block extra_css %}
   {{ block.super }}
   <style>
+    .admin-event-summary-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 0.8rem;
+      padding: 0.8rem;
+      background: #fff;
+      height: 100%;
+    }
+
+    .admin-event-summary-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #6b7280;
+      margin-bottom: 0.3rem;
+      line-height: 1.2;
+    }
+    
+      @media (max-width: 767.98px) {
+        .admin-event-summary-label {
+          display: grid !important;
+          grid-template-columns: 1.35rem minmax(0, 1fr);
+          align-items: center;
+          column-gap: 0.65rem;
+          font-size: 0.72rem;
+        }
+    
+        .admin-event-main-title {
+          display: grid !important;
+          grid-template-columns: 1.35rem minmax(0, 1fr);
+          align-items: center;
+          column-gap: 0.65rem;
+        }
+    
+        .admin-title-icon {
+          width: 1.35rem !important;
+          min-width: 1.35rem !important;
+          height: 1.35rem !important;
+          border-radius: 0.35rem;
+        }
+    
+        .admin-registration-card {
+          border-width: 2px;
+          border-color: #c7d2e5;
+          border-left: 4px solid #4b49ac;
+          box-shadow: 0 8px 18px -16px rgba(15, 23, 42, 0.32);
+        }
+      }
+
+    .admin-title-icon {
+      width: 1.35rem;
+      min-width: 1.35rem;
+      height: 1.35rem;
+      border-radius: 0.45rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #eef2f7;
+      color: #334155;
+      font-size: 0.92rem;
+    }
+
+    .admin-title-text {
+      display: inline-block;
+    }
+
+    .admin-event-summary-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1.15;
+      color: #111827;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .admin-event-main-title {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .admin-registrations-grid {
+      display: grid;
+      gap: 0.85rem;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    }
+
+    .admin-registration-card {
+      border: 1px solid #cfd8e6;
+      border-radius: 0.8rem;
+      background: #fff;
+      padding: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      box-shadow: 0 6px 14px -12px rgba(15, 23, 42, 0.28);
+    }
+
+    .admin-registration-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.7rem;
+      flex-wrap: wrap;
+    }
+
+    .admin-registration-user {
+      font-weight: 700;
+      color: #111827;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .admin-registration-date {
+      border: 1px solid #e2e8f0;
+      border-radius: 999px;
+      padding: 0.15rem 0.5rem;
+      color: #64748b;
+      font-size: 0.76rem;
+      background: #f8fafc;
+      white-space: nowrap;
+    }
+
+    .admin-registration-meta {
+      display: flex;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+
+    .admin-registration-meta .badge {
+      font-size: 0.74rem;
+      font-weight: 600;
+    }
+
+    .admin-registration-answers {
+      border-top: 1px solid #e5ebf5;
+      padding-top: 0.6rem;
+    }
+
+    .admin-registration-answers ul {
+      margin: 0;
+      padding-left: 1rem;
+      color: #334155;
+      font-size: 0.84rem;
+    }
+
+    .admin-registration-answers li {
+      margin-bottom: 0.2rem;
+    }
+
+    .admin-registration-answers li:last-child {
+      margin-bottom: 0;
+    }
+
     .admin-event-comments {
       display: flex;
       flex-direction: column;
@@ -18,124 +174,220 @@
     }
 
     .admin-event-comment {
-      border: 1px solid #e2e7f0;
-      border-radius: 0.7rem;
+      border: 1px solid #e3e8ef;
+      border-radius: 16px;
       padding: 0.85rem;
-      background: #fff;
+      background: linear-gradient(180deg, #ffffff 0%, #fcfdff 100%);
+      box-shadow: 0 10px 24px -18px rgba(15, 23, 42, 0.28);
+    }
+
+    .admin-event-comment-date {
+      color: #6b7280;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 999px;
+      padding: 2px 10px;
+      white-space: nowrap;
+      font-size: .75rem;
+      font-weight: 400;
     }
 
     .admin-event-comment-replies {
       margin-top: 0.65rem;
-      margin-left: 1.5rem;
+      margin-left: 1.2rem;
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
     }
 
     .admin-event-comment-reply {
-      background: #f7fafc;
-      border: 1px solid #dde4ef;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
       border-radius: 0.55rem;
       padding: 0.65rem;
+    }
+
+    @media (max-width: 767.98px) {
+      .admin-event-summary-item {
+        padding: 0.65rem;
+      }
+
+      .admin-event-summary-label {
+        font-size: 0.72rem;
+      }
+
+      .admin-event-summary-value {
+        font-size: 1.05rem;
+      }
+
+      .admin-registrations-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 {% endblock %}
 
 {% block content %}
-  <div class="row g-3 mb-4">
-    <div class="col-md-4">
-      <div class="card card-rounded h-100">
-        <div class="card-body">
-          <p class="text-muted mb-1">{% trans 'Registered users' %}</p>
-          <h4 class="mb-0">{{ registrations_count }}{% if event.capacity %}/{{ event.capacity }}{% endif %}</h4>
+  <div class="card card-rounded mb-3">
+    <div class="card-body">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <span class="d-inline-flex align-items-center justify-content-center" style="width:1.4rem;height:1.4rem;border-radius:.4rem;background:#eef2f7;color:#334155;"><i class="mdi mdi-calendar-text"></i></span>
+        <h5 class="card-title mb-0">{{ event.name }}</h5>
+      </div>
+      <div class="row g-2">
+        <div class="col-12 col-md-4">
+          <div class="admin-event-summary-item">
+            <div class="admin-event-summary-label d-flex align-items-center gap-2"><span class="d-inline-flex align-items-center justify-content-center" style="width:1.4rem;height:1.4rem;border-radius:.4rem;background:#eef2f7;color:#334155;"><i class="mdi mdi-account-group"></i></span><span>{% trans 'Usuarios registrados' %}</span></div>
+            <div class="admin-event-summary-value">{{ registrations_count }}{% if event.capacity %}/{{ event.capacity }}{% endif %}</div>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="admin-event-summary-item">
+            <div class="admin-event-summary-label d-flex align-items-center gap-2"><span class="d-inline-flex align-items-center justify-content-center" style="width:1.4rem;height:1.4rem;border-radius:.4rem;background:#eef2f7;color:#334155;"><i class="mdi mdi-cash-multiple"></i></span><span>{% trans 'Total recaudado' %}</span></div>
+            <div class="admin-event-summary-value">€ {{ total_collected|truncate_2 }}</div>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="admin-event-summary-item">
+            <div class="admin-event-summary-label d-flex align-items-center gap-2"><span class="d-inline-flex align-items-center justify-content-center" style="width:1.4rem;height:1.4rem;border-radius:.4rem;background:#eef2f7;color:#334155;"><i class="mdi mdi-ticket-confirmation-outline"></i></span><span>{% trans 'Cuota de registro' %}</span></div>
+            {% if event.is_paid_event %}
+              <div class="admin-event-summary-value">€ {{ event.registration_fee|truncate_2 }}</div>
+            {% else %}
+              <div class="admin-event-summary-value">€ 0,00</div>
+            {% endif %}
+          </div>
         </div>
       </div>
     </div>
-    {% if event.is_paid_event %}
-      <div class="col-md-4">
-        <div class="card card-rounded h-100">
-          <div class="card-body">
-            <p class="text-muted mb-1">{% trans 'Total collected' %}</p>
-            <h4 class="mb-0">€ {{ total_collected|truncate_2 }}</h4>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card card-rounded h-100">
-          <div class="card-body">
-            <p class="text-muted mb-1">{% trans 'Registration fee' %}</p>
-            <h4 class="mb-0">€ {{ event.registration_fee|truncate_2 }}</h4>
-          </div>
-        </div>
-      </div>
-    {% endif %}
   </div>
 
-  <div class="card card-rounded">
+  <div class="card card-rounded mb-3">
     <div class="card-body">
-      <h5 class="card-title mb-3">{% trans 'Registered users' %}</h5>
+      <h5 class="card-title mb-3 d-flex align-items-center gap-2"><span class="d-inline-flex align-items-center justify-content-center" style="width:1.4rem;height:1.4rem;border-radius:.4rem;background:#eef2f7;color:#334155;"><i class="mdi mdi-account-multiple-check-outline"></i></span><span>{% trans 'Usuarios registrados' %}</span></h5>
       {% if registrations %}
-        <div class="table-responsive">
-          <table class="table select-table align-middle">
-            <thead>
-              <tr>
-                <th>{% trans 'User' %}</th>
-                <th>{% trans 'Registered at' %}</th>
-                <th>{% trans 'Form answers' %}</th>
-                <th class="text-end">{% trans 'Actions' %}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for registration in registrations %}
-                <tr>
-                  <td>{{ registration.user.username }}</td>
-                  <td>{{ registration.created_at|date:'Y/m/d H:i' }}</td>
-                  <td>
-                    {% if registration.answers %}
-                      <ul class="mb-0 ps-3">
-                        {% for answer in registration.answers.values %}
-                          <li>
-                            <strong>{{ answer.label }}:</strong>
+        <div class="admin-registrations-grid">
+          {% for registration in registrations %}
+            <article class="admin-registration-card" style="border:1px solid #e3e8ef;border-radius:16px;background:linear-gradient(180deg,#ffffff 0%,#fcfdff 100%);box-shadow:0 10px 24px -18px rgba(15,23,42,0.28);padding:.95rem;">
+              <div class="admin-registration-header">
+                <div class="admin-registration-user"><i class="mdi mdi-account-circle-outline"></i>{{ registration.user.username }}</div>
+                <span class="admin-registration-date">{{ registration.created_at|date:'Y/m/d H:i' }}</span>
+              </div>
+
+              <div class="admin-registration-meta">
+                <span class="badge badge-opacity-primary"><i class="mdi mdi-account-group-outline"></i> {% trans 'Asistentes' %}: {{ registration.total_attendees }}</span>
+                <span class="badge badge-opacity-info"><i class="mdi mdi-account-multiple-plus-outline"></i> {% trans 'Acompañantes' %}: {{ registration.companion_count }}</span>
+              </div>
+
+              <div class="admin-registration-answers">
+                {% if registration.answers %}
+                  <ul>
+                    {% for answer in registration.answers.values %}
+                      {% if answer.type == 'companions' or answer.label or answer.value %}
+                        <li>
+                          {% if answer.type == 'companions' %}
+                            <strong>{% trans 'Respuestas de acompañantes' %}:</strong>
+                            {% if answer.value %}
+                              <ul class="mb-0 ps-3 mt-1">
+                                {% for companion in answer.value %}
+                                  <li>
+                                    <strong>{{ companion.name|default:'Acompañante' }}</strong>
+                                    {% if companion.answers %}
+                                      <ul class="mb-0 ps-3">
+                                        {% for companion_answer in companion.answers %}
+                                          {% if companion_answer.label or companion_answer.value %}
+                                            <li>
+                                              <strong>{{ companion_answer.label }}:</strong>
+                                              {% if companion_answer.type == 'checkbox' %}
+                                                {% if companion_answer.value %}{% trans 'Sí' %}{% else %}{% trans 'No' %}{% endif %}
+                                              {% else %}
+                                                {{ companion_answer.value }}
+                                              {% endif %}
+                                            </li>
+                                          {% endif %}
+                                        {% endfor %}
+                                      </ul>
+                                    {% endif %}
+                                  </li>
+                                {% endfor %}
+                              </ul>
+                            {% else %}
+                              <span class="text-muted">-</span>
+                            {% endif %}
+                          {% else %}
+                            {% if answer.label %}<strong>{{ answer.label }}:</strong>{% endif %}
                             {% if answer.type == 'checkbox' %}
-                              {% if answer.value %}{% trans 'Yes' %}{% else %}{% trans 'No' %}{% endif %}
+                              {% if answer.value %}{% trans 'Sí' %}{% else %}{% trans 'No' %}{% endif %}
                             {% else %}
                               {{ answer.value }}
                             {% endif %}
-                          </li>
-                        {% endfor %}
-                      </ul>
-                    {% else %}
-                      <span class="text-muted">-</span>
-                    {% endif %}
-                  </td>
-                  <td class="text-end">
-                    <form method="post" action="{% url 'admin_event_registration_remove' event.pk registration.id %}" onsubmit="return confirm('{% trans 'Are you sure you want to remove this registration?' %}');">
-                      {% csrf_token %}
-                      <button class="btn btn-sm btn-outline-danger" type="submit">{% trans 'Remove registration' %}</button>
-                    </form>
-                  </td>
-                </tr>
+                          {% endif %}
+                        </li>
+                      {% endif %}
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  <span class="text-muted">{% trans 'Sin respuestas de formulario.' %}</span>
+                {% endif %}
+              </div>
+
+              <div class="text-end">
+                <form method="post" action="{% url 'admin_event_registration_remove' event.pk registration.id %}" onsubmit="return confirm('{% trans 'Are you sure you want to remove this registration?' %}');">
+                  {% csrf_token %}
+                  <button class="btn btn-sm btn-outline-danger" type="submit"><i class="mdi mdi-account-remove-outline"></i> {% trans 'Quitar registro' %}</button>
+                </form>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">{% trans 'Todavía no hay usuarios registrados.' %}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card card-rounded mb-3">
+    <div class="card-body">
+      <h5 class="card-title mb-3 d-flex align-items-center gap-2"><span class="d-inline-flex align-items-center justify-content-center" style="width:1.4rem;height:1.4rem;border-radius:.4rem;background:#eef2f7;color:#334155;"><i class="mdi mdi-table"></i></span><span>{% trans 'Resumen' %}</span></h5>
+      {% if registration_option_summary %}
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <thead>
+              <tr>
+                <th>{% trans 'Campo' %}</th>
+                <th>{% trans 'Opción elegida' %}</th>
+                <th class="text-end">{% trans 'Veces' %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for summary in registration_option_summary %}
+                {% for option in summary.options %}
+                  <tr>
+                    <td>{{ summary.field_label }}</td>
+                    <td>{{ option.value }}</td>
+                    <td class="text-end">{{ option.count }}</td>
+                  </tr>
+                {% endfor %}
               {% endfor %}
             </tbody>
           </table>
         </div>
       {% else %}
-        <p class="text-muted mb-0">{% trans 'No users registered yet.' %}</p>
+        <p class="text-muted mb-0">{% trans 'Todavía no hay respuestas para resumir.' %}</p>
       {% endif %}
     </div>
   </div>
 
-  <div class="card card-rounded mt-3">
+  <div class="card card-rounded">
     <div class="card-body">
-      <h5 class="card-title mb-3">{% trans 'Comments' %}</h5>
+      <h5 class="card-title mb-3 d-flex align-items-center gap-2"><span class="d-inline-flex align-items-center justify-content-center" style="width:1.4rem;height:1.4rem;border-radius:.4rem;background:#eef2f7;color:#334155;"><i class="mdi mdi-comment-text-multiple-outline"></i></span><span>{% trans 'Comentarios' %}</span></h5>
       {% if event_comments %}
         <div class="admin-event-comments">
           {% for comment in event_comments %}
-            <article class="admin-event-comment">
+            <article class="admin-event-comment" style="border:1px solid #e3e8ef;border-radius:16px;background:linear-gradient(180deg,#ffffff 0%,#fcfdff 100%);box-shadow:0 10px 24px -18px rgba(15,23,42,.28);padding:.9rem;">
               <div class="d-flex justify-content-between flex-wrap gap-2 mb-2">
                 <div>
                   <strong>{{ comment.user.username }}</strong>
-                  <span class="text-muted">· {{ comment.created_at|date:'Y/m/d H:i' }}</span>
+                  <span class="admin-event-comment-date" style="color:#6b7280;background:#f8fafc;border:1px solid #e5e7eb;border-radius:999px;padding:2px 10px;white-space:nowrap;font-size:.75rem;font-weight:400;">{{ comment.created_at|date:'Y/m/d H:i' }}</span>
                 </div>
               </div>
               <p class="mb-2">{{ comment.content|linebreaksbr }}</p>
@@ -143,10 +395,10 @@
               {% if comment.replies.all %}
                 <div class="admin-event-comment-replies mb-2">
                   {% for reply in comment.replies.all %}
-                    <article class="admin-event-comment-reply">
+                    <article class="admin-event-comment-reply" style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:.55rem;padding:.65rem;">
                       <div>
                         <strong>{{ reply.user.username }}</strong>
-                        <span class="text-muted">· {{ reply.created_at|date:'Y/m/d H:i' }}</span>
+                        <span class="admin-event-comment-date" style="color:#6b7280;background:#f8fafc;border:1px solid #e5e7eb;border-radius:999px;padding:2px 10px;white-space:nowrap;font-size:.75rem;font-weight:400;">{{ reply.created_at|date:'Y/m/d H:i' }}</span>
                       </div>
                       <div>{{ reply.content|linebreaksbr }}</div>
                     </article>
@@ -157,13 +409,13 @@
               <form method="post" action="{% url 'admin_event_comment_reply' event.pk comment.id %}" class="mt-2">
                 {% csrf_token %}
                 {{ comment_reply_form.content }}
-                <button class="btn btn-sm btn-outline-primary mt-2" type="submit">{% trans 'Reply as admin' %}</button>
+                <button class="btn btn-sm btn-outline-primary mt-2" type="submit">{% trans 'Responder como admin' %}</button>
               </form>
             </article>
           {% endfor %}
         </div>
       {% else %}
-        <p class="text-muted mb-0">{% trans 'No comments yet.' %}</p>
+        <p class="text-muted mb-0">{% trans 'Todavía no hay comentarios.' %}</p>
       {% endif %}
     </div>
   </div>

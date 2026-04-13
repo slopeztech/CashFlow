@@ -2701,6 +2701,102 @@ msgstr "Disco libre"
 msgid "Total disk"
 msgstr "Disco total"
 
+msgid "Read/write test"
+msgstr "Prueba de lectura/escritura"
+
+msgid "Database test"
+msgstr "Prueba de base de datos"
+
+msgid "Creates and reads temporary files to measure disk speed."
+msgstr "Crea y lee archivos temporales para medir velocidad de disco."
+
+msgid "Measures connection, query and write/delete operations in database."
+msgstr "Mide conexión, consulta y operaciones de escritura/borrado en base de datos."
+
+msgid "System and requirements test"
+msgstr "Prueba de sistema y requisitos"
+
+msgid "Checks minimum requirements needed to run the application."
+msgstr "Verifica requisitos mínimos necesarios para ejecutar la aplicación."
+
+msgid "Data quality test"
+msgstr "Prueba de calidad de datos"
+
+msgid "Searches for records with common inconsistencies or unusual data."
+msgstr "Busca registros con inconsistencias comunes o datos inusuales."
+
+msgid "Temporary directory not available: %(path)s"
+msgstr "Directorio temporal no disponible: %(path)s"
+
+msgid "Unsupported DB vendor: %(vendor)s"
+msgstr "Motor de base de datos no soportado: %(vendor)s"
+
+msgid "Read/write verification OK"
+msgstr "Verificación de lectura/escritura correcta"
+
+msgid "Read/write verification mismatch"
+msgstr "La verificación de lectura/escritura no coincide"
+
+msgid "Database test completed"
+msgstr "Prueba de base de datos completada"
+
+msgid "Database test count mismatch"
+msgstr "Conteo inesperado en prueba de base de datos"
+
+msgid "Database test failed: %(error)s"
+msgstr "Prueba de base de datos fallida: %(error)s"
+
+msgid "Requirements OK"
+msgstr "Requisitos correctos"
+
+msgid "Missing requirements: %(missing)s"
+msgstr "Faltan requisitos: %(missing)s"
+
+msgid "Products with negative stock: %(count)s"
+msgstr "Productos con stock negativo: %(count)s"
+
+msgid "Products with price <= 0: %(count)s"
+msgstr "Productos con precio <= 0: %(count)s"
+
+msgid "Approved orders without items: %(count)s"
+msgstr "Pedidos aprobados sin ítems: %(count)s"
+
+msgid "Active sales without items: %(count)s"
+msgstr "Ventas activas sin ítems: %(count)s"
+
+msgid "Reviews with invalid rating: %(count)s"
+msgstr "Valoraciones con puntuación inválida: %(count)s"
+
+msgid "Products with suspicious characters: %(count)s"
+msgstr "Productos con caracteres sospechosos: %(count)s"
+
+msgid "Profiles without user relation: %(count)s"
+msgstr "Perfiles sin relación con usuario: %(count)s"
+
+msgid "Pending balance requests with non-positive amount: %(count)s"
+msgstr "Solicitudes de saldo pendientes con importe no positivo: %(count)s"
+
+msgid "No common data issues detected."
+msgstr "No se detectaron problemas comunes de datos."
+
+msgid "Found %(count)s potential issues."
+msgstr "Se encontraron %(count)s posibles problemas."
+
+msgid "No data"
+msgstr "Sin datos"
+
+msgid "Improves"
+msgstr "Mejora"
+
+msgid "Worsens"
+msgstr "Empeora"
+
+msgid "Stable"
+msgstr "Estable"
+
+msgid "Unknown test key: %(key)s"
+msgstr "Clave de prueba desconocida: %(key)s"
+
 msgid "This event does not require registration."
 msgstr "Este evento no requiere registro."
 

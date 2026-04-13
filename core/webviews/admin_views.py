@@ -63,6 +63,7 @@ from core.models import (
     UserSession,
 )
 from core.security import safe_redirect_target
+from core.system_tests import build_system_tests_overview, run_system_test
 from core.update_runner import (
     get_git_executable,
     get_update_log_path,
@@ -1798,8 +1799,9 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
     TAB_UPDATES = 'updates'
     TAB_ENV = 'environment'
     TAB_BACKUPS = 'backups'
+    TAB_TESTS = 'tests'
     TAB_BACKENDLOG = 'backendlog'
-    ALLOWED_TABS = {TAB_SUMMARY, TAB_UPDATES, TAB_ENV, TAB_BACKUPS, TAB_BACKENDLOG}
+    ALLOWED_TABS = {TAB_SUMMARY, TAB_UPDATES, TAB_ENV, TAB_BACKUPS, TAB_TESTS, TAB_BACKENDLOG}
     LOG_MAX_LINES = 2000
     LOG_AUTO_REFRESH_OPTIONS = {0, 5, 10, 30, 60}
     EXPORT_DAYS_DEFAULT = 30
@@ -1932,6 +1934,7 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
 
         backendlog = self._read_backendlog_content() if selected_tab == self.TAB_BACKENDLOG else None
         server_runtime_info = self._server_runtime_info() if selected_tab == self.TAB_SUMMARY else None
+        system_tests_overview = build_system_tests_overview() if selected_tab == self.TAB_TESTS else None
 
         return {
             'selected_tab': selected_tab,
@@ -1962,6 +1965,7 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
             'orders_export_days_min': self.EXPORT_DAYS_MIN,
             'orders_export_days_max': self.EXPORT_DAYS_MAX,
             'server_runtime_info': server_runtime_info,
+            'system_tests_overview': system_tests_overview,
         }
 
     def _resolve_git_info(self):
@@ -2424,6 +2428,20 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
 
     def post(self, request):
         action = (request.POST.get('action') or '').strip()
+
+        if action == 'run_system_test':
+            test_type = (request.POST.get('test_type') or '').strip()
+            try:
+                test_run = run_system_test(test_type, executed_by=request.user, save_result=True)
+                if test_run.status == test_run.Status.SUCCESS:
+                    messages.success(request, _('Test executed successfully.'))
+                elif test_run.status == test_run.Status.SKIPPED:
+                    messages.warning(request, _('Test is not supported in this environment.'))
+                else:
+                    messages.error(request, _('Test failed. Review logs for details.'))
+            except ValueError:
+                messages.error(request, _('Invalid test type.'))
+            return redirect(f"{request.path}?tab={self.TAB_TESTS}")
 
         if action == 'save_environment':
             system_settings = self._system_settings()

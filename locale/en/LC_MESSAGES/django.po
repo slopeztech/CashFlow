@@ -2491,6 +2491,96 @@ msgstr "Free disk"
 msgid "Total disk"
 msgstr "Total disk"
 
+msgid "Creates and reads temporary files to measure disk speed."
+msgstr "Creates and reads temporary files to measure disk speed."
+
+msgid "Measures connection, query and write/delete operations in database."
+msgstr "Measures connection, query and write/delete operations in database."
+
+msgid "System and requirements test"
+msgstr "System and requirements test"
+
+msgid "Checks minimum requirements needed to run the application."
+msgstr "Checks minimum requirements needed to run the application."
+
+msgid "Data quality test"
+msgstr "Data quality test"
+
+msgid "Searches for records with common inconsistencies or unusual data."
+msgstr "Searches for records with common inconsistencies or unusual data."
+
+msgid "Temporary directory not available: %(path)s"
+msgstr "Temporary directory not available: %(path)s"
+
+msgid "Unsupported DB vendor: %(vendor)s"
+msgstr "Unsupported DB vendor: %(vendor)s"
+
+msgid "Read/write verification OK"
+msgstr "Read/write verification OK"
+
+msgid "Read/write verification mismatch"
+msgstr "Read/write verification mismatch"
+
+msgid "Database test completed"
+msgstr "Database test completed"
+
+msgid "Database test count mismatch"
+msgstr "Database test count mismatch"
+
+msgid "Database test failed: %(error)s"
+msgstr "Database test failed: %(error)s"
+
+msgid "Requirements OK"
+msgstr "Requirements OK"
+
+msgid "Missing requirements: %(missing)s"
+msgstr "Missing requirements: %(missing)s"
+
+msgid "Products with negative stock: %(count)s"
+msgstr "Products with negative stock: %(count)s"
+
+msgid "Products with price <= 0: %(count)s"
+msgstr "Products with price <= 0: %(count)s"
+
+msgid "Approved orders without items: %(count)s"
+msgstr "Approved orders without items: %(count)s"
+
+msgid "Active sales without items: %(count)s"
+msgstr "Active sales without items: %(count)s"
+
+msgid "Reviews with invalid rating: %(count)s"
+msgstr "Reviews with invalid rating: %(count)s"
+
+msgid "Products with suspicious characters: %(count)s"
+msgstr "Products with suspicious characters: %(count)s"
+
+msgid "Profiles without user relation: %(count)s"
+msgstr "Profiles without user relation: %(count)s"
+
+msgid "Pending balance requests with non-positive amount: %(count)s"
+msgstr "Pending balance requests with non-positive amount: %(count)s"
+
+msgid "No common data issues detected."
+msgstr "No common data issues detected."
+
+msgid "Found %(count)s potential issues."
+msgstr "Found %(count)s potential issues."
+
+msgid "No data"
+msgstr "No data"
+
+msgid "Improves"
+msgstr "Improves"
+
+msgid "Worsens"
+msgstr "Worsens"
+
+msgid "Stable"
+msgstr "Stable"
+
+msgid "Unknown test key: %(key)s"
+msgstr "Unknown test key: %(key)s"
+
 msgid "reviews"
 msgstr "reviews"
 

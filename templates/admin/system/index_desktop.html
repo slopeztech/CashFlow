@@ -22,6 +22,9 @@
           <a class="nav-link system-tab-link {% if selected_tab == 'backups' %}active{% endif %}" href="{% url 'admin_system' %}?tab=backups">{% trans 'Backups' %}</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link system-tab-link {% if selected_tab == 'tests' %}active{% endif %}" href="{% url 'admin_system' %}?tab=tests">{% trans 'Tests' %}</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link system-tab-link {% if selected_tab == 'backendlog' %}active{% endif %}" href="{% url 'admin_system' %}?tab=backendlog">{% trans 'BackendLog' %}</a>
         </li>
       </ul>
@@ -372,6 +375,84 @@
             </div>
           </div>
         </div>
+      {% elif selected_tab == 'tests' %}
+        <div class="row g-3">
+          {% for test_item in system_tests_overview %}
+            <div class="col-lg-6">
+              <div class="card card-rounded h-100 border test-card {% if not test_item.supported %}test-card-disabled{% endif %}">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                    <h5 class="card-title mb-0 d-flex align-items-center gap-2">
+                      <i class="mdi mdi-flask-outline text-primary"></i>
+                      <span>{{ test_item.title }}</span>
+                    </h5>
+                    {% if test_item.trend.kind == 'improve' %}
+                      <span class="badge bg-success-subtle text-success-emphasis border">{{ test_item.trend.label }}</span>
+                    {% elif test_item.trend.kind == 'worsen' %}
+                      <span class="badge bg-danger-subtle text-danger-emphasis border">{{ test_item.trend.label }}</span>
+                    {% elif test_item.trend.kind == 'stable' %}
+                      <span class="badge bg-info-subtle text-info-emphasis border">{{ test_item.trend.label }}</span>
+                    {% endif %}
+                  </div>
+
+                  <p class="text-muted mb-2">{{ test_item.description }}</p>
+
+                  {% if test_item.latest_run %}
+                    <p class="small mb-2">
+                      <strong>{% trans 'Last run:' %}</strong>
+                      {{ test_item.latest_run.created_at }} · {{ test_item.latest_run.get_status_display }}
+                      {% if test_item.latest_run.duration_ms %}· {{ test_item.latest_run.duration_ms }} ms{% endif %}
+                    </p>
+                    <p class="small text-muted mb-3">{{ test_item.latest_run.summary }}</p>
+                  {% else %}
+                    <p class="small text-muted mb-3">{% trans 'No runs yet.' %}</p>
+                  {% endif %}
+
+                  {% if not test_item.supported %}
+                    <div class="alert alert-secondary py-2 small mb-3">
+                      {% if test_item.support_note %}
+                        {{ test_item.support_note }}
+                      {% else %}
+                        {% trans 'This test is not available in current environment.' %}
+                      {% endif %}
+                    </div>
+                  {% endif %}
+
+                  <div class="d-flex flex-wrap gap-2">
+                    <form method="post" class="m-0">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="run_system_test">
+                      <input type="hidden" name="test_type" value="{{ test_item.key }}">
+                      <button class="btn btn-primary text-white btn-sm" type="submit" {% if not test_item.supported %}disabled{% endif %}>{% trans 'Run test' %}</button>
+                    </form>
+                    <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#test-logs-{{ test_item.key }}" aria-expanded="false" aria-controls="test-logs-{{ test_item.key }}">{% trans 'View logs' %}</button>
+                  </div>
+
+                  <div id="test-logs-{{ test_item.key }}" class="collapse mt-3">
+                    <div class="test-logs-wrap">
+                      {% if test_item.recent_runs %}
+                        <ul class="list-unstyled mb-0">
+                          {% for run in test_item.recent_runs %}
+                            <li class="py-2 border-bottom small">
+                              <div class="d-flex justify-content-between gap-2">
+                                <span>{{ run.created_at }}</span>
+                                <span class="fw-semibold">{{ run.get_status_display }}</span>
+                              </div>
+                              <div class="text-muted">{{ run.summary }}</div>
+                              {% if run.duration_ms %}<div class="text-muted">{{ run.duration_ms }} ms</div>{% endif %}
+                            </li>
+                          {% endfor %}
+                        </ul>
+                      {% else %}
+                        <p class="small text-muted mb-0">{% trans 'No logs available for this test.' %}</p>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
       {% else %}
         <div class="card card-rounded border">
           <div class="card-body">
@@ -619,6 +700,25 @@
       border-radius: 12px;
       background: #fff;
       padding: 0.95rem;
+    }
+
+    .test-card {
+      border-color: rgb(17 24 39 / 0.12) !important;
+      box-shadow: 0 10px 24px -24px rgb(17 24 39 / 0.9);
+    }
+
+    .test-card-disabled {
+      opacity: .55;
+      filter: grayscale(0.45);
+    }
+
+    .test-logs-wrap {
+      border: 1px solid rgb(148 163 184 / 0.3);
+      border-radius: 10px;
+      background: #f8fafc;
+      padding: .65rem .75rem;
+      max-height: 260px;
+      overflow: auto;
     }
 
     .update-card-overlay {

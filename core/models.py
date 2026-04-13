@@ -431,3 +431,40 @@ class SystemSettings(models.Model):
 
 	def __str__(self):
 		return self.store_name
+
+
+class SystemTestRun(models.Model):
+	class TestType(models.TextChoices):
+		IO_RW = 'io_rw', _('Read/write test')
+		DB = 'db', _('Database test')
+		REQUIREMENTS = 'requirements', _('System requirements test')
+		DATA_QUALITY = 'data_quality', _('Data quality test')
+
+	class Status(models.TextChoices):
+		SUCCESS = 'success', _('Success')
+		FAIL = 'fail', _('Fail')
+		SKIPPED = 'skipped', _('Skipped')
+
+	test_type = models.CharField(max_length=32, choices=TestType.choices)
+	supported = models.BooleanField(default=True)
+	status = models.CharField(max_length=16, choices=Status.choices)
+	duration_ms = models.DecimalField(max_digits=12, decimal_places=3, null=True, blank=True)
+	summary = models.CharField(max_length=255, blank=True)
+	details = models.JSONField(default=dict, blank=True)
+	executed_by = models.ForeignKey(
+		User,
+		on_delete=models.SET_NULL,
+		null=True,
+		blank=True,
+		related_name='system_test_runs',
+	)
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		ordering = ['-created_at', '-id']
+		indexes = [
+			models.Index(fields=['test_type', 'created_at']),
+		]
+
+	def __str__(self):
+		return f'{self.test_type} | {self.status} | {self.created_at}'

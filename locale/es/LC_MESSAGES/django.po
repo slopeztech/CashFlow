@@ -3024,6 +3024,24 @@ msgstr "Historial de ajustes de stock"
 msgid "No stock adjustments yet."
 msgstr "Todavía no hay ajustes de stock."
 
+msgid "Compartir platarforma"
+msgstr "Compartir plataforma"
+
+msgid "Comparte acceso directo con URL, protocolo y puerto."
+msgstr "Comparte acceso directo con URL, protocolo y puerto."
+
+msgid "QR code to access the platform"
+msgstr "Codigo QR para acceder a la plataforma"
+
+msgid "Sharing is not supported in this browser. Link copied to clipboard."
+msgstr "Este navegador no soporta compartir. Se copio el enlace al portapapeles."
+
+msgid "Unable to share automatically. Copy this URL manually:"
+msgstr "No fue posible compartir automaticamente. Copia esta URL manualmente:"
+
+msgid "QR is unavailable. Install QR dependencies and refresh."
+msgstr "El QR no esta disponible. Instala las dependencias de QR y recarga."
+
 msgid "Registered users"
 msgstr "Usuarios registrados"
 

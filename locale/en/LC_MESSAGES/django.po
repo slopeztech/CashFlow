@@ -3048,3 +3048,21 @@ msgstr "Canceled by admin"
 
 msgid "Order #%(order_id)s canceled by admin"
 msgstr "Order #%(order_id)s canceled by admin"
+
+msgid "Compartir platarforma"
+msgstr "Share platform"
+
+msgid "Comparte acceso directo con URL, protocolo y puerto."
+msgstr "Share direct access with URL, protocol and port."
+
+msgid "QR code to access the platform"
+msgstr "QR code to access the platform"
+
+msgid "Sharing is not supported in this browser. Link copied to clipboard."
+msgstr "Sharing is not supported in this browser. Link copied to clipboard."
+
+msgid "Unable to share automatically. Copy this URL manually:"
+msgstr "Unable to share automatically. Copy this URL manually:"
+
+msgid "QR is unavailable. Install QR dependencies and refresh."
+msgstr "QR is unavailable. Install QR dependencies and refresh."

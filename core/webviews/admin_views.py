@@ -1,10 +1,12 @@
 import json
 import os
 import csv
+import base64
 import socket
 import subprocess
 import time
 import shutil
+from io import BytesIO
 from urllib.parse import urlparse
 from decimal import Decimal
 from datetime import timedelta
@@ -1850,6 +1852,34 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
         return self.request.build_absolute_uri('/').rstrip('/')
 
     @staticmethod
+    def _build_qr_data_uri(value):
+        if not value:
+            return ''
+
+        try:
+            import qrcode  # type: ignore
+        except Exception:
+            return ''
+
+        try:
+            qr = qrcode.QRCode(
+                version=None,
+                error_correction=qrcode.constants.ERROR_CORRECT_M,
+                box_size=12,
+                border=2,
+            )
+            qr.add_data(value)
+            qr.make(fit=True)
+            image = qr.make_image(fill_color='black', back_color='white')
+
+            buffer = BytesIO()
+            image.save(buffer, format='PNG')
+            encoded = base64.b64encode(buffer.getvalue()).decode('ascii')
+            return f'data:image/png;base64,{encoded}'
+        except Exception:
+            return ''
+
+    @staticmethod
     def _safe_machine_ips():
         host_name = socket.gethostname()
         endpoints = {}
@@ -1918,6 +1948,7 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
 
         return {
             'app_domain_url': app_domain_url,
+            'app_domain_qr_data_uri': self._build_qr_data_uri(app_domain_url),
             'machine_ips': self._safe_machine_ips(),
             'performance': {
                 'cpu_count': cpu_count,

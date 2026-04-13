@@ -23,6 +23,7 @@ The project currently includes:
 - Channels `>=4.1,<5.0`
 - Daphne `>=4.1,<5.0`
 - Pillow `>=10.0,<12.0`
+- qrcode `>=7.4,<9.0`
 - SQLite (default local DB)
 
 ## Architecture

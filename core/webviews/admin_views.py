@@ -1816,6 +1816,40 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
         return f'{(value_bytes / (1024 ** 3)):.2f} GB'
 
     @staticmethod
+    def _detect_primary_local_ip():
+        # UDP connect discovers the outbound local interface/IP without sending traffic.
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+                sock.connect(('8.8.8.8', 80))
+                ip = (sock.getsockname()[0] or '').strip()
+                if ip and not ip.startswith('127.'):
+                    return ip
+        except OSError:
+            return ''
+        return ''
+
+    def _resolved_app_domain_url(self):
+        app_public_url = (os.getenv('APP_PUBLIC_URL') or '').strip()
+        if app_public_url:
+            parsed = urlparse(app_public_url)
+            if parsed.scheme and parsed.hostname:
+                # Preserve explicit ports; otherwise use current request port when non-default.
+                if parsed.port:
+                    return app_public_url.rstrip('/')
+
+                request_port = (self.request.get_port() or '').strip()
+                default_port = '443' if parsed.scheme == 'https' else '80'
+                host_with_port = parsed.hostname
+                if request_port and request_port != default_port:
+                    host_with_port = f'{parsed.hostname}:{request_port}'
+                rebuilt = parsed._replace(netloc=host_with_port).geturl()
+                return rebuilt.rstrip('/')
+
+            return app_public_url.rstrip('/')
+
+        return self.request.build_absolute_uri('/').rstrip('/')
+
+    @staticmethod
     def _safe_machine_ips():
         host_name = socket.gethostname()
         endpoints = {}
@@ -1834,6 +1868,10 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
                     endpoints[ip] = interface_name
         except Exception:
             pass
+
+        primary_ip = AdminSystemView._detect_primary_local_ip()
+        if primary_ip:
+            endpoints.setdefault(primary_ip, endpoints.get(primary_ip) or '')
 
         if endpoints:
             ordered_ips = sorted(endpoints.keys(), key=lambda ip: (ip.startswith('127.'), ip))
@@ -1854,15 +1892,16 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
         except OSError:
             pass
 
+        if primary_ip:
+            addresses.add(primary_ip)
+
         ordered = sorted(addresses, key=lambda ip: (ip.startswith('127.'), ip))
         if not ordered:
             return [{'ip': 'N/A', 'interface': ''}]
         return [{'ip': ip, 'interface': ''} for ip in ordered]
 
     def _server_runtime_info(self):
-        app_domain_url = (os.getenv('APP_PUBLIC_URL') or '').strip()
-        if not app_domain_url:
-            app_domain_url = self.request.build_absolute_uri('/').rstrip('/')
+        app_domain_url = self._resolved_app_domain_url()
 
         cpu_count = os.cpu_count() or 1
         disk_stats = shutil.disk_usage(settings.BASE_DIR)

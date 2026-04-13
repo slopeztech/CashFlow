@@ -160,7 +160,13 @@ class ProductSheetUrl(models.Model):
 
 class ProductStockAdjustmentLog(models.Model):
 	product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='stock_adjustment_logs')
-	adjusted_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='product_stock_adjustments')
+	adjusted_by = models.ForeignKey(
+		User,
+		on_delete=models.SET_NULL,
+		null=True,
+		blank=True,
+		related_name='product_stock_adjustments',
+	)
 	previous_stock = models.DecimalField(max_digits=12, decimal_places=2)
 	adjustment = models.DecimalField(max_digits=12, decimal_places=2)
 	new_stock = models.DecimalField(max_digits=12, decimal_places=2)

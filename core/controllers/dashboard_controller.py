@@ -205,7 +205,11 @@ def build_dashboard_context(user):
         .count()
     )
 
-    cash_today_sales_total = Sale.objects.filter(is_voided=False, created_at__date=now.date()).aggregate(total=Sum('total_amount'))['total'] or 0
+    cash_today_sales_total = (
+        Sale.objects.filter(is_voided=False, created_at__date=now.date())
+        .aggregate(total=Sum('total_amount'))['total']
+        or 0
+    )
     cash_today_orders_total = _approved_orders_with_money_date().filter(
         money_at__date=now.date(),
     ).aggregate(total=Sum('total_amount'))['total'] or 0

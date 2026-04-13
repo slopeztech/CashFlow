@@ -103,7 +103,10 @@ class ProductListView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
         context['products_low_stock_items'] = low_stock_products
         context['products_active'] = base_queryset.filter(is_active=True).count()
         context['products_inactive'] = base_queryset.filter(is_active=False).count()
-        context['categories'] = Category.objects.annotate(products_count=Count('products')).order_by('display_order', 'name')
+        context['categories'] = (
+            Category.objects.annotate(products_count=Count('products'))
+            .order_by('display_order', 'name')
+        )
         context['filter_category'] = (self.request.GET.get('category') or '').strip()
         context['active_status_filter'] = self._get_status_filter()
         return context

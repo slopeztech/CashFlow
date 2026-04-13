@@ -171,7 +171,11 @@ def _run_requirements_test():
     return {
         'status': status,
         'duration_ms': 0.0,
-        'summary': _('Requirements OK') if not missing else _('Missing requirements: %(missing)s') % {'missing': ', '.join(missing)},
+        'summary': (
+            _('Requirements OK')
+            if not missing
+            else _('Missing requirements: %(missing)s') % {'missing': ', '.join(missing)}
+        ),
         'details': {
             'checked_at': datetime.utcnow().isoformat() + 'Z',
             'checks': checks,
@@ -197,7 +201,10 @@ def _run_data_quality_test():
     if products_zero_price:
         findings.append(_('Products with price <= 0: %(count)s') % {'count': products_zero_price})
 
-    approved_orders_without_items = Order.objects.filter(status=Order.Status.APPROVED, items__isnull=True).count()
+    approved_orders_without_items = Order.objects.filter(
+        status=Order.Status.APPROVED,
+        items__isnull=True,
+    ).count()
     if approved_orders_without_items:
         findings.append(_('Approved orders without items: %(count)s') % {'count': approved_orders_without_items})
 
@@ -218,7 +225,10 @@ def _run_data_quality_test():
     if profiles_without_user:
         findings.append(_('Profiles without user relation: %(count)s') % {'count': profiles_without_user})
 
-    pending_balance_with_negative = BalanceRequest.objects.filter(status=BalanceRequest.Status.PENDING, amount__lte=0).count()
+    pending_balance_with_negative = BalanceRequest.objects.filter(
+        status=BalanceRequest.Status.PENDING,
+        amount__lte=0,
+    ).count()
     if pending_balance_with_negative:
         findings.append(
             _('Pending balance requests with non-positive amount: %(count)s') % {'count': pending_balance_with_negative}
@@ -228,7 +238,11 @@ def _run_data_quality_test():
     return {
         'status': status,
         'duration_ms': 0.0,
-        'summary': _('No common data issues detected.') if not findings else _('Found %(count)s potential issues.') % {'count': len(findings)},
+        'summary': (
+            _('No common data issues detected.')
+            if not findings
+            else _('Found %(count)s potential issues.') % {'count': len(findings)}
+        ),
         'details': {'findings': findings},
     }
 
@@ -252,7 +266,11 @@ def _trend_for_runs(test_key, runs):
     if test_key not in {TEST_IO_RW, TEST_DB}:
         return {'label': '', 'kind': 'none'}
 
-    durations = [float(run.duration_ms) for run in runs if run.status == SystemTestRun.Status.SUCCESS and run.duration_ms]
+    durations = [
+        float(run.duration_ms)
+        for run in runs
+        if run.status == SystemTestRun.Status.SUCCESS and run.duration_ms
+    ]
     if len(durations) < 2:
         return {'label': _('No data'), 'kind': 'none'}
 

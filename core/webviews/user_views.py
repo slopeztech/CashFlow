@@ -259,10 +259,16 @@ def _build_event_registration_form(event, data=None):
 def _attach_profile_image(comments):
     for comment in comments:
         profile = getattr(comment.user, 'store_profile', None)
-        comment.profile_image_url = profile.profile_image.url if profile and profile.profile_image else ''
+        comment.profile_image_url = (
+            profile.profile_image.url if profile and profile.profile_image else ''
+        )
         for reply in comment.replies.all():
             reply_profile = getattr(reply.user, 'store_profile', None)
-            reply.profile_image_url = reply_profile.profile_image.url if reply_profile and reply_profile.profile_image else ''
+            reply.profile_image_url = (
+                reply_profile.profile_image.url
+                if reply_profile and reply_profile.profile_image
+                else ''
+            )
     return comments
 
 
@@ -275,7 +281,9 @@ class UserDashboardView(ResponsiveTemplateMixin, LoginRequiredMixin, NonStaffReq
         context.update(build_user_dashboard_context(self.request.user))
         profile, _created = StoreUserProfile.objects.get_or_create(user=self.request.user)
         context['show_password_change_modal'] = profile.password_change_required
-        context['password_change_url'] = f"{reverse('profile_edit')}#password-settings"
+        context['password_change_url'] = (
+            f"{reverse('profile_edit')}#password-settings"
+        )
 
         all_events = context.get('timeline_events', [])
         movements_limit = _get_recent_movements_limit(self.request.user)
@@ -359,7 +367,13 @@ class ProfileEditView(ResponsiveTemplateMixin, LoginRequiredMixin, View):
                 if profile.password_change_required:
                     profile.password_change_required = False
                     profile.temporary_access_code_plain = ''
-                    profile.save(update_fields=['password_change_required', 'temporary_access_code_plain', 'updated_at'])
+                    profile.save(
+                        update_fields=[
+                            'password_change_required',
+                            'temporary_access_code_plain',
+                            'updated_at',
+                        ]
+                    )
                 messages.success(request, _('Password changed successfully.'))
                 return redirect('profile_edit')
             return render(
@@ -672,7 +686,10 @@ class UserEventDetailView(ResponsiveTemplateMixin, LoginRequiredMixin, NonStaffR
         ).prefetch_related(
             Prefetch(
                 'replies',
-                queryset=EventComment.objects.select_related('user', 'user__store_profile').order_by('created_at', 'id'),
+                queryset=(
+                    EventComment.objects.select_related('user', 'user__store_profile')
+                    .order_by('created_at', 'id')
+                ),
             )
         )
 
@@ -944,16 +961,28 @@ class UserProductCatalogView(ResponsiveTemplateMixin, LoginRequiredMixin, NonSta
         )
         tried_product_ids.update(
             Sale.objects.filter(
-                Q(customer=self.request.user) | Q(customer__isnull=True, customer_name__iexact=self.request.user.username),
+                Q(customer=self.request.user)
+                | Q(
+                    customer__isnull=True,
+                    customer_name__iexact=self.request.user.username,
+                ),
                 is_voided=False,
             ).values_list('items__product_id', flat=True)
         )
         tried_product_ids.discard(None)
 
         for product in products:
-            category_enabled = bool(getattr(product.category, 'include_in_untried', True)) if product.category else True
+            category_enabled = (
+                bool(getattr(product.category, 'include_in_untried', True))
+                if product.category
+                else True
+            )
             product.is_untried_for_user = category_enabled and product.id not in tried_product_ids
-            product.user_ratings_enabled = bool(getattr(product.category, 'allow_user_ratings', True)) if product.category else True
+            product.user_ratings_enabled = (
+                bool(getattr(product.category, 'allow_user_ratings', True))
+                if product.category
+                else True
+            )
 
         grouped = []
         grouped_index = {}
@@ -1139,7 +1168,11 @@ class UserProductDetailView(ResponsiveTemplateMixin, LoginRequiredMixin, NonStaf
         ).select_related('user').order_by('-updated_at')
         product_sheet_fields = ProductSheetField.objects.filter(product=product).order_by('id')
         product_sheet_urls = ProductSheetUrl.objects.filter(product=product).order_by('id')
-        category_allows_ratings = bool(getattr(product.category, 'allow_user_ratings', True)) if product.category else True
+        category_allows_ratings = (
+            bool(getattr(product.category, 'allow_user_ratings', True))
+            if product.category
+            else True
+        )
         can_review = _can_review_product(self.request.user, product) and category_allows_ratings
         has_user_review = ProductReview.objects.filter(product=product, user=self.request.user).exists()
         context['product'] = product
@@ -1149,7 +1182,9 @@ class UserProductDetailView(ResponsiveTemplateMixin, LoginRequiredMixin, NonStaf
         context['can_review'] = can_review
         context['category_allows_ratings'] = category_allows_ratings
         context['show_pending_review_card'] = can_review and not has_user_review
-        context['has_product_sheet'] = product_sheet_fields.exists() or product_sheet_urls.exists()
+        context['has_product_sheet'] = (
+            product_sheet_fields.exists() or product_sheet_urls.exists()
+        )
         return context
 
 

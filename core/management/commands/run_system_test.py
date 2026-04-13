@@ -55,7 +55,10 @@ class Command(BaseCommand):
                     latest = item['latest_run']
                     latest_status = latest.status if latest else 'N/A'
                     latest_summary = latest.summary if latest else 'No runs yet.'
-                    self.stdout.write(f"[{item['key']}] supported={item['supported']} status={latest_status} | {latest_summary}")
+                    self.stdout.write(
+                        f"[{item['key']}] supported={item['supported']} "
+                        f"status={latest_status} | {latest_summary}"
+                    )
             return
 
         valid_keys = {item['key'] for item in SYSTEM_TEST_DEFINITIONS}
@@ -65,7 +68,10 @@ class Command(BaseCommand):
         elif requested in valid_keys:
             selected_keys = [requested]
         else:
-            raise CommandError(f"Unknown test type '{requested}'. Valid: {', '.join(sorted(valid_keys))}, all")
+            raise CommandError(
+                f"Unknown test type '{requested}'. "
+                f"Valid: {', '.join(sorted(valid_keys))}, all"
+            )
 
         results = []
         save_result = not options['no_save']
@@ -90,5 +96,7 @@ class Command(BaseCommand):
 
         for item in results:
             self.stdout.write(
-                f"[{item['test_type']}] supported={item['supported']} status={item['status']} duration_ms={item['duration_ms']} | {item['summary']}"
+                f"[{item['test_type']}] supported={item['supported']} "
+                f"status={item['status']} duration_ms={item['duration_ms']} "
+                f"| {item['summary']}"
             )

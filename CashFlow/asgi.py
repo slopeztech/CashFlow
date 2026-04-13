@@ -4,6 +4,9 @@ ASGI config for CashFlow project.
 It exposes the ASGI callable as a module-level variable named ``application``.
 
 For more information on this file, see
+
+django_asgi_app = get_asgi_application()
+
 https://docs.djangoproject.com/en/6.0/howto/deployment/asgi/
 """
 
@@ -18,6 +21,7 @@ def _env_bool(name, default=False):
 	if value is None:
 		return default
 	return value.strip().lower() in {'1', 'true', 'yes', 'on'}
+
 
 django_asgi_app = get_asgi_application()
 

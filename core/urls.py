@@ -267,8 +267,16 @@ urlpatterns = [
         AdminUserPurchaseHistoryView.as_view(),
         name='admin_user_purchase_history',
     ),
-    path('admin-panel/users/<int:user_id>/strikes/', AdminUserStrikesView.as_view(), name='admin_user_strikes'),
-    path('admin-panel/orders/', RedirectView.as_view(pattern_name='admin_actions', permanent=False), name='admin_orders'),
+    path(
+        'admin-panel/users/<int:user_id>/strikes/',
+        AdminUserStrikesView.as_view(),
+        name='admin_user_strikes',
+    ),
+    path(
+        'admin-panel/orders/',
+        RedirectView.as_view(pattern_name='admin_actions', permanent=False),
+        name='admin_orders',
+    ),
     path('admin-panel/orders/<int:pk>/', AdminOrderApprovalView.as_view(), name='admin_order_approval'),
     path('admin-panel/orders/<int:pk>/edit/', AdminOrderUpdateView.as_view(), name='admin_order_update'),
     path('admin-panel/orders/<int:pk>/delete/', AdminOrderDeleteView.as_view(), name='admin_order_delete'),

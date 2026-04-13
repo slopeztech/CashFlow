@@ -486,9 +486,21 @@ class StabilityWorkflowWebTests(TestCase):
 
 class UserProductCatalogHighlightTests(TestCase):
     def setUp(self):
-        self.admin = User.objects.create_user(username='catalog-admin-extra', password='testpass123', is_staff=True)
-        self.user = User.objects.create_user(username='catalog-user-extra', password='testpass123', is_staff=False)
-        self.other_user = User.objects.create_user(username='catalog-peer-extra', password='testpass123', is_staff=False)
+        self.admin = User.objects.create_user(
+            username='catalog-admin-extra',
+            password='testpass123',
+            is_staff=True,
+        )
+        self.user = User.objects.create_user(
+            username='catalog-user-extra',
+            password='testpass123',
+            is_staff=False,
+        )
+        self.other_user = User.objects.create_user(
+            username='catalog-peer-extra',
+            password='testpass123',
+            is_staff=False,
+        )
         StoreUserProfile.objects.create(user=self.user, current_balance='150.00')
 
         self.included_category = Category.objects.create(name='Catalog included', include_in_untried=True)

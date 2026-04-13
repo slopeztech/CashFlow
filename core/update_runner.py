@@ -203,9 +203,20 @@ def _run_step(log_file, *, step_name, command, cwd, timeout=900):
             _append_log(log_file, 'HINT: Run `sudo visudo -f /etc/sudoers.d/cashflow-update` and add:')
             _append_log(
                 log_file,
-                f"HINT: {runtime_user} ALL=(root) NOPASSWD: /usr/bin/systemctl restart {UPDATE_SERVICE_NAME}, /usr/bin/systemctl is-active {UPDATE_SERVICE_NAME}, /usr/bin/systemctl daemon-reload",
+                (
+                    f"HINT: {runtime_user} ALL=(root) NOPASSWD: "
+                    f"/usr/bin/systemctl restart {UPDATE_SERVICE_NAME}, "
+                    f"/usr/bin/systemctl is-active {UPDATE_SERVICE_NAME}, "
+                    '/usr/bin/systemctl daemon-reload'
+                ),
             )
-            _append_log(log_file, f"HINT: Verify with `sudo -l -U {runtime_user}` and `sudo -n /usr/bin/systemctl is-active {UPDATE_SERVICE_NAME}`.")
+            _append_log(
+                log_file,
+                (
+                    f"HINT: Verify with `sudo -l -U {runtime_user}` and "
+                    f"`sudo -n /usr/bin/systemctl is-active {UPDATE_SERVICE_NAME}`."
+                ),
+            )
         return False
 
     _append_log(log_file, f"OK: {step_name}")
@@ -261,7 +272,13 @@ def run_platform_update(*, initiated_by='manual'):
 
             git_cmd = get_git_executable()
             if not git_cmd:
-                _append_log(log_file, 'ERROR: Git executable not found. Ensure git is installed and available to the service user.')
+                _append_log(
+                    log_file,
+                    (
+                        'ERROR: Git executable not found. Ensure git is installed '
+                        'and available to the service user.'
+                    ),
+                )
                 _append_log(log_file, 'CashFlow update finished with errors')
                 return {
                     'success': False,
@@ -296,7 +313,13 @@ def run_platform_update(*, initiated_by='manual'):
                     }
 
                 _append_log(log_file, f"Systemctl command base: {' '.join(systemctl_base)}")
-                _append_log(log_file, 'If restart fails with permissions, configure sudoers for non-interactive systemctl restart.')
+                _append_log(
+                    log_file,
+                    (
+                        'If restart fails with permissions, configure sudoers '
+                        'for non-interactive systemctl restart.'
+                    ),
+                )
 
                 # daemon-reload is useful when unit files changed, but not required on every code update.
                 daemon_reload_ok = _run_step(

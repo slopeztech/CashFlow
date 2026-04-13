@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.http import Http404
 from django.core.exceptions import ValidationError
-from django.db.models import Case, IntegerField, Sum, Value, When
+from django.db.models import Case, IntegerField, Value, When
 from django.db.models.functions import Coalesce
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
@@ -135,7 +135,10 @@ class SaleListView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMix
 
         if selected_scope == 'voided':
             sales_queryset = Sale.objects.filter(is_voided=True).select_related('seller', 'customer')
-            orders_queryset = Order.objects.filter(status=Order.Status.CANCELED).select_related('created_by', 'approved_by')
+            orders_queryset = (
+                Order.objects.filter(status=Order.Status.CANCELED)
+                .select_related('created_by', 'approved_by')
+            )
         else:
             sales_queryset = Sale.objects.filter(is_voided=False).select_related('seller', 'customer')
             orders_queryset = (
@@ -154,9 +157,21 @@ class SaleListView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMix
                     'seller': sale.seller.username,
                     'customer': sale.customer.username if sale.customer else (sale.customer_name or '-'),
                     'total': sale.total_amount,
-                    'view_url': reverse('sale_detail', kwargs={'pk': sale.pk}) if selected_scope == 'active' else None,
-                    'edit_url': reverse('sale_update', kwargs={'pk': sale.pk}) if selected_scope == 'active' else None,
-                    'delete_url': reverse('sale_delete', kwargs={'pk': sale.pk}) if selected_scope == 'active' else None,
+                    'view_url': (
+                        reverse('sale_detail', kwargs={'pk': sale.pk})
+                        if selected_scope == 'active'
+                        else None
+                    ),
+                    'edit_url': (
+                        reverse('sale_update', kwargs={'pk': sale.pk})
+                        if selected_scope == 'active'
+                        else None
+                    ),
+                    'delete_url': (
+                        reverse('sale_delete', kwargs={'pk': sale.pk})
+                        if selected_scope == 'active'
+                        else None
+                    ),
                 }
             )
 
@@ -169,9 +184,21 @@ class SaleListView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMix
                     'seller': order.approved_by.username if order.approved_by else '-',
                     'customer': order.created_by.username if order.created_by else (order.customer_name or '-'),
                     'total': order.total_amount,
-                    'view_url': reverse('admin_order_approval', kwargs={'pk': order.pk}) if selected_scope == 'active' else None,
-                    'edit_url': reverse('admin_order_update', args=[order.id]) if selected_scope == 'active' else None,
-                    'delete_url': reverse('admin_order_delete', args=[order.id]) if selected_scope == 'active' else None,
+                    'view_url': (
+                        reverse('admin_order_approval', kwargs={'pk': order.pk})
+                        if selected_scope == 'active'
+                        else None
+                    ),
+                    'edit_url': (
+                        reverse('admin_order_update', args=[order.id])
+                        if selected_scope == 'active'
+                        else None
+                    ),
+                    'delete_url': (
+                        reverse('admin_order_delete', args=[order.id])
+                        if selected_scope == 'active'
+                        else None
+                    ),
                 }
             )
 
@@ -447,5 +474,8 @@ class AdminOrderDeleteView(LoginRequiredMixin, StaffRequiredMixin, DeleteView):
 
     def form_valid(self, form):
         delete_order(order=self.object, modified_by=self.request.user)
-        messages.success(self.request, _('Order canceled. Stock and user balance restored. Historical records were preserved.'))
+        messages.success(
+            self.request,
+            _('Order canceled. Stock and user balance restored. Historical records were preserved.'),
+        )
         return redirect(self.success_url)

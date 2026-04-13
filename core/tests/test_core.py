@@ -1119,7 +1119,7 @@ class UserEventFlowTests(TestCase):
 			requires_registration=True,
 			created_by=self.admin,
 		)
-		_required_field = EventRegistrationField.objects.create(
+		EventRegistrationField.objects.create(
 			event=event,
 			label='Teléfono de contacto',
 			field_type=EventRegistrationField.FieldType.SHORT_TEXT,

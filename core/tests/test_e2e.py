@@ -66,7 +66,10 @@ class OrderJourneyE2ETests(TestCase):
 
         approve_response = admin_client.post(
             reverse('admin_order_approval', kwargs={'pk': order.id}),
-              {'action': 'approve', 'next': 'admin_actions'},
+            {
+                'action': 'approve',
+                'next': 'admin_actions',
+            },
         )
         self.assertEqual(approve_response.status_code, 302)
 

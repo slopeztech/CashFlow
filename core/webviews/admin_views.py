@@ -1457,7 +1457,11 @@ class AdminUserUpdateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequ
             'address': profile.address or '',
             'language': profile.language,
             'monthly_fee_enabled': 'on' if profile.monthly_fee_enabled else '',
-            'recent_movements_limit': '' if profile.recent_movements_limit is None else str(profile.recent_movements_limit),
+            'recent_movements_limit': (
+                ''
+                if profile.recent_movements_limit is None
+                else str(profile.recent_movements_limit)
+            ),
         }
 
         if section == 'basic':
@@ -2267,7 +2271,7 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
 
         truncated = len(lines) > self.UPDATE_LOG_MAX_LINES
         if truncated:
-            lines = lines[-self.UPDATE_LOG_MAX_LINES :]
+            lines = lines[-self.UPDATE_LOG_MAX_LINES:]
 
         return {
             'path': log_path,
@@ -2306,7 +2310,7 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
 
         truncated = len(lines) > self.LOG_MAX_LINES
         if truncated:
-            lines = lines[-self.LOG_MAX_LINES :]
+            lines = lines[-self.LOG_MAX_LINES:]
 
         return {
             'path': log_path,
@@ -2592,7 +2596,10 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
         if action == 'run_update':
             result = start_platform_update_background(initiated_by=request.user.username)
             if result['started']:
-                messages.success(request, _('Platform update started in background. The page will refresh while it runs.'))
+                messages.success(
+                    request,
+                    _('Platform update started in background. The page will refresh while it runs.'),
+                )
             else:
                 messages.warning(request, _('An update is already running.'))
             return redirect(f"{request.path}?tab={self.TAB_UPDATES}")

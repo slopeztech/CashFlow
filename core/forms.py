@@ -600,8 +600,16 @@ class StaffUserCreateForm(forms.ModelForm):
 
 class AdminUserUpdateForm(forms.Form):
     username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
-    member_number = forms.CharField(required=False, max_length=50, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    display_name = forms.CharField(required=False, max_length=80, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    member_number = forms.CharField(
+        required=False,
+        max_length=50,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+    )
+    display_name = forms.CharField(
+        required=False,
+        max_length=80,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+    )
     is_staff = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}))
     phone = forms.CharField(required=False, max_length=20, widget=forms.TextInput(attrs={'class': 'form-control'}))
     address = forms.CharField(required=False, max_length=255, widget=forms.TextInput(attrs={'class': 'form-control'}))

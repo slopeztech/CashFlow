@@ -5,7 +5,7 @@
 {% block page_title %}{% trans 'Event information' %}{% endblock %}
 {% block page_subtitle %}{{ event.name }}{% endblock %}
 {% block page_actions %}
-  <a class="btn btn-light" href="{% url 'admin_events' %}"><i class="icon-arrow-left"></i> {% trans 'Back to events' %}</a>
+  <a class="btn btn-light admin-action-btn" href="{% url 'admin_events' %}"><i class="icon-arrow-left"></i> {% trans 'Back to events' %}</a>
 {% endblock %}
 
 {% block extra_css %}
@@ -181,6 +181,10 @@
       box-shadow: 0 10px 24px -18px rgba(15, 23, 42, 0.28);
     }
 
+    .admin-event-comment + .admin-event-comment {
+      margin-top: 0.8rem;
+    }
+
     .admin-event-comment-date {
       color: #6b7280;
       background: #f8fafc;
@@ -205,6 +209,44 @@
       border: 1px solid #e5e7eb;
       border-radius: 0.55rem;
       padding: 0.65rem;
+    }
+
+    .admin-event-comment-reply + .admin-event-comment-reply {
+      margin-top: 0.55rem;
+    }
+
+    .admin-action-btn {
+      border-radius: 999px;
+      font-weight: 600;
+      padding: 0.28rem 0.78rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border-width: 1px;
+    }
+
+    .admin-action-btn.btn-light {
+      background: #ffffff;
+      border-color: #dbe2ea;
+      color: #334155;
+    }
+
+    .admin-action-btn.btn-light:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+
+    .admin-action-btn.btn-outline-primary {
+      color: #4b49ac;
+      border-color: #cdd2ef;
+      background: #ffffff;
+    }
+
+    .admin-action-btn.btn-outline-primary:hover {
+      color: #2f2c85;
+      border-color: #b8c0ea;
+      background: #f7f8ff;
     }
 
     @media (max-width: 767.98px) {
@@ -333,7 +375,7 @@
               <div class="text-end">
                 <form method="post" action="{% url 'admin_event_registration_remove' event.pk registration.id %}" onsubmit="return confirm('{% trans 'Are you sure you want to remove this registration?' %}');">
                   {% csrf_token %}
-                  <button class="btn btn-sm btn-outline-danger" type="submit"><i class="mdi mdi-account-remove-outline"></i> {% trans 'Quitar registro' %}</button>
+                  <button class="btn btn-sm btn-outline-danger admin-action-btn" type="submit"><i class="mdi mdi-account-remove-outline"></i> {% trans 'Quitar registro' %}</button>
                 </form>
               </div>
             </article>
@@ -409,7 +451,7 @@
               <form method="post" action="{% url 'admin_event_comment_reply' event.pk comment.id %}" class="mt-2">
                 {% csrf_token %}
                 {{ comment_reply_form.content }}
-                <button class="btn btn-sm btn-outline-primary mt-2" type="submit">{% trans 'Responder como admin' %}</button>
+                <button class="btn btn-sm btn-outline-primary admin-action-btn mt-2" type="submit"><i class="mdi mdi-reply-outline"></i>{% trans 'Responder como admin' %}</button>
               </form>
             </article>
           {% endfor %}

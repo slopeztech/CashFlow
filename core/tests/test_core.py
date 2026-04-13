@@ -1667,19 +1667,25 @@ class AdminEventInfoTests(TestCase):
 		self.assertContains(response, 'event_info_user')
 		self.assertContains(response, '€ 4.00')
 
-	def test_admin_can_remove_registration_and_refund_paid_event_before_start(self):
+	def test_admin_can_remove_registration_and_refund_paid_event_including_companions(self):
 		now = timezone.localtime()
 		event = Event.objects.create(
 			name='Manual remove event',
-			start_at=now + timedelta(hours=5),
-			end_at=now + timedelta(days=1),
+			start_at=now - timedelta(hours=1),
+			end_at=now + timedelta(hours=2),
 			requires_registration=True,
 			capacity=10,
 			is_paid_event=True,
 			registration_fee='5.00',
 			created_by=self.admin,
 		)
-		registration = EventRegistration.objects.create(event=event, user=self.user)
+		registration = EventRegistration.objects.create(
+			event=event,
+			user=self.user,
+			answers={
+				'_companions': ['Ana', 'Luis'],
+			},
+		)
 
 		profile = StoreUserProfile.objects.get(user=self.user)
 		profile.current_balance = '5.00'
@@ -1693,14 +1699,63 @@ class AdminEventInfoTests(TestCase):
 		self.assertFalse(EventRegistration.objects.filter(pk=registration.pk).exists())
 
 		profile.refresh_from_db()
-		self.assertEqual(str(profile.current_balance), '10.00')
+		self.assertEqual(str(profile.current_balance), '20.00')
 		self.assertTrue(
 			BalanceLog.objects.filter(
 				user=self.user,
 				source=BalanceLog.Source.EVENT_REGISTRATION_REFUND,
-				amount_delta='5.00',
+				amount_delta='15.00',
 			).exists()
 		)
+
+	def test_admin_cannot_delete_event_while_has_registrations(self):
+		now = timezone.localtime()
+		event = Event.objects.create(
+			name='Event locked delete',
+			start_at=now + timedelta(hours=2),
+			end_at=now + timedelta(days=1),
+			requires_registration=True,
+			created_by=self.admin,
+		)
+		EventRegistration.objects.create(event=event, user=self.user)
+
+		response = self.client.post(
+			reverse('admin_event_delete', kwargs={'pk': event.pk}),
+			follow=True,
+		)
+		self.assertEqual(response.status_code, 200)
+		self.assertTrue(Event.objects.filter(pk=event.pk).exists())
+		self.assertContains(response, 'No se puede eliminar el evento porque tiene datos asociados')
+
+	def test_admin_cannot_delete_event_with_balance_movements(self):
+		now = timezone.localtime()
+		event = Event.objects.create(
+			name='Evento con movimiento',
+			start_at=now + timedelta(hours=2),
+			end_at=now + timedelta(days=1),
+			requires_registration=True,
+			is_paid_event=True,
+			registration_fee='4.00',
+			created_by=self.admin,
+		)
+
+		BalanceLog.objects.create(
+			user=self.user,
+			changed_by=None,
+			source=BalanceLog.Source.EVENT_REGISTRATION_CHARGE,
+			amount_delta=Decimal('-8.00'),
+			balance_before=Decimal('20.00'),
+			balance_after=Decimal('12.00'),
+			note='Paid registration for event: Evento con movimiento (2 attendees)',
+		)
+
+		response = self.client.post(
+			reverse('admin_event_delete', kwargs={'pk': event.pk}),
+			follow=True,
+		)
+		self.assertEqual(response.status_code, 200)
+		self.assertTrue(Event.objects.filter(pk=event.pk).exists())
+		self.assertContains(response, 'No se puede eliminar el evento porque tiene datos asociados')
 
 	def test_admin_can_reply_event_comment(self):
 		now = timezone.localtime()

@@ -239,9 +239,24 @@ class AdminNoticeDeleteView(LoginRequiredMixin, StaffRequiredMixin, View):
 class AdminEventListView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMixin, TemplateView):
     template_name = 'admin/events/list.html'
 
+    @staticmethod
+    def _event_has_balance_movements(event):
+        if not event.is_paid_event:
+            return False
+        return BalanceLog.objects.filter(
+            source__in=[
+                BalanceLog.Source.EVENT_REGISTRATION_CHARGE,
+                BalanceLog.Source.EVENT_REGISTRATION_REFUND,
+            ],
+            note__icontains=event.name,
+        ).exists()
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['events'] = Event.objects.select_related('created_by').prefetch_related('images', 'registrations')
+        events = list(Event.objects.select_related('created_by').prefetch_related('images', 'registrations'))
+        for event in events:
+            event.has_balance_movements = self._event_has_balance_movements(event)
+        context['events'] = events
         context['now'] = timezone.localtime()
         return context
 
@@ -393,10 +408,30 @@ class AdminEventUpdateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffReq
 
 
 class AdminEventDeleteView(LoginRequiredMixin, StaffRequiredMixin, View):
+    @staticmethod
+    def _event_has_balance_movements(event):
+        if not event.is_paid_event:
+            return False
+        return BalanceLog.objects.filter(
+            source__in=[
+                BalanceLog.Source.EVENT_REGISTRATION_CHARGE,
+                BalanceLog.Source.EVENT_REGISTRATION_REFUND,
+            ],
+            note__icontains=event.name,
+        ).exists()
+
     def post(self, request, pk):
         event = get_object_or_404(Event, pk=pk)
+        has_registrations = EventRegistration.objects.filter(event=event).exists()
+        has_balance_movements = self._event_has_balance_movements(event)
+        if has_registrations or has_balance_movements:
+            messages.error(
+                request,
+                _('No se puede eliminar el evento porque tiene datos asociados (registros o movimientos de saldo).'),
+            )
+            return redirect('admin_events')
         event.delete()
-        messages.success(request, _('Event deleted successfully.'))
+        messages.success(request, _('Evento eliminado correctamente.'))
         return redirect('admin_events')
 
 
@@ -709,22 +744,24 @@ class AdminEventRegistrationRemoveView(LoginRequiredMixin, StaffRequiredMixin, V
             event=event,
         )
 
-        if event.is_paid_event and timezone.localtime() < event.start_at:
+        if event.is_paid_event:
             profile, created = StoreUserProfile.objects.select_for_update().get_or_create(user=registration.user)
             refund_amount = event.registration_fee * Decimal(str(registration.total_attendees))
-            balance_before = profile.current_balance
-            balance_after = balance_before + refund_amount
-            profile.current_balance = balance_after
-            profile.save(update_fields=['current_balance', 'updated_at'])
-            BalanceLog.objects.create(
-                user=registration.user,
-                changed_by=request.user,
-                source=BalanceLog.Source.EVENT_REGISTRATION_REFUND,
-                amount_delta=refund_amount,
-                balance_before=balance_before,
-                balance_after=balance_after,
-                note=_('Admin removed event registration: %(event)s') % {'event': event.name},
-            )
+            if refund_amount > 0:
+                balance_before = profile.current_balance
+                balance_after = balance_before + refund_amount
+                profile.current_balance = balance_after
+                profile.save(update_fields=['current_balance', 'updated_at'])
+                BalanceLog.objects.create(
+                    user=registration.user,
+                    changed_by=request.user,
+                    source=BalanceLog.Source.EVENT_REGISTRATION_REFUND,
+                    amount_delta=refund_amount,
+                    balance_before=balance_before,
+                    balance_after=balance_after,
+                    note=_('Admin removed event registration: %(event)s (%(people)s attendees)')
+                    % {'event': event.name, 'people': registration.total_attendees},
+                )
 
         registration.delete()
         messages.success(request, _('User registration removed successfully.'))

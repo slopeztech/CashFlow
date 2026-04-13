@@ -176,6 +176,13 @@ ENABLE_REALTIME = _env_bool('ENABLE_REALTIME', default=True)
 HAS_CHANNELS = _is_module_available('channels')
 HAS_DAPHNE = _is_module_available('daphne')
 REALTIME_ENABLED = ENABLE_REALTIME and HAS_CHANNELS and HAS_DAPHNE
+try:
+    LIVE_UPDATES_POLL_SECONDS = float(os.getenv('LIVE_UPDATES_POLL_SECONDS', '5').strip() or '5')
+except (TypeError, ValueError):
+    LIVE_UPDATES_POLL_SECONDS = 5
+if LIVE_UPDATES_POLL_SECONDS < 1:
+    LIVE_UPDATES_POLL_SECONDS = 1
+LIVE_UPDATES_POLL_MS = int(LIVE_UPDATES_POLL_SECONDS * 1000)
 
 INSTALLED_APPS = [
     'django.contrib.admin',

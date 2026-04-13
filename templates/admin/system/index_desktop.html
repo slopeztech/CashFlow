@@ -332,6 +332,19 @@
                 </div>
               </div>
             </div>
+
+            <div class="col-lg-6">
+              <div class="card card-rounded h-100 border">
+                <div class="card-body">
+                  <h5 class="card-title d-flex align-items-center gap-2"><i class="mdi mdi-access-point text-primary"></i>{% trans 'Live mode' %}</h5>
+                  <p class="text-muted small mb-3">{% trans 'When enabled, pages refresh data automatically without reloading. Works without Channels/Daphne using HTTP polling fallback.' %}</p>
+                  <div class="form-check mb-0">
+                    {{ system_form.live_mode_enabled }}
+                    <label class="form-check-label" for="{{ system_form.live_mode_enabled.id_for_label }}">{{ system_form.live_mode_enabled.label }}</label>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <button class="btn btn-primary text-white" type="submit">{% trans 'Save settings' %}</button>

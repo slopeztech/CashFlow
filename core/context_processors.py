@@ -65,7 +65,12 @@ def current_user_profile(request):
 
 def ui_settings(request):
     settings_obj, _created = SystemSettings.objects.get_or_create(pk=1)
+    env_live_enabled = bool(getattr(settings, 'ENABLE_REALTIME', False))
+    db_live_enabled = bool(getattr(settings_obj, 'live_mode_enabled', True))
+    live_updates_enabled = env_live_enabled and db_live_enabled
     return {
         'ui_settings': settings_obj,
-        'live_updates_enabled': bool(getattr(settings, 'REALTIME_ENABLED', False)),
+        'live_updates_enabled': live_updates_enabled,
+        'live_updates_use_websocket': live_updates_enabled and bool(getattr(settings, 'REALTIME_ENABLED', False)),
+        'live_updates_poll_ms': int(getattr(settings, 'LIVE_UPDATES_POLL_MS', 5000)),
     }

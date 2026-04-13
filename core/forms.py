@@ -1185,13 +1185,21 @@ class MonthlyFeeSettingsForm(forms.ModelForm):
 class SystemSettingsForm(forms.ModelForm):
     class Meta:
         model = SystemSettings
-        fields = ['store_name', 'brand_color_primary', 'brand_color_secondary', 'footer_signature', 'app_time_zone']
+        fields = [
+            'store_name',
+            'brand_color_primary',
+            'brand_color_secondary',
+            'footer_signature',
+            'app_time_zone',
+            'live_mode_enabled',
+        ]
         widgets = {
             'store_name': forms.TextInput(attrs={'class': 'form-control'}),
             'brand_color_primary': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '#111827'}),
             'brand_color_secondary': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '#5E8DF5'}),
             'footer_signature': forms.TextInput(attrs={'class': 'form-control'}),
             'app_time_zone': forms.Select(attrs={'class': 'form-select'}),
+            'live_mode_enabled': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -1199,6 +1207,7 @@ class SystemSettingsForm(forms.ModelForm):
         self.fields['app_time_zone'].choices = SYSTEM_TIME_ZONE_CHOICES
         self.fields['app_time_zone'].widget.choices = SYSTEM_TIME_ZONE_CHOICES
         self.fields['app_time_zone'].label = _('Application time zone')
+        self.fields['live_mode_enabled'].label = _('Enable live mode (no page reload)')
         current_value = self.initial.get('app_time_zone') or getattr(self.instance, 'app_time_zone', None)
         valid_time_zones = {choice[0] for choice in SYSTEM_TIME_ZONE_CHOICES}
         if current_value not in valid_time_zones:

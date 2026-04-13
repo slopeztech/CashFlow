@@ -9,7 +9,9 @@ It includes two complete experiences:
 ## Current Scope
 
 The project currently includes:
-- Real-time UI updates via WebSockets (Channels + Daphne).
+- Live UI updates without page reload using two transports:
+  - WebSockets when Channels + Daphne are available.
+  - HTTP polling fallback when Channels/Daphne are not installed.
 - Multi-language support (`en`, `es`) with compiled locales.
 - Audited monetary flows (orders, balance requests, monthly fees).
 - Product stock adjustment history and operational logs.
@@ -200,13 +202,17 @@ Installation and deployment recipe is documented in [receta.md](receta.md).
 
 ## Realtime Notes
 
-- Live updates are delivered over `/ws/live-updates/`.
+- Live mode can work with or without Channels/Daphne.
+- Transport selection is automatic:
+  - WebSocket (`/ws/live-updates/`) when runtime supports Channels + Daphne.
+  - Polling fallback otherwise (no extra compilation dependencies required).
+- Admin can enable or disable live mode from `System > Environment variables`.
 - Admin navigation badges and selected dashboard regions refresh automatically.
 - User balance/orders/dashboard regions refresh automatically after relevant events.
 
 Compatibility mode:
-- Set `ENABLE_REALTIME=0` to run without Channels/Daphne.
-- In this mode, the app keeps full HTTP functionality and disables websocket live refresh.
+- Set `ENABLE_REALTIME=0` to disable live mode entirely.
+- Keep `ENABLE_REALTIME=1` to allow live mode (WebSocket when available, polling fallback otherwise).
 
 ## Environment Variables
 
@@ -236,6 +242,7 @@ Use `.env.example` as baseline.
 - `SECRET_KEY`
 - `DEBUG`
 - `ENABLE_REALTIME`
+- `LIVE_UPDATES_POLL_SECONDS`
 - `ALLOWED_HOSTS`
 - `APP_PUBLIC_URL`
 - `APP_PUBLIC_PORT`

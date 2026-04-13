@@ -8,7 +8,7 @@ import time
 import shutil
 from io import BytesIO
 from urllib.parse import urlparse
-from decimal import Decimal
+from decimal import Decimal, ROUND_DOWN
 from datetime import timedelta
 
 from django.conf import settings
@@ -1702,6 +1702,11 @@ class AdminActionsView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequire
             .prefetch_related('items__product')
             .order_by('id')
         )
+        for order in pending_orders:
+            order_items = list(order.items.all())
+            distributed_amounts = AdminOrderApprovalView._distribute_item_amounts(order_items, order.total_amount)
+            for item in order_items:
+                item.charge_amount = distributed_amounts.get(item.id, Decimal('0.00'))
         pending_reviews = (
             ProductReview.objects.filter(is_approved=False)
             .select_related('product', 'user')
@@ -2599,15 +2604,53 @@ class AdminOrderApprovalView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffR
     template_name = 'admin/orders/approval.html'
 
     @staticmethod
+    def _distribute_item_amounts(order_items, target_total):
+        quant = Decimal('0.01')
+        target = Decimal(target_total or 0).quantize(quant)
+        if not order_items:
+            return {}
+
+        buckets = []
+        base_sum = 0
+        for item in order_items:
+            raw = (Decimal(item.quantity) * Decimal(item.unit_price)).quantize(Decimal('0.0001'))
+            base = raw.quantize(quant, rounding=ROUND_DOWN)
+            remainder = raw - base
+            base_sum += base
+            buckets.append({'item_id': item.id, 'base': base, 'remainder': remainder})
+
+        diff = target - base_sum
+        steps = int((diff / quant).to_integral_value())
+
+        if steps > 0:
+            buckets.sort(key=lambda row: (row['remainder'], row['item_id']), reverse=True)
+            for idx in range(steps):
+                buckets[idx % len(buckets)]['base'] += quant
+        elif steps < 0:
+            buckets.sort(key=lambda row: (row['remainder'], row['item_id']))
+            for idx in range(abs(steps)):
+                candidate = buckets[idx % len(buckets)]
+                if candidate['base'] >= quant:
+                    candidate['base'] -= quant
+
+        return {row['item_id']: row['base'] for row in buckets}
+
+    @staticmethod
     def _build_context(order, form):
         profile, _created = StoreUserProfile.objects.get_or_create(user=order.created_by)
         current_balance = profile.current_balance
+        order_items = list(order.items.select_related('product', 'product__category').all())
+        distributed_amounts = AdminOrderApprovalView._distribute_item_amounts(order_items, order.total_amount)
+        for item in order_items:
+            item.charge_amount = distributed_amounts.get(item.id, Decimal('0.00'))
+
         charge_total = sum(
-            ((item.quantity * item.unit_price) for item in order.items.all() if not item.is_gift),
+            (item.charge_amount for item in order_items if not item.is_gift),
             Decimal('0.00'),
         )
         return {
             'order': order,
+            'order_items': order_items,
             'form': form,
             'order_user_current_balance': current_balance,
             'order_charge_total': charge_total,

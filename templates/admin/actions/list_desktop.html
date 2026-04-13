@@ -33,7 +33,7 @@
                               ({{ item.product.category.name|default:'-' }})
                             </small>
                           </span>
-                          <strong>€ {{ item.subtotal|truncate_2 }}</strong>
+                          <strong>€ {{ item.charge_amount|default:item.subtotal|truncate_2 }}</strong>
                         </div>
                       {% endfor %}
                     </div>

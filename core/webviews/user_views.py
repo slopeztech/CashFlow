@@ -66,7 +66,42 @@ def _serialize_quantity(value):
 
 
 def _truncate_money(value):
-    return Decimal(value).quantize(Decimal('0.01'), rounding=ROUND_DOWN)
+    return Decimal(value).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+
+def _distribute_line_totals(items, target_total):
+    quant = Decimal('0.01')
+    target = _truncate_money(target_total or Decimal('0.00'))
+    chargeable = [item for item in items if not getattr(item, 'is_gift', False)]
+    if not chargeable:
+        return {getattr(item, 'id', None): Decimal('0.00') for item in items}
+
+    buckets = []
+    base_sum = Decimal('0.00')
+    for item in chargeable:
+        raw = (Decimal(item.quantity) * Decimal(item.unit_price)).quantize(Decimal('0.0001'))
+        base = raw.quantize(quant, rounding=ROUND_DOWN)
+        remainder = raw - base
+        base_sum += base
+        buckets.append({'item_id': item.id, 'base': base, 'remainder': remainder})
+
+    diff = target - base_sum
+    steps = int((diff / quant).to_integral_value())
+    if steps > 0:
+        buckets.sort(key=lambda row: (row['remainder'], row['item_id']), reverse=True)
+        for idx in range(steps):
+            buckets[idx % len(buckets)]['base'] += quant
+    elif steps < 0:
+        buckets.sort(key=lambda row: (row['remainder'], row['item_id']))
+        for idx in range(abs(steps)):
+            candidate = buckets[idx % len(buckets)]
+            if candidate['base'] >= quant:
+                candidate['base'] -= quant
+
+    distributed = {row['item_id']: row['base'] for row in buckets}
+    for item in items:
+        distributed.setdefault(item.id, Decimal('0.00'))
+    return distributed
 
 
 def _formset_items(formset):
@@ -377,6 +412,10 @@ class UserOrderListView(ResponsiveTemplateMixin, LoginRequiredMixin, NonStaffReq
 
         order_events = []
         for order in context['orders']:
+            order_items = list(order.items.all())
+            order_line_totals = _distribute_line_totals(order_items, order.total_amount)
+            for item in order_items:
+                item.display_total = order_line_totals.get(item.id, Decimal('0.00'))
             order_events.append(
                 {
                     'kind': 'order',
@@ -385,11 +424,15 @@ class UserOrderListView(ResponsiveTemplateMixin, LoginRequiredMixin, NonStaffReq
                     'href': reverse('user_order_detail', kwargs={'pk': order.pk}),
                     'status': order.status,
                     'total_amount': order.total_amount,
-                    'items': order.items.all(),
+                    'items': order_items,
                 }
             )
 
         for sale in direct_sales:
+            sale_items = list(sale.items.all())
+            sale_line_totals = _distribute_line_totals(sale_items, sale.total_amount)
+            for item in sale_items:
+                item.display_total = sale_line_totals.get(item.id, Decimal('0.00'))
             order_events.append(
                 {
                     'kind': 'sale',
@@ -398,7 +441,7 @@ class UserOrderListView(ResponsiveTemplateMixin, LoginRequiredMixin, NonStaffReq
                     'href': reverse('user_sale_detail', kwargs={'pk': sale.pk}),
                     'status': Order.Status.APPROVED,
                     'total_amount': sale.total_amount,
-                    'items': sale.items.all(),
+                    'items': sale_items,
                 }
             )
 
@@ -422,6 +465,16 @@ class UserOrderDetailView(ResponsiveTemplateMixin, LoginRequiredMixin, NonStaffR
         if obj.created_by_id != self.request.user.id:
             raise Http404('Order not found')
         return obj
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        order = context['object']
+        order_items = list(order.items.all())
+        line_totals = _distribute_line_totals(order_items, order.total_amount)
+        for item in order_items:
+            item.display_total = line_totals.get(item.id, Decimal('0.00'))
+        context['order_items'] = order_items
+        return context
 
 
 class UserOrderRepeatView(LoginRequiredMixin, NonStaffRequiredMixin, View):
@@ -480,6 +533,16 @@ class UserSaleDetailView(ResponsiveTemplateMixin, LoginRequiredMixin, NonStaffRe
         if obj.customer_id is None and (obj.customer_name or '').strip().lower() == user.username.lower():
             return obj
         raise Http404('Sale not found')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        sale = context['object']
+        sale_items = list(sale.items.all())
+        line_totals = _distribute_line_totals(sale_items, sale.total_amount)
+        for item in sale_items:
+            item.display_total = line_totals.get(item.id, Decimal('0.00'))
+        context['sale_items'] = sale_items
+        return context
 
 
 class UserOrderCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, NonStaffRequiredMixin, View):

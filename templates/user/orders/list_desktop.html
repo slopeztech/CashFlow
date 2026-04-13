@@ -46,7 +46,7 @@
                         {% endif %}
                         {{ item.quantity|trim_zeros }}x {{ item.product.name }}
                       </span>
-                      <strong>€ {{ item.subtotal|truncate_2 }}</strong>
+                      <strong>€ {{ item.display_total|default:item.subtotal|truncate_2 }}</strong>
                     </div>
                   {% endfor %}
                 </div>

@@ -29,7 +29,7 @@
             </tr>
           </thead>
           <tbody>
-            {% for item in object.items.all %}
+            {% for item in sale_items %}
               <tr>
                 <td>
                   {% if item.is_gift %}
@@ -39,7 +39,7 @@
                 </td>
                 <td>{{ item.quantity|trim_zeros }}</td>
                 <td>€ {{ item.unit_price|truncate_2 }}</td>
-                <td>€ {{ item.subtotal|truncate_2 }}</td>
+                <td>€ {{ item.display_total|default:item.subtotal|truncate_2 }}</td>
               </tr>
             {% empty %}
               <tr><td colspan="4" class="text-center text-muted py-3">{% trans 'No items in this purchase.' %}</td></tr>

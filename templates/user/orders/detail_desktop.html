@@ -45,7 +45,7 @@
             </tr>
           </thead>
           <tbody>
-            {% for item in object.items.all %}
+            {% for item in order_items %}
               <tr>
                 <td>
                   {% if item.is_gift %}
@@ -55,7 +55,7 @@
                 </td>
                 <td>{{ item.quantity|trim_zeros }}</td>
                 <td>€ {{ item.unit_price|truncate_2 }}</td>
-                <td>€ {{ item.subtotal|truncate_2 }}</td>
+                <td>€ {{ item.display_total|default:item.subtotal|truncate_2 }}</td>
               </tr>
             {% endfor %}
           </tbody>

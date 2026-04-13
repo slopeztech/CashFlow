@@ -23,7 +23,7 @@ from sales.models import Order, Product, Sale
 from sales.services import create_sale, delete_order, delete_sale, update_approved_order, update_sale
 
 
-def _formset_items(formset):
+def _formset_items(formset, raw_post_data=None):
     items = []
     for form in formset.forms:
         if not hasattr(form, 'cleaned_data'):
@@ -35,11 +35,23 @@ def _formset_items(formset):
         quantity = data.get('quantity')
         if not product or not quantity:
             continue
+
+        requested_amount = None
+        if raw_post_data is not None:
+            requested_amount_key = f'{form.prefix}-requested_amount'
+            requested_amount_raw = (raw_post_data.get(requested_amount_key) or '').strip().replace(',', '.')
+            if requested_amount_raw:
+                try:
+                    requested_amount = Decimal(requested_amount_raw)
+                except Exception:
+                    requested_amount = None
+
         items.append(
             {
                 'product': product,
                 'quantity': quantity,
                 'is_gift': bool(data.get('is_gift')),
+                'requested_amount': requested_amount,
             }
         )
     return items
@@ -262,7 +274,7 @@ class SaleCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredM
                 sale = create_sale(
                     seller=request.user,
                     customer=form.cleaned_data['customer'],
-                    items_data=_formset_items(formset),
+                    items_data=_formset_items(formset, normalized_post),
                 )
                 messages.success(request, _('Sale created successfully.'))
                 return HttpResponseRedirect(reverse('sale_detail', kwargs={'pk': sale.pk}))
@@ -311,7 +323,7 @@ class SaleUpdateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredM
                 updated_sale = update_sale(
                     sale=sale,
                     customer=form.cleaned_data['customer'],
-                    items_data=_formset_items(formset),
+                    items_data=_formset_items(formset, normalized_post),
                 )
                 messages.success(request, _('Sale updated successfully.'))
                 return HttpResponseRedirect(reverse('sale_detail', kwargs={'pk': updated_sale.pk}))

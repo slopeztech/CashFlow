@@ -51,6 +51,7 @@
                     {{ item_form.id }}
                     <span class="d-none">{{ item_form.DELETE }}</span>
                     <span class="d-none">{{ item_form.is_gift }}</span>
+                    <input type="hidden" name="{{ item_form.prefix }}-requested_amount" value="" data-sale-requested-amount>
                     <div class="sale-item-summary">
                       <p class="sale-item-summary-name" data-item-product-name>-</p>
                       <p class="sale-item-summary-meta">
@@ -104,6 +105,7 @@
                       {{ item_form.display_unit_price }}
                       {{ item_form.is_gift }}
                     </div>
+                    <input type="hidden" name="{{ item_form.prefix }}-requested_amount" value="" data-sale-requested-amount>
                     <div class="sale-item-summary">
                       <p class="sale-item-summary-name" data-item-product-name>-</p>
                       <p class="sale-item-summary-meta">
@@ -163,6 +165,7 @@
                 {{ formset.empty_form.display_unit_price }}
                 {{ formset.empty_form.is_gift }}
               </div>
+              <input type="hidden" name="{{ formset.empty_form.prefix }}-requested_amount" value="" data-sale-requested-amount>
               <div class="sale-item-summary">
                 <p class="sale-item-summary-name" data-item-product-name>-</p>
                 <p class="sale-item-summary-meta">
@@ -621,6 +624,12 @@
           if (giftInput && giftInput.checked) {
             return;
           }
+          const requestedAmountInput = row.querySelector('[data-sale-requested-amount]');
+          const requestedAmount = parseMoney(requestedAmountInput ? requestedAmountInput.value : '0');
+          if (requestedAmount > 0) {
+            total += requestedAmount;
+            return;
+          }
           const quantityInput = row.querySelector('input[name$="-quantity"]');
           const priceInput = row.querySelector('input[name$="-display_unit_price"]');
           const quantity = parseFloat(quantityInput ? quantityInput.value : '0') || 0;
@@ -718,6 +727,7 @@
         const productSelect = row.querySelector('select[name$="-product"]');
         const quantityInput = row.querySelector('input[name$="-quantity"]');
         const priceInput = row.querySelector('input[name$="-display_unit_price"]');
+        const requestedAmountInput = row.querySelector('[data-sale-requested-amount]');
         const nameEl = row.querySelector('[data-item-product-name]');
         const qtyEl = row.querySelector('[data-item-quantity]');
         const unitPriceEl = row.querySelector('[data-item-unit-price]');
@@ -727,7 +737,8 @@
         const productData = selected ? parseProductData(selected.text) : { name: '-', category: '' };
         const quantity = parseFloat(quantityInput ? quantityInput.value : '0') || 0;
         const unitPrice = parseMoney(priceInput ? priceInput.value : '0');
-        const subtotal = quantity * unitPrice;
+        const requestedAmount = parseMoney(requestedAmountInput ? requestedAmountInput.value : '0');
+        const subtotal = requestedAmount > 0 ? requestedAmount : (quantity * unitPrice);
 
         if (nameEl) {
           nameEl.textContent = productData.category
@@ -752,12 +763,16 @@
         const amountInput = row.querySelector('[data-sale-amount-input]');
         const unitsInput = row.querySelector('[data-sale-units-input]');
         const unitsPreview = row.querySelector('[data-sale-calculated-units]');
+        const requestedAmountInput = row.querySelector('[data-sale-requested-amount]');
         if (!productSelect || !priceInput || !hiddenQuantityInput || !amountInput || !unitsInput) {
           return;
         }
 
         if (!productSelect.value) {
           hiddenQuantityInput.value = '';
+          if (requestedAmountInput) {
+            requestedAmountInput.value = '';
+          }
           if (unitsPreview) {
             unitsPreview.textContent = '0';
           }
@@ -771,12 +786,19 @@
           const amount = parseMoney(amountInput.value);
           const computedUnits = unitPrice > 0 ? truncate2(amount / unitPrice) : 0;
           hiddenQuantityInput.value = computedUnits > 0 ? formatQuantity(computedUnits) : '';
+          if (requestedAmountInput) {
+            requestedAmountInput.value = amount > 0 ? amount.toFixed(2) : '';
+          }
           if (unitsPreview) {
             unitsPreview.textContent = formatQuantity(computedUnits);
           }
         } else {
           const units = parseMoney(unitsInput.value);
           hiddenQuantityInput.value = units > 0 ? formatQuantity(units) : '';
+          if (requestedAmountInput) {
+            const requestedAmount = units > 0 ? truncate2(units * unitPrice) : 0;
+            requestedAmountInput.value = requestedAmount > 0 ? requestedAmount.toFixed(2) : '';
+          }
           if (unitsPreview) {
             unitsPreview.textContent = formatQuantity(units);
           }
@@ -932,6 +954,7 @@
 
         if (addButton) {
           addButton.addEventListener('click', () => {
+            syncRowMode(row);
             const selectedProduct = productSelect.value;
             const quantity = parseFloat(quantityInput ? quantityInput.value : '0') || 0;
             if (!selectedProduct || quantity <= 0) {
@@ -1006,12 +1029,20 @@
       const saleForm = document.getElementById('sale-form');
       if (saleForm) {
         saleForm.addEventListener('submit', (event) => {
+          Array.from(document.querySelectorAll('[data-item-row]')).forEach((row) => {
+            if (row.classList.contains('d-none')) {
+              return;
+            }
+            syncRowMode(row);
+          });
+
           const composerRow = composerContainer ? composerContainer.querySelector('[data-item-row]') : null;
           if (composerRow) {
             const composerProduct = composerRow.querySelector('select[name$="-product"]');
             const composerDelete = composerRow.querySelector('input[name$="-DELETE"]');
             const composerQty = composerRow.querySelector('input[name$="-quantity"]');
             const composerPrice = composerRow.querySelector('input[name$="-display_unit_price"]');
+            const composerRequestedAmount = composerRow.querySelector('[data-sale-requested-amount]');
             if (composerProduct && !composerProduct.value) {
               if (composerDelete) {
                 composerDelete.checked = true;
@@ -1021,6 +1052,9 @@
               }
               if (composerPrice) {
                 composerPrice.value = '';
+              }
+              if (composerRequestedAmount) {
+                composerRequestedAmount.value = '';
               }
             }
           }

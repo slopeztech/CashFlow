@@ -214,7 +214,7 @@
     <div class="card-body">
       <h5 class="mb-3">{% trans 'Order items' %}</h5>
       <div class="order-items-stack">
-        {% for item in order.items.all %}
+        {% for item in order_items %}
           <div class="order-item-card">
             <div class="order-item-head">
               <h6 class="order-item-name">{{ item.product.name }}</h6>
@@ -237,7 +237,7 @@
             <div class="order-item-meta">
               <p class="order-item-meta-line">{% trans 'Quantity' %}: <strong>{{ item.quantity }}</strong></p>
               <p class="order-item-meta-line">{% trans 'Unit price' %}: <strong>€ {{ item.unit_price|truncate_2 }}</strong></p>
-              <p class="order-item-meta-line">{% trans 'Subtotal' %}: <strong class="order-item-subtotal-value">€ {{ item.subtotal|truncate_2 }}</strong></p>
+              <p class="order-item-meta-line">{% trans 'Subtotal' %}: <strong class="order-item-subtotal-value">€ {{ item.charge_amount|truncate_2 }}</strong></p>
             </div>
           </div>
         {% endfor %}
@@ -252,7 +252,7 @@
           <form method="post">
             {% csrf_token %}
             <input type="hidden" name="action" value="approve">
-            {% for item in order.items.all %}
+            {% for item in order_items %}
               <input
                 type="checkbox"
                 class="d-none"

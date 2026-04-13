@@ -1,4 +1,4 @@
-from decimal import Decimal, InvalidOperation, ROUND_DOWN
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 
 from django import template
 
@@ -31,4 +31,4 @@ def truncate_2(value):
     except (InvalidOperation, TypeError, ValueError):
         return value
 
-    return numeric.quantize(Decimal('0.01'), rounding=ROUND_DOWN)
+    return numeric.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)

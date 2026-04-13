@@ -1,4 +1,4 @@
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal, InvalidOperation, ROUND_DOWN
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -39,9 +39,51 @@ def _compute_total(items_data, *, include_gifts=True):
     for item in items_data:
         if not include_gifts and item.get('is_gift'):
             continue
+        requested_amount = item.get('requested_amount')
+        if requested_amount is not None:
+            try:
+                amount_value = Decimal(str(requested_amount))
+            except (InvalidOperation, TypeError, ValueError):
+                raise ValidationError('Invalid requested amount.')
+            if amount_value < 0:
+                raise ValidationError('Requested amount cannot be negative.')
+            total += amount_value
+            continue
         unit_price = Decimal(str(item['product'].price))
         total += _parse_quantity(item['quantity']) * unit_price
     return total
+
+
+def _distribute_item_amounts(order_items, target_total):
+    quant = Decimal('0.01')
+    target = Decimal(target_total or 0).quantize(quant)
+    if not order_items:
+        return {}
+
+    buckets = []
+    base_sum = Decimal('0.00')
+    for item in order_items:
+        raw = (Decimal(item.quantity) * Decimal(item.unit_price)).quantize(Decimal('0.0001'))
+        base = raw.quantize(quant, rounding=ROUND_DOWN)
+        remainder = raw - base
+        base_sum += base
+        buckets.append({'item_id': item.id, 'base': base, 'remainder': remainder})
+
+    diff = target - base_sum
+    steps = int((diff / quant).to_integral_value())
+
+    if steps > 0:
+        buckets.sort(key=lambda row: (row['remainder'], row['item_id']), reverse=True)
+        for idx in range(steps):
+            buckets[idx % len(buckets)]['base'] += quant
+    elif steps < 0:
+        buckets.sort(key=lambda row: (row['remainder'], row['item_id']))
+        for idx in range(abs(steps)):
+            candidate = buckets[idx % len(buckets)]
+            if candidate['base'] >= quant:
+                candidate['base'] -= quant
+
+    return {row['item_id']: row['base'] for row in buckets}
 
 
 def _apply_balance_delta(*, user, changed_by, amount_delta, note):
@@ -342,9 +384,11 @@ def approve_order(*, order, approved_by, gift_item_ids=None):
         product.stock -= quantity
         product.save(update_fields=['stock', 'updated_at'])
 
+    # Preserve the exact order amount saved at request time; do not recompute from rounded DB quantities.
+    distributed_amounts = _distribute_item_amounts(order_items, order.total_amount)
     charge_total = sum(
         (
-            item.quantity * item.unit_price
+            distributed_amounts.get(item.id, Decimal('0.00'))
             for item in order_items
             if not item.is_gift
         ),

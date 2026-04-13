@@ -1,7 +1,7 @@
 import json
 from calendar import monthrange
 from datetime import timedelta
-from decimal import Decimal, ROUND_DOWN
+from decimal import Decimal, ROUND_DOWN, ROUND_HALF_UP
 
 from django.contrib.auth.models import User
 from django.db.models import Avg, F, Q, Sum
@@ -24,7 +24,42 @@ def _rating_stars(rating):
 
 
 def _truncate_money(value):
-    return Decimal(value or 0).quantize(Decimal('0.01'), rounding=ROUND_DOWN)
+    return Decimal(value or 0).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+
+def _distribute_totals_for_items(items, target_total):
+    quant = Decimal('0.01')
+    target = _truncate_money(target_total)
+    chargeable_items = [item for item in items if not getattr(item, 'is_gift', False)]
+    if not chargeable_items:
+        return {getattr(item, 'id', None): Decimal('0.00') for item in items}
+
+    buckets = []
+    base_sum = Decimal('0.00')
+    for item in chargeable_items:
+        raw = (Decimal(item.quantity) * Decimal(item.unit_price)).quantize(Decimal('0.0001'))
+        base = raw.quantize(quant, rounding=ROUND_DOWN)
+        remainder = raw - base
+        base_sum += base
+        buckets.append({'item_id': item.id, 'base': base, 'remainder': remainder})
+
+    diff = target - base_sum
+    steps = int((diff / quant).to_integral_value())
+    if steps > 0:
+        buckets.sort(key=lambda row: (row['remainder'], row['item_id']), reverse=True)
+        for idx in range(steps):
+            buckets[idx % len(buckets)]['base'] += quant
+    elif steps < 0:
+        buckets.sort(key=lambda row: (row['remainder'], row['item_id']))
+        for idx in range(abs(steps)):
+            candidate = buckets[idx % len(buckets)]
+            if candidate['base'] >= quant:
+                candidate['base'] -= quant
+
+    distributed = {row['item_id']: row['base'] for row in buckets}
+    for item in items:
+        distributed.setdefault(item.id, Decimal('0.00'))
+    return distributed
 
 
 def _approved_orders_with_money_date():
@@ -232,13 +267,15 @@ def build_user_dashboard_context(user):
     for order in approved_orders:
         event_date = order.approved_at or order.created_at
         order_total = _truncate_money(order.total_amount)
+        order_items = list(order.items.all())
+        line_totals = _distribute_totals_for_items(order_items, order_total)
         products = [
             {
                 'label': f'{item.quantity}x {item.product.name}',
-                'total': _truncate_money(item.subtotal),
+                'total': _truncate_money(line_totals.get(item.id, Decimal('0.00'))),
                 'is_gift': item.is_gift,
             }
-            for item in order.items.all()
+            for item in order_items
             if item.product_id
         ]
         timeline_events.append(
@@ -266,13 +303,15 @@ def build_user_dashboard_context(user):
     )
     for sale in direct_sales:
         sale_total = _truncate_money(sale.total_amount)
+        sale_items = list(sale.items.all())
+        line_totals = _distribute_totals_for_items(sale_items, sale_total)
         products = [
             {
                 'label': f'{item.quantity}x {item.product.name}',
-                'total': _truncate_money(item.subtotal),
+                'total': _truncate_money(line_totals.get(item.id, Decimal('0.00'))),
                 'is_gift': item.is_gift,
             }
-            for item in sale.items.all()
+            for item in sale_items
             if item.product_id
         ]
         timeline_events.append(

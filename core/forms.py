@@ -16,6 +16,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from core.models import (
+    Asset,
     Event,
     EventComment,
     EventRegistrationField,
@@ -999,6 +1000,117 @@ class EventRegistrationFieldForm(forms.ModelForm):
             cleaned_data['options_text'] = ''
 
         return cleaned_data
+
+
+class AssetForm(forms.ModelForm):
+    new_images = MultipleFileField(
+        required=False,
+        widget=MultipleFileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
+        label=_('Fotos del activo'),
+    )
+
+    class Meta:
+        model = Asset
+        fields = [
+            'name',
+            'description',
+            'pricing_mode',
+            'price_total',
+            'price_per_hour',
+            'allow_negative_balance',
+            'refund_hours_threshold',
+            'quantity',
+            'is_active',
+        ]
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'pricing_mode': forms.Select(attrs={'class': 'form-select'}),
+            'price_total': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': 0}),
+            'price_per_hour': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': 0}),
+            'allow_negative_balance': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'refund_hours_threshold': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
+            'quantity': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+    def clean_new_images(self):
+        files = self.files.getlist('new_images')
+        if not files:
+            return None
+
+        for image_file in files:
+            _validate_uploaded_image(
+                image_file,
+                max_size_bytes=8 * 1024 * 1024,
+                invalid_size_message=_('Cada imagen del activo debe pesar 8MB o menos.'),
+                invalid_type_message=_('Las imágenes del activo deben ser JPG, PNG o WEBP.'),
+            )
+        return None
+
+    def clean(self):
+        cleaned_data = super().clean()
+        pricing_mode = cleaned_data.get('pricing_mode')
+        price_total = cleaned_data.get('price_total')
+        price_per_hour = cleaned_data.get('price_per_hour')
+        allow_negative_balance = cleaned_data.get('allow_negative_balance')
+
+        if pricing_mode == Asset.PricingMode.FREE:
+            cleaned_data['price_total'] = Decimal('0.00')
+            cleaned_data['price_per_hour'] = Decimal('0.00')
+            cleaned_data['allow_negative_balance'] = False
+        elif pricing_mode == Asset.PricingMode.HOURLY:
+            if price_per_hour is None or price_per_hour < 0:
+                self.add_error('price_per_hour', _('El precio por hora no puede ser negativo.'))
+            cleaned_data['price_total'] = Decimal('0.00')
+        else:
+            if price_total is None or price_total < 0:
+                self.add_error('price_total', _('El precio total no puede ser negativo.'))
+            cleaned_data['price_per_hour'] = Decimal('0.00')
+
+        if pricing_mode == Asset.PricingMode.FREE and allow_negative_balance:
+            cleaned_data['allow_negative_balance'] = False
+
+        return cleaned_data
+
+
+class AssetReservationForm(forms.Form):
+    start_at = forms.DateTimeField(
+        input_formats=['%Y-%m-%dT%H:%M'],
+        widget=forms.DateTimeInput(
+            attrs={'class': 'form-control', 'type': 'datetime-local'},
+            format='%Y-%m-%dT%H:%M',
+        ),
+        label=_('Fecha y hora de inicio'),
+    )
+    end_at = forms.DateTimeField(
+        input_formats=['%Y-%m-%dT%H:%M'],
+        widget=forms.DateTimeInput(
+            attrs={'class': 'form-control', 'type': 'datetime-local'},
+            format='%Y-%m-%dT%H:%M',
+        ),
+        label=_('Fecha y hora de fin'),
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start_at = cleaned_data.get('start_at')
+        end_at = cleaned_data.get('end_at')
+        now = timezone.localtime()
+
+        if start_at and start_at < now:
+            self.add_error('start_at', _('La fecha de inicio debe ser futura.'))
+        if start_at and end_at and end_at <= start_at:
+            self.add_error('end_at', _('La fecha de fin debe ser mayor que la de inicio.'))
+        return cleaned_data
+
+
+class AdminAssetReservationRejectForm(forms.Form):
+    rejection_reason = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={'class': 'form-control form-control-sm', 'placeholder': _('Motivo:')}),
+        label=_('Motivo'),
+    )
 
 
 EventRegistrationFieldFormSet = inlineformset_factory(

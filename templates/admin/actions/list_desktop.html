@@ -255,6 +255,65 @@
         </div>
       </div>
 
+      <div class="col-lg-6" style="order: {{ action_card_order.asset_requests|default:7 }};">
+        <div class="card card-rounded mb-0 action-board-card h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h4 class="card-title card-title-dash mb-0">{% trans 'Solicitudes de activos' %}</h4>
+              <span class="action-board-icon action-board-icon-primary"><i class="mdi mdi-package-variant"></i></span>
+            </div>
+            {% if pending_asset_reservations %}
+              <div class="action-card-scroller{% if pending_asset_reservations|length == 1 %} action-card-scroller--single{% endif %}">
+                {% for reservation in pending_asset_reservations %}
+                  <div class="action-card action-card-scroll-item action-card-clickable p-3" data-href="{% url 'admin_asset_reservation_info' reservation.id %}">
+                    <h6 class="mb-1">{{ reservation.asset.name }} · {{ reservation.user.username }}</h6>
+                    <p class="mb-2 text-muted">{{ reservation.start_at|date:'Y/m/d H:i' }} - {{ reservation.end_at|date:'Y/m/d H:i' }}</p>
+                    <div class="d-flex gap-2 flex-wrap">
+                      <form method="post" action="{% url 'admin_asset_reservation_approve' reservation.id %}" data-confirm-approve="{% trans '¿Aprobar esta reserva?' %}">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-success" type="submit">{% trans 'Aprobar' %}</button>
+                      </form>
+                      <form method="post" action="{% url 'admin_asset_reservation_reject' reservation.id %}" class="d-flex gap-2 align-items-center reject-inline-form">
+                        {% csrf_token %}
+                        <input class="form-control form-control-sm" type="text" name="rejection_reason" placeholder="{% trans 'Motivo:' %}">
+                        <button class="btn btn-sm btn-danger" type="submit">{% trans 'Rechazar' %}</button>
+                      </form>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="text-muted mb-0">{% trans 'No hay solicitudes pendientes de activos.' %}</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6" style="order: {{ action_card_order.asset_calendar|default:8 }};">
+        <div class="card card-rounded mb-0 action-board-card h-100">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h4 class="card-title card-title-dash mb-0">{% trans 'Calendario de activos' %}</h4>
+              <span class="action-board-icon action-board-icon-success"><i class="mdi mdi-calendar-month"></i></span>
+            </div>
+            <p class="mb-2"><strong>{% trans 'Total recaudado' %}:</strong> € {{ asset_total_collected|truncate_2 }}</p>
+            {% if asset_upcoming_reservations %}
+              <div class="action-card-scroller{% if asset_upcoming_reservations|length == 1 %} action-card-scroller--single{% endif %}">
+                {% for reservation in asset_upcoming_reservations %}
+                  <div class="action-card action-card-scroll-item p-3">
+                    <h6 class="mb-1">{{ reservation.asset.name }}</h6>
+                    <p class="mb-1 text-muted">{{ reservation.user.username }}</p>
+                    <p class="mb-0 text-muted">{{ reservation.start_at|date:'Y/m/d H:i' }} - {{ reservation.end_at|date:'Y/m/d H:i' }}</p>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <p class="text-muted mb-0">{% trans 'No hay reservas aprobadas próximas.' %}</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
   </div>
 
 {% endblock %}

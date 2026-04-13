@@ -566,8 +566,8 @@
                 <a class="nav-link" href="{% url 'admin_actions' %}">
                   <i class="menu-icon mdi mdi-playlist-check"></i>
                   <span class="menu-title">{% trans 'Actions' %}</span>
-                  {% if admin_pending_orders_count > 0 or admin_pending_reviews_count > 0 or admin_pending_balance_requests_count > 0 or admin_pending_event_comments_count > 0 or admin_pending_monthly_fee_late_count > 0 %}
-                    <span class="badge badge-danger ms-2">{{ admin_pending_orders_count|add:admin_pending_reviews_count|add:admin_pending_balance_requests_count|add:admin_pending_event_comments_count|add:admin_pending_monthly_fee_late_count }}</span>
+                  {% if admin_pending_orders_count > 0 or admin_pending_reviews_count > 0 or admin_pending_balance_requests_count > 0 or admin_pending_event_comments_count > 0 or admin_pending_asset_requests_count > 0 or admin_pending_monthly_fee_late_count > 0 %}
+                    <span class="badge badge-danger ms-2">{{ admin_pending_orders_count|add:admin_pending_reviews_count|add:admin_pending_balance_requests_count|add:admin_pending_event_comments_count|add:admin_pending_asset_requests_count|add:admin_pending_monthly_fee_late_count }}</span>
                   {% endif %}
                 </a>
               </li>
@@ -599,6 +599,12 @@
                 <a class="nav-link" href="{% url 'admin_events' %}">
                   <i class="menu-icon mdi mdi-calendar-star"></i>
                   <span class="menu-title">{% trans 'Events' %}</span>
+                </a>
+              </li>
+              <li class="nav-item {% if '/admin-panel/assets/' in request.path %}active{% endif %}">
+                <a class="nav-link" href="{% url 'admin_assets' %}">
+                  <i class="menu-icon mdi mdi-package-variant"></i>
+                  <span class="menu-title">{% trans 'Activos' %}</span>
                 </a>
               </li>
               <li class="nav-item {% if '/admin-panel/surveys/' in request.path %}active{% endif %}">
@@ -656,6 +662,14 @@
                   <span class="menu-title">{% trans 'My orders' %}</span>
                 </a>
               </li>
+              {% if user_assets_visible %}
+                <li class="nav-item {% if '/user/assets/' in request.path %}active{% endif %}">
+                  <a class="nav-link" href="{% url 'user_assets' %}">
+                    <i class="menu-icon mdi mdi-package-variant-closed"></i>
+                    <span class="menu-title">{% trans 'Activos' %}</span>
+                  </a>
+                </li>
+              {% endif %}
             {% endif %}
           </ul>
         </nav>

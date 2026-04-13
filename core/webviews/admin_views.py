@@ -33,6 +33,8 @@ from django.views.generic import ListView, TemplateView
 from core.controllers import build_dashboard_context
 from core.gamification_admin import achieved_gamification_rows
 from core.forms import (
+    AssetForm,
+    AdminAssetReservationRejectForm,
     AdminEventCommentReplyForm,
     AdminBalanceAdjustmentForm,
     EventForm,
@@ -51,6 +53,9 @@ from core.forms import (
 )
 from core.image_processing import optimize_uploaded_image
 from core.models import (
+    Asset,
+    AssetImage,
+    AssetReservation,
     Event,
     EventComment,
     EventImage,
@@ -177,6 +182,23 @@ class AdminDashboardView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequi
                 'gamification',
                 gamification.title,
                 reverse('admin_gamification_update', kwargs={'pk': gamification.pk}),
+            )
+
+        asset_reservations = AssetReservation.objects.filter(
+            status=AssetReservation.Status.APPROVED,
+            start_at__lte=window_end,
+            end_at__gte=window_start,
+        ).select_related('asset', 'user').only('id', 'start_at', 'end_at', 'asset__name', 'user__username')
+        for reservation in asset_reservations:
+            add_range(
+                reservation.start_at,
+                reservation.end_at,
+                'asset',
+                _('%(asset)s · %(user)s') % {
+                    'asset': reservation.asset.name,
+                    'user': reservation.user.username,
+                },
+                reverse('admin_asset_reservation_info', kwargs={'reservation_id': reservation.pk}),
             )
 
         return calendar_items
@@ -433,6 +455,253 @@ class AdminEventDeleteView(LoginRequiredMixin, StaffRequiredMixin, View):
         event.delete()
         messages.success(request, _('Evento eliminado correctamente.'))
         return redirect('admin_events')
+
+
+class AdminAssetListView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMixin, TemplateView):
+    template_name = 'admin/assets/list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        assets = Asset.objects.select_related('created_by').prefetch_related('images', 'reservations')
+        now = timezone.localtime()
+        for asset in assets:
+            asset.current_reservations = sum(
+                1
+                for reservation in asset.reservations.all()
+                if reservation.status == AssetReservation.Status.APPROVED and reservation.start_at <= now < reservation.end_at
+            )
+            asset.total_reservations = len(asset.reservations.all())
+            asset.can_delete = asset.total_reservations == 0
+        context['assets'] = assets
+        context['now'] = now
+        return context
+
+
+class AdminAssetCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMixin, View):
+    template_name = 'admin/assets/form.html'
+
+    def get(self, request):
+        form = AssetForm()
+        return render(request, self.get_template_names()[0], {'form': form, 'mode': 'create'})
+
+    def post(self, request):
+        form = AssetForm(request.POST, request.FILES)
+        if form.is_valid():
+            asset = form.save(commit=False)
+            asset.created_by = request.user
+            asset.save()
+            self._save_new_images(asset)
+            messages.success(request, _('Activo creado correctamente.'))
+            return redirect('admin_assets')
+        return render(request, self.get_template_names()[0], {'form': form, 'mode': 'create'})
+
+    def _save_new_images(self, asset):
+        for uploaded_file in self.request.FILES.getlist('new_images'):
+            optimized_file = optimize_uploaded_image(uploaded_file, crop_size=(1200, 1200), max_bytes=512 * 1024)
+            AssetImage.objects.create(asset=asset, image=optimized_file)
+
+
+class AdminAssetUpdateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMixin, View):
+    template_name = 'admin/assets/form.html'
+
+    def get(self, request, pk):
+        asset = get_object_or_404(Asset, pk=pk)
+        form = AssetForm(instance=asset)
+        return render(
+            request,
+            self.get_template_names()[0],
+            {
+                'form': form,
+                'mode': 'edit',
+                'asset': asset,
+                'asset_images': asset.images.all(),
+            },
+        )
+
+    def post(self, request, pk):
+        asset = get_object_or_404(Asset, pk=pk)
+        form = AssetForm(request.POST, request.FILES, instance=asset)
+        if form.is_valid():
+            updated = form.save()
+            self._remove_selected_images(updated)
+            self._save_new_images(updated)
+            messages.success(request, _('Activo actualizado correctamente.'))
+            return redirect('admin_assets')
+        return render(
+            request,
+            self.get_template_names()[0],
+            {
+                'form': form,
+                'mode': 'edit',
+                'asset': asset,
+                'asset_images': asset.images.all(),
+            },
+        )
+
+    def _save_new_images(self, asset):
+        for uploaded_file in self.request.FILES.getlist('new_images'):
+            optimized_file = optimize_uploaded_image(uploaded_file, crop_size=(1200, 1200), max_bytes=512 * 1024)
+            AssetImage.objects.create(asset=asset, image=optimized_file)
+
+    def _remove_selected_images(self, asset):
+        image_ids = [image_id for image_id in self.request.POST.getlist('remove_images') if image_id.isdigit()]
+        if not image_ids:
+            return
+        images = AssetImage.objects.filter(asset=asset, id__in=image_ids)
+        for asset_image in images:
+            if asset_image.image:
+                asset_image.image.delete(save=False)
+            asset_image.delete()
+
+
+class AdminAssetDeleteView(LoginRequiredMixin, StaffRequiredMixin, View):
+    def post(self, request, pk):
+        asset = get_object_or_404(Asset, pk=pk)
+        if AssetReservation.objects.filter(asset=asset).exists():
+            messages.error(request, _('No se puede eliminar el activo porque tiene reservas asociadas.'))
+            return redirect('admin_assets')
+        asset.delete()
+        messages.success(request, _('Activo eliminado correctamente.'))
+        return redirect('admin_assets')
+
+
+class AdminAssetInfoView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMixin, TemplateView):
+    template_name = 'admin/assets/info.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        asset = get_object_or_404(Asset.objects.prefetch_related('images'), pk=self.kwargs['pk'])
+        reservations = AssetReservation.objects.filter(asset=asset).select_related('user', 'approved_by').order_by('-created_at')
+        total_collected = reservations.filter(status=AssetReservation.Status.APPROVED).aggregate(total=Sum('charged_amount')).get('total') or Decimal('0.00')
+        pending_count = reservations.filter(status=AssetReservation.Status.PENDING).count()
+        approved_count = reservations.filter(status=AssetReservation.Status.APPROVED).count()
+        rejected_count = reservations.filter(status=AssetReservation.Status.REJECTED).count()
+        cancelled_count = reservations.filter(status=AssetReservation.Status.CANCELLED).count()
+        context.update(
+            {
+                'asset': asset,
+                'reservations': reservations,
+                'total_collected': total_collected,
+                'pending_count': pending_count,
+                'approved_count': approved_count,
+                'rejected_count': rejected_count,
+                'cancelled_count': cancelled_count,
+            }
+        )
+        return context
+
+
+class AdminAssetReservationInfoView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMixin, TemplateView):
+    template_name = 'admin/assets/reservation_info.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        reservation = get_object_or_404(
+            AssetReservation.objects.select_related('asset', 'user', 'approved_by'),
+            pk=self.kwargs['reservation_id'],
+        )
+        context.update(
+            {
+                'reservation': reservation,
+                'asset': reservation.asset,
+            }
+        )
+        return context
+
+
+class AdminAssetReservationApproveView(LoginRequiredMixin, StaffRequiredMixin, View):
+    @transaction.atomic
+    def post(self, request, reservation_id):
+        reservation = get_object_or_404(
+            AssetReservation.objects.select_for_update().select_related('asset', 'user'),
+            pk=reservation_id,
+        )
+
+        if reservation.status != AssetReservation.Status.PENDING:
+            messages.info(request, _('Esta solicitud ya fue procesada.'))
+            return redirect('admin_actions')
+
+        asset = reservation.asset
+        overlapping_count = AssetReservation.objects.select_for_update().filter(
+            asset=asset,
+            status=AssetReservation.Status.APPROVED,
+            start_at__lt=reservation.end_at,
+            end_at__gt=reservation.start_at,
+        ).count()
+        if overlapping_count >= asset.quantity:
+            messages.error(request, _('No hay unidades disponibles para aprobar esta reserva.'))
+            return redirect('admin_actions')
+
+        amount_to_charge = Decimal('0.00')
+        if asset.pricing_mode == Asset.PricingMode.HOURLY:
+            duration_seconds = Decimal(str((reservation.end_at - reservation.start_at).total_seconds()))
+            duration_hours = duration_seconds / Decimal('3600')
+            amount_to_charge = duration_hours * asset.price_per_hour
+            amount_to_charge = Decimal(amount_to_charge).quantize(Decimal('0.01'))
+        elif asset.pricing_mode == Asset.PricingMode.TOTAL:
+            amount_to_charge = Decimal(asset.price_total).quantize(Decimal('0.01'))
+
+        if amount_to_charge > 0:
+            profile, created = StoreUserProfile.objects.select_for_update().get_or_create(user=reservation.user)
+            projected_balance = profile.current_balance - amount_to_charge
+            if projected_balance < 0 and not asset.allow_negative_balance:
+                messages.error(request, _('Saldo insuficiente del usuario para aprobar esta reserva.'))
+                return redirect('admin_actions')
+
+            balance_before = profile.current_balance
+            balance_after = balance_before - amount_to_charge
+            profile.current_balance = balance_after
+            profile.save(update_fields=['current_balance', 'updated_at'])
+            BalanceLog.objects.create(
+                user=reservation.user,
+                changed_by=request.user,
+                source=BalanceLog.Source.MANUAL_ADJUSTMENT,
+                amount_delta=-amount_to_charge,
+                balance_before=balance_before,
+                balance_after=balance_after,
+                note=(
+                    _('Cargo por reserva de activo aprobada: %(asset)s (%(start)s - %(end)s)')
+                    % {
+                        'asset': asset.name,
+                        'start': timezone.localtime(reservation.start_at).strftime('%Y-%m-%d %H:%M'),
+                        'end': timezone.localtime(reservation.end_at).strftime('%Y-%m-%d %H:%M'),
+                    }
+                ),
+            )
+
+        reservation.status = AssetReservation.Status.APPROVED
+        reservation.approved_by = request.user
+        reservation.reviewed_at = timezone.localtime()
+        reservation.rejection_reason = ''
+        reservation.charged_amount = amount_to_charge
+        reservation.save(update_fields=['status', 'approved_by', 'reviewed_at', 'rejection_reason', 'charged_amount', 'updated_at'])
+        messages.success(request, _('Reserva de activo aprobada correctamente.'))
+        return redirect('admin_actions')
+
+
+class AdminAssetReservationRejectView(LoginRequiredMixin, StaffRequiredMixin, View):
+    @transaction.atomic
+    def post(self, request, reservation_id):
+        reservation = get_object_or_404(
+            AssetReservation.objects.select_for_update().select_related('asset', 'user'),
+            pk=reservation_id,
+        )
+        if reservation.status != AssetReservation.Status.PENDING:
+            messages.info(request, _('Esta solicitud ya fue procesada.'))
+            return redirect('admin_actions')
+
+        form = AdminAssetReservationRejectForm(request.POST)
+        if not form.is_valid():
+            messages.error(request, _('Escribe un motivo de rechazo.'))
+            return redirect('admin_actions')
+
+        reservation.status = AssetReservation.Status.REJECTED
+        reservation.approved_by = request.user
+        reservation.reviewed_at = timezone.localtime()
+        reservation.rejection_reason = form.cleaned_data['rejection_reason']
+        reservation.save(update_fields=['status', 'approved_by', 'reviewed_at', 'rejection_reason', 'updated_at'])
+        messages.success(request, _('Reserva de activo rechazada.'))
+        return redirect('admin_actions')
 
 
 class AdminSurveyListView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMixin, TemplateView):
@@ -1884,6 +2153,23 @@ class AdminActionsView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequire
             .select_related('event', 'user')
             .order_by('created_at')
         )
+        pending_asset_reservations = (
+            AssetReservation.objects.filter(status=AssetReservation.Status.PENDING)
+            .select_related('asset', 'user')
+            .order_by('start_at', 'id')
+        )
+        asset_upcoming_reservations = (
+            AssetReservation.objects.filter(
+                status=AssetReservation.Status.APPROVED,
+                end_at__gte=timezone.localtime(),
+            )
+            .select_related('asset', 'user')
+            .order_by('start_at')[:20]
+        )
+        asset_total_collected = (
+            AssetReservation.objects.filter(status=AssetReservation.Status.APPROVED).aggregate(total=Sum('charged_amount')).get('total')
+            or Decimal('0.00')
+        )
         monthly_profiles = list(
             StoreUserProfile.objects.select_related('user').filter(user__is_staff=False, monthly_fee_enabled=True).only(
                 'id',
@@ -1918,6 +2204,10 @@ class AdminActionsView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequire
         context['pending_reviews'] = pending_reviews
         context['pending_balance_requests'] = pending_balance_requests
         context['pending_event_comments'] = pending_event_comments
+        context['pending_asset_reservations'] = pending_asset_reservations
+        context['pending_asset_reservations_count'] = pending_asset_reservations.count()
+        context['asset_upcoming_reservations'] = asset_upcoming_reservations
+        context['asset_total_collected'] = asset_total_collected
         context['monthly_late_users'] = monthly_late_users
         context['monthly_late_users_count'] = monthly_late_users_count
         context['monthly_pending_months_total'] = monthly_pending_months_total
@@ -1929,8 +2219,10 @@ class AdminActionsView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequire
             'reviews': pending_reviews.count(),
             'balance': pending_balance_requests.count(),
             'event_comments': pending_event_comments.count(),
+            'asset_requests': pending_asset_reservations.count(),
             'monthly_fee_late': monthly_late_users_count,
             'gamification_validations': len(pending_gamification_rows),
+            'asset_calendar': len(asset_upcoming_reservations),
         }
         priority_within_group = {
             'balance': 0,
@@ -1938,7 +2230,9 @@ class AdminActionsView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequire
             'reviews': 2,
             'gamification_validations': 3,
             'event_comments': 4,
-            'monthly_fee_late': 5,
+            'asset_requests': 5,
+            'monthly_fee_late': 6,
+            'asset_calendar': 7,
         }
         sorted_cards = sorted(
             priority_within_group.keys(),

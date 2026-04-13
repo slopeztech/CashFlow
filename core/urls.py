@@ -10,6 +10,16 @@ from core.webviews.admin.balance import (
     AdminBalanceRequestRejectView,
 )
 from core.webviews.admin.actions import AdminActionsView
+from core.webviews.admin.assets import (
+    AdminAssetCreateView,
+    AdminAssetDeleteView,
+    AdminAssetInfoView,
+    AdminAssetListView,
+    AdminAssetReservationApproveView,
+    AdminAssetReservationInfoView,
+    AdminAssetReservationRejectView,
+    AdminAssetUpdateView,
+)
 from core.webviews.admin.charts import AdminChartsView
 from core.webviews.admin.dashboard import AdminDashboardView
 from core.webviews.admin.events import (
@@ -92,6 +102,7 @@ from core.webviews.admin.users import (
 )
 from core.webviews.auth.pages import DashboardView, LoginPageView, logout_view
 from core.webviews.user.balance import UserBalanceRequestListCreateView
+from core.webviews.user.assets import UserAssetDetailView, UserAssetListView, UserAssetReservationCancelView
 from core.webviews.user.dashboard import UserDashboardView
 from core.webviews.user.events import (
     UserEventCommentCreateView,
@@ -142,6 +153,13 @@ urlpatterns = [
     path('user/gamifications/<int:pk>/', UserGamificationDetailView.as_view(), name='user_gamification_detail'),
     path('user/events/<int:pk>/register/', UserEventRegisterView.as_view(), name='user_event_register'),
     path('user/events/<int:pk>/unregister/', UserEventUnregisterView.as_view(), name='user_event_unregister'),
+    path('user/assets/', UserAssetListView.as_view(), name='user_assets'),
+    path('user/assets/<int:pk>/', UserAssetDetailView.as_view(), name='user_asset_detail'),
+    path(
+        'user/assets/reservations/<int:reservation_id>/cancel/',
+        UserAssetReservationCancelView.as_view(),
+        name='user_asset_reservation_cancel',
+    ),
     path('user/sales/<int:pk>/', UserSaleDetailView.as_view(), name='user_sale_detail'),
     path('user/purchase-history/', UserPurchaseHistoryView.as_view(), name='user_purchase_history'),
     path('user/products/', UserProductCatalogView.as_view(), name='user_products_catalog'),
@@ -160,6 +178,7 @@ urlpatterns = [
     path('admin-panel/dashboard/', AdminDashboardView.as_view(), name='admin_dashboard'),
     path('admin-panel/notices/', AdminNoticeListView.as_view(), name='admin_notices'),
     path('admin-panel/events/', AdminEventListView.as_view(), name='admin_events'),
+    path('admin-panel/assets/', AdminAssetListView.as_view(), name='admin_assets'),
     path('admin-panel/surveys/', AdminSurveyListView.as_view(), name='admin_surveys'),
     path('admin-panel/gamifications/', AdminGamificationListView.as_view(), name='admin_gamifications'),
     path(
@@ -172,6 +191,8 @@ urlpatterns = [
     path('admin-panel/notices/<int:pk>/edit/', AdminNoticeUpdateView.as_view(), name='admin_notice_update'),
     path('admin-panel/notices/<int:pk>/delete/', AdminNoticeDeleteView.as_view(), name='admin_notice_delete'),
     path('admin-panel/events/create/', AdminEventCreateView.as_view(), name='admin_event_create'),
+    path('admin-panel/assets/create/', AdminAssetCreateView.as_view(), name='admin_asset_create'),
+    path('admin-panel/assets/<int:pk>/info/', AdminAssetInfoView.as_view(), name='admin_asset_info'),
     path('admin-panel/surveys/create/', AdminSurveyCreateView.as_view(), name='admin_survey_create'),
     path(
         'admin-panel/gamifications/create/',
@@ -211,8 +232,25 @@ urlpatterns = [
         name='admin_event_registration_remove',
     ),
     path('admin-panel/events/<int:pk>/edit/', AdminEventUpdateView.as_view(), name='admin_event_update'),
+    path('admin-panel/assets/<int:pk>/edit/', AdminAssetUpdateView.as_view(), name='admin_asset_update'),
+    path(
+        'admin-panel/assets/reservations/<int:reservation_id>/approve/',
+        AdminAssetReservationApproveView.as_view(),
+        name='admin_asset_reservation_approve',
+    ),
+    path(
+        'admin-panel/assets/reservations/<int:reservation_id>/info/',
+        AdminAssetReservationInfoView.as_view(),
+        name='admin_asset_reservation_info',
+    ),
+    path(
+        'admin-panel/assets/reservations/<int:reservation_id>/reject/',
+        AdminAssetReservationRejectView.as_view(),
+        name='admin_asset_reservation_reject',
+    ),
     path('admin-panel/surveys/<int:pk>/edit/', AdminSurveyUpdateView.as_view(), name='admin_survey_update'),
     path('admin-panel/events/<int:pk>/delete/', AdminEventDeleteView.as_view(), name='admin_event_delete'),
+    path('admin-panel/assets/<int:pk>/delete/', AdminAssetDeleteView.as_view(), name='admin_asset_delete'),
     path('admin-panel/surveys/<int:pk>/delete/', AdminSurveyDeleteView.as_view(), name='admin_survey_delete'),
     path('admin-panel/charts/', AdminChartsView.as_view(), name='admin_charts'),
     path('admin-panel/system/', AdminSystemView.as_view(), name='admin_system'),

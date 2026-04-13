@@ -1,4 +1,5 @@
 from .balance import UserBalanceRequestListCreateView
+from .assets import UserAssetDetailView, UserAssetListView, UserAssetReservationCancelView
 from .dashboard import UserDashboardView
 from .gamifications import UserGamificationDetailView
 from .orders import (
@@ -25,6 +26,9 @@ from .profile import ProfileEditView
 
 __all__ = [
 	'UserBalanceRequestListCreateView',
+	'UserAssetDetailView',
+	'UserAssetListView',
+	'UserAssetReservationCancelView',
 	'UserDashboardView',
 	'UserGamificationDetailView',
 	'UserOrderCreateView',

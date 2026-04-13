@@ -1,0 +1,114 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n core_numbers %}
+
+{% block title %}{{ asset.name }} | {% trans 'Activos' %}{% endblock %}
+{% block page_title %}{{ asset.name }}{% endblock %}
+{% block page_subtitle %}{% trans 'Detalle y reserva del activo' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'user_assets' %}"><i class="icon-arrow-left"></i> {% trans 'Volver a activos' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="row g-3">
+    <div class="col-lg-7">
+      <div class="card card-rounded h-100">
+        <div class="card-body">
+          {% with cover_image=asset.images.first %}
+            {% if cover_image %}
+              <img src="{{ cover_image.image.url }}" alt="{{ asset.name }}" class="img-fluid rounded mb-3" style="height:260px;width:100%;object-fit:cover;">
+            {% endif %}
+          {% endwith %}
+
+          <p class="text-muted">{% if asset.description %}{{ asset.description }}{% else %}-{% endif %}</p>
+
+          <div class="d-flex gap-2 flex-wrap">
+            <span class="badge badge-opacity-primary">{% trans 'Cantidad total' %}: {{ asset.quantity }}</span>
+            {% if asset.pricing_mode == 'free' %}
+              <span class="badge badge-opacity-success">{% trans 'Gratis' %}</span>
+            {% elif asset.pricing_mode == 'hourly' %}
+              <span class="badge badge-opacity-warning">€ {{ asset.price_per_hour|truncate_2 }} / {% trans 'hora' %}</span>
+            {% else %}
+              <span class="badge badge-opacity-warning">€ {{ asset.price_total|truncate_2 }} {% trans 'total' %}</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card card-rounded mb-3">
+        <div class="card-body">
+          <h5 class="card-title mb-3">{% trans 'Crear reserva' %}</h5>
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label" for="id_start_at">{% trans 'Inicio' %}</label>
+              {{ reservation_form.start_at }}
+              {% if reservation_form.start_at.errors %}<div class="text-danger small">{{ reservation_form.start_at.errors }}</div>{% endif %}
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="id_end_at">{% trans 'Fin' %}</label>
+              {{ reservation_form.end_at }}
+              {% if reservation_form.end_at.errors %}<div class="text-danger small">{{ reservation_form.end_at.errors }}</div>{% endif %}
+            </div>
+            <button class="btn btn-primary text-white w-100" type="submit">{% trans 'Reservar' %}</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card card-rounded">
+        <div class="card-body">
+          <h6 class="mb-3">{% trans 'Reservas próximas' %}</h6>
+          {% if upcoming_reservations %}
+            <ul class="list-group list-group-flush">
+              {% for reservation in upcoming_reservations %}
+                <li class="list-group-item px-0">
+                  <strong>{{ reservation.user.username }}</strong><br>
+                  <small class="text-muted">{{ reservation.start_at|date:'Y/m/d H:i' }} - {{ reservation.end_at|date:'Y/m/d H:i' }}</small>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-muted mb-0">{% trans 'No hay reservas próximas.' %}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card card-rounded mt-3">
+        <div class="card-body">
+          <h6 class="mb-3">{% trans 'Mis solicitudes' %}</h6>
+          {% if my_reservations %}
+            <ul class="list-group list-group-flush">
+              {% for reservation in my_reservations %}
+                <li class="list-group-item px-0">
+                  <div class="d-flex justify-content-between align-items-start gap-2">
+                    <div>
+                      <small class="text-muted d-block">{{ reservation.start_at|date:'Y/m/d H:i' }} - {{ reservation.end_at|date:'Y/m/d H:i' }}</small>
+                      {% if reservation.status == 'pending' %}
+                        <span class="badge badge-opacity-warning">{% trans 'Pendiente' %}</span>
+                      {% elif reservation.status == 'approved' %}
+                        <span class="badge badge-opacity-success">{% trans 'Aprobada' %}</span>
+                      {% elif reservation.status == 'rejected' %}
+                        <span class="badge badge-opacity-danger">{% trans 'Rechazada' %}</span>
+                      {% else %}
+                        <span class="badge badge-opacity-secondary">{% trans 'Cancelada' %}</span>
+                      {% endif %}
+                    </div>
+                    {% if reservation.status == 'pending' or reservation.status == 'approved' %}
+                      <form method="post" action="{% url 'user_asset_reservation_cancel' reservation.id %}" onsubmit="return confirm('{% trans '¿Quieres cancelar esta reserva?' %}');">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-outline-danger" type="submit">{% trans 'Cancelar' %}</button>
+                      </form>
+                    {% endif %}
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-muted mb-0">{% trans 'No tienes solicitudes para este activo.' %}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -8,6 +8,8 @@ from django.urls import reverse
 from django.utils import timezone
 
 from core.models import (
+	Asset,
+	AssetReservation,
 	Event,
 	EventComment,
 	EventRegistration,
@@ -1828,6 +1830,120 @@ class UserPasswordReminderAndProfilePasswordChangeTests(TestCase):
 
 		profile = StoreUserProfile.objects.get(user=self.user)
 		self.assertFalse(profile.password_change_required)
+
+
+class UserAssetsTests(TestCase):
+	def setUp(self):
+		self.admin = User.objects.create_user(username='asset_admin', password='testpass123', is_staff=True)
+		self.user = User.objects.create_user(username='asset_user', password='testpass123', is_staff=False)
+		self.other_user = User.objects.create_user(username='asset_user_2', password='testpass123', is_staff=False)
+		StoreUserProfile.objects.create(user=self.user, current_balance='10.00')
+		self.client.force_login(self.user)
+
+	def test_user_reservation_starts_pending_and_admin_approval_charges_balance(self):
+		now = timezone.localtime()
+		asset = Asset.objects.create(
+			name='Proyector',
+			pricing_mode=Asset.PricingMode.HOURLY,
+			price_per_hour='2.00',
+			quantity=1,
+			is_active=True,
+		)
+
+		start_at = (now + timedelta(hours=1)).strftime('%Y-%m-%dT%H:%M')
+		end_at = (now + timedelta(hours=3)).strftime('%Y-%m-%dT%H:%M')
+		response = self.client.post(
+			reverse('user_asset_detail', kwargs={'pk': asset.pk}),
+			{'start_at': start_at, 'end_at': end_at},
+			follow=True,
+		)
+
+		self.assertEqual(response.status_code, 200)
+		reservation = AssetReservation.objects.get(asset=asset, user=self.user)
+		self.assertEqual(reservation.status, AssetReservation.Status.PENDING)
+		self.assertEqual(str(reservation.charged_amount), '0.00')
+
+		profile = StoreUserProfile.objects.get(user=self.user)
+		self.assertEqual(str(profile.current_balance), '10.00')
+
+		self.client.force_login(self.admin)
+		approve_response = self.client.post(
+			reverse('admin_asset_reservation_approve', kwargs={'reservation_id': reservation.pk}),
+			follow=True,
+		)
+		self.assertEqual(approve_response.status_code, 200)
+
+		reservation.refresh_from_db()
+		self.assertEqual(reservation.status, AssetReservation.Status.APPROVED)
+		self.assertEqual(str(reservation.charged_amount), '4.00')
+
+		profile.refresh_from_db()
+		self.assertEqual(str(profile.current_balance), '6.00')
+
+	def test_user_cannot_reserve_when_overlap_reaches_quantity(self):
+		now = timezone.localtime()
+		asset = Asset.objects.create(
+			name='Carro de transporte',
+			pricing_mode=Asset.PricingMode.TOTAL,
+			price_total='0.00',
+			quantity=1,
+			is_active=True,
+		)
+		AssetReservation.objects.create(
+			asset=asset,
+			user=self.other_user,
+			status=AssetReservation.Status.APPROVED,
+			start_at=now + timedelta(hours=1),
+			end_at=now + timedelta(hours=4),
+		)
+
+		response = self.client.post(
+			reverse('user_asset_detail', kwargs={'pk': asset.pk}),
+			{
+				'start_at': (now + timedelta(hours=2)).strftime('%Y-%m-%dT%H:%M'),
+				'end_at': (now + timedelta(hours=3)).strftime('%Y-%m-%dT%H:%M'),
+			},
+			follow=True,
+		)
+
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(AssetReservation.objects.filter(asset=asset).count(), 1)
+		self.assertContains(response, 'No hay unidades disponibles para ese rango horario')
+
+	def test_user_can_cancel_approved_reservation_with_full_refund_before_threshold(self):
+		now = timezone.localtime()
+		asset = Asset.objects.create(
+			name='Sala premium',
+			pricing_mode=Asset.PricingMode.TOTAL,
+			price_total='8.00',
+			refund_hours_threshold=12,
+			quantity=1,
+			is_active=True,
+		)
+		reservation = AssetReservation.objects.create(
+			asset=asset,
+			user=self.user,
+			status=AssetReservation.Status.APPROVED,
+			start_at=now + timedelta(hours=20),
+			end_at=now + timedelta(hours=22),
+			charged_amount='8.00',
+		)
+		profile = StoreUserProfile.objects.get(user=self.user)
+		profile.current_balance = '2.00'
+		profile.save(update_fields=['current_balance', 'updated_at'])
+
+		response = self.client.post(
+			reverse('user_asset_reservation_cancel', kwargs={'reservation_id': reservation.pk}),
+			follow=True,
+		)
+		self.assertEqual(response.status_code, 200)
+
+		reservation.refresh_from_db()
+		self.assertEqual(reservation.status, AssetReservation.Status.CANCELLED)
+		self.assertEqual(str(reservation.refunded_amount), '8.00')
+
+		profile.refresh_from_db()
+		self.assertEqual(str(profile.current_balance), '10.00')
 
 
 class AdminUserCreateTemporaryCodeTests(TestCase):

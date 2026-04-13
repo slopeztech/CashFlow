@@ -1,0 +1,54 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n core_numbers %}
+
+{% block title %}{{ asset.name }} | {% trans 'Activos' %}{% endblock %}
+{% block page_title %}{{ asset.name }}{% endblock %}
+{% block page_subtitle %}{% trans 'Información de reservas y recaudación' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'admin_assets' %}"><i class="icon-arrow-left"></i> {% trans 'Volver a activos' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="row g-3 mb-3">
+    <div class="col-md-3"><div class="card card-rounded"><div class="card-body"><small class="text-muted">{% trans 'Pendientes' %}</small><h4 class="mb-0">{{ pending_count }}</h4></div></div></div>
+    <div class="col-md-3"><div class="card card-rounded"><div class="card-body"><small class="text-muted">{% trans 'Aprobadas' %}</small><h4 class="mb-0">{{ approved_count }}</h4></div></div></div>
+    <div class="col-md-3"><div class="card card-rounded"><div class="card-body"><small class="text-muted">{% trans 'Rechazadas' %}</small><h4 class="mb-0">{{ rejected_count }}</h4></div></div></div>
+    <div class="col-md-3"><div class="card card-rounded"><div class="card-body"><small class="text-muted">{% trans 'Total recaudado' %}</small><h4 class="mb-0">€ {{ total_collected|truncate_2 }}</h4></div></div></div>
+  </div>
+
+  <div class="card card-rounded">
+    <div class="card-body">
+      <h5 class="card-title mb-3">{% trans 'Reservas' %}</h5>
+      {% if reservations %}
+        <div class="table-responsive">
+          <table class="table table-sm align-middle">
+            <thead>
+              <tr>
+                <th>{% trans 'Usuario' %}</th>
+                <th>{% trans 'Inicio' %}</th>
+                <th>{% trans 'Fin' %}</th>
+                <th>{% trans 'Estado' %}</th>
+                <th class="text-end">{% trans 'Cobrado' %}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for reservation in reservations %}
+                <tr>
+                  <td>{{ reservation.user.username }}</td>
+                  <td>{{ reservation.start_at|date:'Y/m/d H:i' }}</td>
+                  <td>{{ reservation.end_at|date:'Y/m/d H:i' }}</td>
+                  <td>{{ reservation.get_status_display }}</td>
+                  <td class="text-end">€ {{ reservation.charged_amount|truncate_2 }}</td>
+                  <td class="text-end"><a class="btn btn-sm btn-light" href="{% url 'admin_asset_reservation_info' reservation.id %}">{% trans 'Info' %}</a></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">{% trans 'Sin reservas registradas todavía.' %}</p>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

@@ -16,6 +16,7 @@ from django.views.generic import DetailView, ListView, TemplateView
 from core.controllers import build_user_dashboard_context
 from core.gamification import evaluate_gamification_for_user
 from core.forms import (
+    AssetReservationForm,
     BalanceRequestForm,
     EventCommentForm,
     OrderForm,
@@ -26,6 +27,8 @@ from core.forms import (
     StoreUserProfileForm,
 )
 from core.models import (
+    Asset,
+    AssetReservation,
     Event,
     EventComment,
     EventRegistration,
@@ -1007,6 +1010,144 @@ class UserEventUnregisterView(LoginRequiredMixin, NonStaffRequiredMixin, View):
 
         messages.success(request, _('Your event registration was cancelled.'))
         return redirect('user_event_detail', pk=event.pk)
+
+
+class UserAssetListView(ResponsiveTemplateMixin, LoginRequiredMixin, NonStaffRequiredMixin, TemplateView):
+    template_name = 'user/assets/list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        assets = Asset.objects.filter(is_active=True).prefetch_related('images', 'reservations')
+        now = timezone.localtime()
+        for asset in assets:
+            in_use = sum(
+                1
+                for reservation in asset.reservations.all()
+                if reservation.status == AssetReservation.Status.APPROVED and reservation.start_at <= now < reservation.end_at
+            )
+            asset.available_units = max(asset.quantity - in_use, 0)
+        context['assets'] = assets
+        context['now'] = now
+        return context
+
+
+class UserAssetDetailView(ResponsiveTemplateMixin, LoginRequiredMixin, NonStaffRequiredMixin, View):
+    template_name = 'user/assets/detail.html'
+
+    def get(self, request, pk):
+        asset = get_object_or_404(Asset.objects.prefetch_related('images', 'reservations'), pk=pk, is_active=True)
+        form = AssetReservationForm()
+        my_reservations = AssetReservation.objects.filter(asset=asset, user=request.user).order_by('-created_at')[:10]
+        return render(
+            request,
+            self.get_template_names()[0],
+            {
+                'asset': asset,
+                'reservation_form': form,
+                'upcoming_reservations': asset.reservations.filter(
+                    status=AssetReservation.Status.APPROVED,
+                    end_at__gte=timezone.localtime(),
+                ).select_related('user')[:12],
+                'my_reservations': my_reservations,
+            },
+        )
+
+    @transaction.atomic
+    def post(self, request, pk):
+        asset = get_object_or_404(Asset.objects.select_for_update(), pk=pk, is_active=True)
+        form = AssetReservationForm(request.POST)
+        if not form.is_valid():
+            return render(
+                request,
+                self.get_template_names()[0],
+                {
+                    'asset': asset,
+                    'reservation_form': form,
+                    'upcoming_reservations': asset.reservations.filter(
+                        status=AssetReservation.Status.APPROVED,
+                        end_at__gte=timezone.localtime(),
+                    ).select_related('user')[:12],
+                    'my_reservations': AssetReservation.objects.filter(asset=asset, user=request.user).order_by('-created_at')[:10],
+                },
+            )
+
+        start_at = form.cleaned_data['start_at']
+        end_at = form.cleaned_data['end_at']
+
+        overlapping_count = AssetReservation.objects.select_for_update().filter(
+            asset=asset,
+            status=AssetReservation.Status.APPROVED,
+            start_at__lt=end_at,
+            end_at__gt=start_at,
+        ).count()
+        if overlapping_count >= asset.quantity:
+            messages.error(request, _('No hay unidades disponibles para ese rango horario.'))
+            return redirect('user_asset_detail', pk=asset.pk)
+
+        AssetReservation.objects.create(
+            asset=asset,
+            user=request.user,
+            start_at=start_at,
+            end_at=end_at,
+            charged_amount=Decimal('0.00'),
+            status=AssetReservation.Status.PENDING,
+        )
+        messages.success(request, _('Solicitud de reserva enviada. Pendiente de aprobación del administrador.'))
+        return redirect('user_asset_detail', pk=asset.pk)
+
+
+class UserAssetReservationCancelView(LoginRequiredMixin, NonStaffRequiredMixin, View):
+    @transaction.atomic
+    def post(self, request, reservation_id):
+        reservation = get_object_or_404(
+            AssetReservation.objects.select_for_update().select_related('asset', 'user'),
+            pk=reservation_id,
+            user=request.user,
+        )
+        asset = reservation.asset
+
+        if reservation.status in {AssetReservation.Status.REJECTED, AssetReservation.Status.CANCELLED}:
+            messages.info(request, _('Esta reserva ya no se puede cancelar.'))
+            return redirect('user_asset_detail', pk=asset.pk)
+
+        now = timezone.localtime()
+        if reservation.start_at <= now:
+            messages.error(request, _('No puedes cancelar una reserva ya iniciada.'))
+            return redirect('user_asset_detail', pk=asset.pk)
+
+        refund_amount = Decimal('0.00')
+        remaining_hours = (reservation.start_at - now).total_seconds() / 3600
+        if reservation.status == AssetReservation.Status.APPROVED and reservation.charged_amount > 0:
+            if remaining_hours > asset.refund_hours_threshold:
+                refund_amount = reservation.charged_amount
+                profile, created = StoreUserProfile.objects.select_for_update().get_or_create(user=request.user)
+                balance_before = profile.current_balance
+                balance_after = balance_before + refund_amount
+                profile.current_balance = balance_after
+                profile.save(update_fields=['current_balance', 'updated_at'])
+                BalanceLog.objects.create(
+                    user=request.user,
+                    changed_by=None,
+                    source=BalanceLog.Source.MANUAL_ADJUSTMENT,
+                    amount_delta=refund_amount,
+                    balance_before=balance_before,
+                    balance_after=balance_after,
+                    note=(
+                        _('Reembolso por cancelación de reserva de activo: %(asset)s')
+                        % {'asset': asset.name}
+                    ),
+                )
+
+        reservation.status = AssetReservation.Status.CANCELLED
+        reservation.cancelled_at = now
+        reservation.refunded_amount = refund_amount
+        reservation.save(update_fields=['status', 'cancelled_at', 'refunded_amount', 'updated_at'])
+
+        if refund_amount > 0:
+            messages.success(request, _('Reserva cancelada y reembolso aplicado correctamente.'))
+        else:
+            messages.success(request, _('Reserva cancelada correctamente.'))
+        return redirect('user_asset_detail', pk=asset.pk)
 
 
 class UserSurveyDetailView(ResponsiveTemplateMixin, LoginRequiredMixin, NonStaffRequiredMixin, DetailView):

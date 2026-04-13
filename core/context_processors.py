@@ -6,6 +6,8 @@ from customers.models import MonthlyFeeSettings
 from customers.models import StoreUserProfile
 from customers.services import months_due_for_profile
 from core.models import EventComment
+from core.models import Asset
+from core.models import AssetReservation
 from core.models import SystemSettings
 from inventory.models import ProductReview
 from sales.models import Order
@@ -51,6 +53,9 @@ def admin_pending_counts(request):
             status=BalanceRequest.Status.PENDING
         ).count(),
         'admin_pending_event_comments_count': pending_event_comments_count,
+        'admin_pending_asset_requests_count': AssetReservation.objects.filter(
+            status=AssetReservation.Status.PENDING
+        ).count(),
         'admin_pending_monthly_fee_late_count': pending_monthly_fee_late_count,
     }
 
@@ -58,9 +63,15 @@ def admin_pending_counts(request):
 def current_user_profile(request):
     user = getattr(request, 'user', None)
     if not user or not user.is_authenticated:
-        return {'current_user_profile': None}
+        return {
+            'current_user_profile': None,
+            'user_assets_visible': False,
+        }
     profile = StoreUserProfile.objects.filter(user=user).first()
-    return {'current_user_profile': profile}
+    return {
+        'current_user_profile': profile,
+        'user_assets_visible': Asset.objects.filter(is_active=True).exists(),
+    }
 
 
 def ui_settings(request):

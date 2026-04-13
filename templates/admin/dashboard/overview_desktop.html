@@ -145,6 +145,7 @@
             <span class="admin-calendar-legend-item admin-calendar-legend-item-notice"><i class="admin-calendar-dot admin-calendar-dot-notice"></i>{% trans 'Notices' %}</span>
             <span class="admin-calendar-legend-item admin-calendar-legend-item-survey"><i class="admin-calendar-dot admin-calendar-dot-survey"></i>{% trans 'Surveys' %}</span>
             <span class="admin-calendar-legend-item admin-calendar-legend-item-gamification"><i class="admin-calendar-dot admin-calendar-dot-gamification"></i>{% trans 'Gamification' %}</span>
+            <span class="admin-calendar-legend-item admin-calendar-legend-item-asset"><i class="admin-calendar-dot admin-calendar-dot-asset"></i>{% trans 'Activos' %}</span>
           </div>
 
           <div id="admin-activity-calendar" class="admin-activity-calendar mb-3"></div>
@@ -371,6 +372,7 @@
     .admin-calendar-dot-notice { background: #4b49ac; }
     .admin-calendar-dot-survey { background: #0ea5e9; }
     .admin-calendar-dot-gamification { background: #d97706; }
+    .admin-calendar-dot-asset { background: #16a34a; }
 
     .admin-calendar-legend {
       display: flex;
@@ -395,6 +397,7 @@
     .admin-calendar-legend-item-notice { border-color: #c7d2fe; background: #eef2ff; }
     .admin-calendar-legend-item-survey { border-color: #bae6fd; background: #ecfeff; }
     .admin-calendar-legend-item-gamification { border-color: #fed7aa; background: #fff7ed; }
+    .admin-calendar-legend-item-asset { border-color: #bbf7d0; background: #f0fdf4; }
 
     .admin-calendar-header {
       display: grid;
@@ -680,7 +683,7 @@
         currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
         let selectedDateKey = null;
 
-        const kindsOrder = ['event', 'notice', 'survey', 'gamification'];
+        const kindsOrder = ['event', 'notice', 'survey', 'gamification', 'asset'];
 
         function toDateKey(year, month, day) {
           const mm = String(month + 1).padStart(2, '0');
@@ -702,7 +705,9 @@
                 ? '{% trans "Notice" %}'
                 : item.kind === 'survey'
                   ? '{% trans "Survey" %}'
-                  : '{% trans "Gamification" %}';
+                  : item.kind === 'asset'
+                    ? '{% trans "Activo" %}'
+                    : '{% trans "Gamification" %}';
             return item.url
               ? `<a class="admin-calendar-action-card" href="${item.url}"><span class="admin-calendar-action-kind">${kindLabel}</span><span class="admin-calendar-action-title">${safeTitle}</span></a>`
               : `<div class="admin-calendar-action-card is-static"><span class="admin-calendar-action-kind">${kindLabel}</span><span class="admin-calendar-action-title">${safeTitle}</span></div>`;

@@ -1,0 +1,147 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Activo' %} | CashFlow{% endblock %}
+{% block page_title %}{% if mode == 'edit' %}{% trans 'Editar activo' %}{% else %}{% trans 'Nuevo activo' %}{% endif %}{% endblock %}
+{% block page_subtitle %}{% trans 'Configura disponibilidad y precio del activo' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-light" href="{% url 'admin_assets' %}"><i class="icon-arrow-left"></i> {% trans 'Volver a activos' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="card card-rounded">
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label" for="id_name">{% trans 'Nombre' %}</label>
+            {{ form.name }}
+            {% if form.name.errors %}<div class="text-danger small">{{ form.name.errors }}</div>{% endif %}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="id_quantity">{% trans 'Cantidad' %}</label>
+            {{ form.quantity }}
+            {% if form.quantity.errors %}<div class="text-danger small">{{ form.quantity.errors }}</div>{% endif %}
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="id_description">{% trans 'Descripción' %}</label>
+            {{ form.description }}
+            {% if form.description.errors %}<div class="text-danger small">{{ form.description.errors }}</div>{% endif %}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label" for="id_pricing_mode">{% trans 'Modo de precio' %}</label>
+            {{ form.pricing_mode }}
+          </div>
+          <div class="col-12">
+            <ul class="nav nav-tabs" id="assetPricingTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" data-mode="free" type="button">{% trans 'Gratis' %}</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" data-mode="total" type="button">{% trans 'Precio total' %}</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" data-mode="hourly" type="button">{% trans 'Precio por hora' %}</button>
+              </li>
+            </ul>
+            <div class="border border-top-0 rounded-bottom p-3">
+              <div class="pricing-panel" data-panel="free">
+                <p class="text-muted mb-0">{% trans 'El activo no tendrá coste para el usuario.' %}</p>
+              </div>
+              <div class="pricing-panel d-none" data-panel="total">
+                <label class="form-label" for="id_price_total">{% trans 'Precio total' %}</label>
+                {{ form.price_total }}
+                {% if form.price_total.errors %}<div class="text-danger small">{{ form.price_total.errors }}</div>{% endif %}
+              </div>
+              <div class="pricing-panel d-none" data-panel="hourly">
+                <label class="form-label" for="id_price_per_hour">{% trans 'Precio por hora' %}</label>
+                {{ form.price_per_hour }}
+                {% if form.price_per_hour.errors %}<div class="text-danger small">{{ form.price_per_hour.errors }}</div>{% endif %}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6 d-flex align-items-end">
+            <div class="form-check">
+              {{ form.allow_negative_balance }}
+              <label class="form-check-label" for="id_allow_negative_balance">{% trans 'Permitir saldo negativo en aprobación' %}</label>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="id_refund_hours_threshold">{% trans 'Horas mínimas para reembolso total' %}</label>
+            {{ form.refund_hours_threshold }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="id_new_images">{% trans 'Fotos' %}</label>
+            {{ form.new_images }}
+            {% if form.new_images.errors %}<div class="text-danger small">{{ form.new_images.errors }}</div>{% endif %}
+          </div>
+          <div class="col-md-6 d-flex align-items-end">
+            <div class="form-check">
+              {{ form.is_active }}
+              <label class="form-check-label" for="id_is_active">{% trans 'Activo visible para usuarios' %}</label>
+            </div>
+          </div>
+
+          {% if mode == 'edit' and asset_images %}
+            <div class="col-12">
+              <label class="form-label">{% trans 'Fotos actuales' %}</label>
+              <div class="row g-2">
+                {% for image in asset_images %}
+                  <div class="col-6 col-md-3">
+                    <div class="border rounded p-2">
+                      <img src="{{ image.image.url }}" class="img-fluid rounded mb-2" alt="{{ asset.name }}" style="height:100px;width:100%;object-fit:cover;">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="remove_images" value="{{ image.id }}" id="remove_asset_image_{{ image.id }}">
+                        <label class="form-check-label" for="remove_asset_image_{{ image.id }}">{% trans 'Eliminar foto' %}</label>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+          <button class="btn btn-primary text-white" type="submit">{% if mode == 'edit' %}{% trans 'Guardar cambios' %}{% else %}{% trans 'Crear activo' %}{% endif %}</button>
+          <a class="btn btn-light" href="{% url 'admin_assets' %}">{% trans 'Cancelar' %}</a>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const modeSelect = document.getElementById('id_pricing_mode');
+      const tabs = document.querySelectorAll('#assetPricingTabs .nav-link');
+      const panels = document.querySelectorAll('.pricing-panel');
+      const negativeBalance = document.getElementById('id_allow_negative_balance');
+
+      function activate(mode) {
+        tabs.forEach(function (tab) {
+          tab.classList.toggle('active', tab.getAttribute('data-mode') === mode);
+        });
+        panels.forEach(function (panel) {
+          panel.classList.toggle('d-none', panel.getAttribute('data-panel') !== mode);
+        });
+        if (negativeBalance) {
+          const disabled = mode === 'free';
+          negativeBalance.disabled = disabled;
+          if (disabled) {
+            negativeBalance.checked = false;
+          }
+        }
+      }
+
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          const mode = tab.getAttribute('data-mode');
+          modeSelect.value = mode;
+          activate(mode);
+        });
+      });
+
+      activate(modeSelect.value || 'total');
+    })();
+  </script>
+{% endblock %}

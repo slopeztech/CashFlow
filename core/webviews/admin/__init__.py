@@ -7,6 +7,14 @@ from .balance import (
 )
 from .charts import AdminChartsView
 from .dashboard import AdminDashboardView
+from .assets import (
+	AdminAssetCreateView,
+	AdminAssetDeleteView,
+	AdminAssetListView,
+	AdminAssetReservationApproveView,
+	AdminAssetReservationRejectView,
+	AdminAssetUpdateView,
+)
 from .gamifications import (
 	AdminGamificationCompletedUsersView,
 	AdminGamificationRewardCompleteView,
@@ -61,6 +69,12 @@ __all__ = [
 	'AdminBalanceRequestRejectView',
 	'AdminChartsView',
 	'AdminDashboardView',
+	'AdminAssetCreateView',
+	'AdminAssetDeleteView',
+	'AdminAssetListView',
+	'AdminAssetReservationApproveView',
+	'AdminAssetReservationRejectView',
+	'AdminAssetUpdateView',
 	'AdminGamificationCreateView',
 	'AdminGamificationCompletedUsersView',
 	'AdminGamificationRewardCompleteView',

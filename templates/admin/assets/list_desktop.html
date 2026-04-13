@@ -1,0 +1,83 @@
+{% extends 'base_dashboard.html' %}
+{% load i18n core_numbers %}
+
+{% block title %}{% trans 'Activos' %} | CashFlow{% endblock %}
+{% block page_title %}{% trans 'Activos' %}{% endblock %}
+{% block page_subtitle %}{% trans 'Gestiona elementos para préstamo o alquiler' %}{% endblock %}
+{% block page_actions %}
+  <a class="btn btn-primary text-white" href="{% url 'admin_asset_create' %}"><i class="mdi mdi-plus"></i> {% trans 'Nuevo activo' %}</a>
+{% endblock %}
+
+{% block content %}
+  <div class="row g-3">
+    {% for asset in assets %}
+      <div class="col-12 col-md-6 col-xl-4">
+        <div class="card card-rounded h-100">
+          <div class="card-body d-flex flex-column gap-2">
+            {% with cover_image=asset.images.first %}
+              {% if cover_image %}
+                <img src="{{ cover_image.image.url }}" alt="{{ asset.name }}" class="img-fluid rounded" style="height:170px;width:100%;object-fit:cover;">
+              {% else %}
+                <div class="rounded border d-flex align-items-center justify-content-center text-muted" style="height:170px;">{% trans 'Sin foto' %}</div>
+              {% endif %}
+            {% endwith %}
+
+            <div class="d-flex justify-content-between align-items-start gap-2">
+              <h5 class="mb-0">{{ asset.name }}</h5>
+              {% if asset.is_active %}
+                <span class="badge badge-opacity-success">{% trans 'Activo' %}</span>
+              {% else %}
+                <span class="badge badge-opacity-secondary">{% trans 'Inactivo' %}</span>
+              {% endif %}
+            </div>
+
+            <p class="text-muted mb-1">{% if asset.description %}{{ asset.description|truncatechars:120 }}{% else %}-{% endif %}</p>
+
+            <div class="small">
+              <div><strong>{% trans 'Cantidad' %}:</strong> {{ asset.quantity }}</div>
+              <div><strong>{% trans 'En uso ahora' %}:</strong> {{ asset.current_reservations }}</div>
+              <div>
+                <strong>{% trans 'Precio' %}:</strong>
+                {% if asset.pricing_mode == 'free' %}
+                  {% trans 'Gratis' %}
+                {% elif asset.pricing_mode == 'hourly' %}
+                  € {{ asset.price_per_hour|truncate_2 }} / {% trans 'hora' %}
+                {% else %}
+                  € {{ asset.price_total|truncate_2 }} {% trans 'total' %}
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="mt-auto text-end">
+              <div class="dropdown">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  {% trans 'Acciones' %}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li><a class="dropdown-item" href="{% url 'admin_asset_info' asset.pk %}">{% trans 'Info' %}</a></li>
+                  <li><a class="dropdown-item" href="{% url 'admin_asset_update' asset.pk %}">{% trans 'Editar' %}</a></li>
+                  {% if asset.can_delete %}
+                    <li>
+                      <form method="post" action="{% url 'admin_asset_delete' asset.pk %}" onsubmit="return confirm('{% trans '¿Seguro que quieres eliminar este activo?' %}');">
+                        {% csrf_token %}
+                        <button class="dropdown-item text-danger" type="submit">{% trans 'Eliminar' %}</button>
+                      </form>
+                    </li>
+                  {% else %}
+                    <li><span class="dropdown-item text-muted disabled">{% trans 'Eliminar (tiene reservas)' %}</span></li>
+                  {% endif %}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12">
+        <div class="card card-rounded">
+          <div class="card-body text-muted">{% trans 'No hay activos creados todavía.' %}</div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

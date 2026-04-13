@@ -128,6 +128,112 @@ class EventImage(models.Model):
 		return f'{self.event.name} image #{self.id}'
 
 
+class Asset(models.Model):
+	class PricingMode(models.TextChoices):
+		FREE = 'free', _('Gratis')
+		TOTAL = 'total', _('Precio total')
+		HOURLY = 'hourly', _('Precio por hora')
+
+	name = models.CharField(max_length=180)
+	description = models.TextField(blank=True)
+	pricing_mode = models.CharField(max_length=20, choices=PricingMode.choices, default=PricingMode.TOTAL)
+	price_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+	price_per_hour = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+	allow_negative_balance = models.BooleanField(default=False)
+	refund_hours_threshold = models.PositiveIntegerField(default=24)
+	quantity = models.PositiveIntegerField(default=1)
+	is_active = models.BooleanField(default=True)
+	created_by = models.ForeignKey(
+		User,
+		on_delete=models.SET_NULL,
+		null=True,
+		blank=True,
+		related_name='created_assets',
+	)
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
+	class Meta:
+		ordering = ['name', 'id']
+
+	def __str__(self):
+		return self.name
+
+	@property
+	def is_paid(self):
+		if self.pricing_mode == self.PricingMode.FREE:
+			return False
+		if self.pricing_mode == self.PricingMode.HOURLY:
+			return self.price_per_hour > 0
+		return self.price_total > 0
+
+	def clean(self):
+		if self.quantity <= 0:
+			raise ValidationError({'quantity': _('La cantidad debe ser mayor que cero.')})
+		if self.pricing_mode == self.PricingMode.FREE:
+			self.price_total = 0
+			self.price_per_hour = 0
+			self.allow_negative_balance = False
+		elif self.pricing_mode == self.PricingMode.HOURLY:
+			if self.price_per_hour is None or self.price_per_hour < 0:
+				raise ValidationError({'price_per_hour': _('El precio por hora no puede ser negativo.')})
+			self.price_total = 0
+		else:
+			if self.price_total is None or self.price_total < 0:
+				raise ValidationError({'price_total': _('El precio total no puede ser negativo.')})
+			self.price_per_hour = 0
+
+
+class AssetImage(models.Model):
+	asset = models.ForeignKey(Asset, on_delete=models.CASCADE, related_name='images')
+	image = models.ImageField(upload_to='assets/')
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		ordering = ['id']
+
+	def __str__(self):
+		return f'{self.asset.name} image #{self.id}'
+
+
+class AssetReservation(models.Model):
+	class Status(models.TextChoices):
+		PENDING = 'pending', _('Pending')
+		APPROVED = 'approved', _('Approved')
+		REJECTED = 'rejected', _('Rejected')
+		CANCELLED = 'cancelled', _('Cancelled')
+
+	asset = models.ForeignKey(Asset, on_delete=models.CASCADE, related_name='reservations')
+	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='asset_reservations')
+	start_at = models.DateTimeField()
+	end_at = models.DateTimeField()
+	status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+	charged_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+	approved_by = models.ForeignKey(
+		User,
+		on_delete=models.SET_NULL,
+		null=True,
+		blank=True,
+		related_name='approved_asset_reservations',
+	)
+	reviewed_at = models.DateTimeField(null=True, blank=True)
+	rejection_reason = models.CharField(max_length=255, blank=True)
+	cancelled_at = models.DateTimeField(null=True, blank=True)
+	refunded_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
+	class Meta:
+		ordering = ['-start_at', '-created_at']
+
+	def __str__(self):
+		return f'{self.user.username} -> {self.asset.name}'
+
+	def clean(self):
+		if self.end_at and self.start_at and self.end_at <= self.start_at:
+			raise ValidationError({'end_at': _('La fecha de fin debe ser mayor que la fecha de inicio.')})
+
+
 class EventRegistrationField(models.Model):
 	class FieldType(models.TextChoices):
 		NOTICE = 'notice', _('Notice text')

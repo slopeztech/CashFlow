@@ -2464,6 +2464,33 @@ msgstr "Select the canonical time zone used to display dates and times across ad
 msgid "Data is stored in UTC in database; this setting only affects what users see."
 msgstr "Data is stored in UTC in database; this setting only affects what users see."
 
+msgid "Server"
+msgstr "Server"
+
+msgid "Server runtime information"
+msgstr "Server runtime information"
+
+msgid "App domain URL"
+msgstr "App domain URL"
+
+msgid "Machine IP addresses"
+msgstr "Machine IP addresses"
+
+msgid "Performance"
+msgstr "Performance"
+
+msgid "CPU cores"
+msgstr "CPU cores"
+
+msgid "DB ping"
+msgstr "DB ping"
+
+msgid "Free disk"
+msgstr "Free disk"
+
+msgid "Total disk"
+msgstr "Total disk"
+
 msgid "reviews"
 msgstr "reviews"
 

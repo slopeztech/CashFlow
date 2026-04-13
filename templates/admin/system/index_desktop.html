@@ -31,7 +31,7 @@
           <div class="col-lg-3 col-md-6">
             <div class="card card-rounded h-100 border summary-info-card">
               <div class="card-header summary-card-header">
-                <p class="summary-card-title mb-0">{% trans 'Platform name' %}</p>
+                <p class="summary-card-title mb-0"><i class="mdi mdi-storefront-outline system-title-icon"></i>{% trans 'Platform name' %}</p>
               </div>
               <div class="card-body">
                 <h4 class="mb-0 summary-card-value">{{ system_settings.store_name }}</h4>
@@ -41,7 +41,7 @@
           <div class="col-lg-3 col-md-6">
             <div class="card card-rounded h-100 border summary-info-card">
               <div class="card-header summary-card-header">
-                <p class="summary-card-title mb-0">{% trans 'Branch' %}</p>
+                <p class="summary-card-title mb-0"><i class="mdi mdi-source-branch system-title-icon"></i>{% trans 'Branch' %}</p>
               </div>
               <div class="card-body">
                 <h4 class="mb-0 summary-card-value">{{ git_branch }}</h4>
@@ -51,7 +51,7 @@
           <div class="col-lg-3 col-md-6">
             <div class="card card-rounded h-100 border summary-info-card">
               <div class="card-header summary-card-header">
-                <p class="summary-card-title mb-0">{% trans 'Last commit' %}</p>
+                <p class="summary-card-title mb-0"><i class="mdi mdi-source-commit system-title-icon"></i>{% trans 'Last commit' %}</p>
               </div>
               <div class="card-body">
                 <h4 class="mb-0 summary-card-value">{{ git_commit }}</h4>
@@ -61,7 +61,7 @@
           <div class="col-lg-3 col-md-6">
             <div class="card card-rounded h-100 border summary-info-card">
               <div class="card-header summary-card-header">
-                <p class="summary-card-title mb-0">{% trans 'Repository URL' %}</p>
+                <p class="summary-card-title mb-0"><i class="mdi mdi-link-variant system-title-icon"></i>{% trans 'Repository URL' %}</p>
               </div>
               <div class="card-body">
                 {% if git_repo_web_url != 'N/A' %}
@@ -80,6 +80,54 @@
             </div>
           </div>
         </div>
+
+        <div class="row g-3 mt-1">
+          <div class="col-12">
+            <div class="card card-rounded h-100 border summary-info-card summary-server-card">
+              <div class="card-header summary-card-header d-flex align-items-center gap-2">
+                <i class="mdi mdi-server-network text-primary"></i>
+                <p class="summary-card-title mb-0">{% trans 'Server' %}</p>
+              </div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div class="col-lg-5">
+                    <p class="summary-server-label mb-1">{% trans 'App domain URL' %}</p>
+                    <p class="summary-server-value mb-3 text-break">{{ server_runtime_info.app_domain_url }}</p>
+                    <p class="summary-server-label mb-1">{% trans 'Machine IP addresses' %}</p>
+                    <div class="d-flex flex-wrap gap-2">
+                      {% for endpoint in server_runtime_info.machine_ips %}
+                        <span class="summary-ip-chip">
+                          {% if endpoint.interface %}{{ endpoint.interface }} · {% endif %}{{ endpoint.ip }}
+                        </span>
+                      {% endfor %}
+                    </div>
+                  </div>
+                  <div class="col-lg-7">
+                    <p class="summary-server-label mb-2">{% trans 'Performance' %}</p>
+                    <div class="summary-performance-grid">
+                      <div class="summary-performance-item">
+                        <span class="summary-performance-name">{% trans 'CPU cores' %}</span>
+                        <span class="summary-performance-value">{{ server_runtime_info.performance.cpu_count }}</span>
+                      </div>
+                      <div class="summary-performance-item">
+                        <span class="summary-performance-name">{% trans 'DB ping' %}</span>
+                        <span class="summary-performance-value">{{ server_runtime_info.performance.db_ping_ms }}</span>
+                      </div>
+                      <div class="summary-performance-item">
+                        <span class="summary-performance-name">{% trans 'Free disk' %}</span>
+                        <span class="summary-performance-value">{{ server_runtime_info.performance.disk_free }}</span>
+                      </div>
+                      <div class="summary-performance-item">
+                        <span class="summary-performance-name">{% trans 'Total disk' %}</span>
+                        <span class="summary-performance-value">{{ server_runtime_info.performance.disk_total }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       {% elif selected_tab == 'updates' %}
         <div class="row g-3">
           <div class="col-lg-12">
@@ -91,7 +139,7 @@
                 </div>
               </div>
               <div class="card-body">
-                <h5 class="card-title mb-2">{% trans 'Update to latest version' %}</h5>
+                <h5 class="card-title mb-2 d-flex align-items-center gap-2"><i class="mdi mdi-update text-warning-emphasis"></i>{% trans 'Update to latest version' %}</h5>
                 <p class="text-muted mb-3">{% trans 'Warning: this action applies system changes and the platform may be temporarily unavailable during the update window.' %}</p>
                 {% if updates_is_running %}
                   <div class="alert alert-info py-2">{% trans 'Update in progress. This page refreshes automatically.' %}</div>
@@ -136,7 +184,7 @@
           <div class="col-lg-12">
             <div class="card card-rounded h-100 border">
               <div class="card-body">
-                <p class="text-muted mb-2">{% trans 'Commit history' %}</p>
+                <p class="text-muted mb-2 d-flex align-items-center gap-2"><i class="mdi mdi-history"></i>{% trans 'Commit history' %}</p>
                 {% if updates_commit_history %}
                   <ul class="list-unstyled mb-0">
                     {% for commit_line in updates_commit_history %}
@@ -165,7 +213,7 @@
             <div class="col-lg-6">
               <div class="card card-rounded h-100 border">
                 <div class="card-body">
-                  <h5 class="card-title">{% trans 'Brand and texts' %}</h5>
+                  <h5 class="card-title d-flex align-items-center gap-2"><i class="mdi mdi-palette-outline text-primary"></i>{% trans 'Brand and texts' %}</h5>
                   {% if system_form.non_field_errors %}
                     <div class="alert alert-danger">{{ system_form.non_field_errors }}</div>
                   {% endif %}
@@ -193,7 +241,7 @@
             <div class="col-lg-6">
               <div class="card card-rounded h-100 border">
                 <div class="card-body">
-                  <h5 class="card-title">{% trans 'Monthly fee settings' %}</h5>
+                  <h5 class="card-title d-flex align-items-center gap-2"><i class="mdi mdi-cash-multiple text-primary"></i>{% trans 'Monthly fee settings' %}</h5>
                   {% if monthly_form.non_field_errors %}
                     <div class="alert alert-danger">{{ monthly_form.non_field_errors }}</div>
                   {% endif %}
@@ -212,7 +260,7 @@
             <div class="col-lg-6">
               <div class="card card-rounded h-100 border">
                 <div class="card-body">
-                  <h5 class="card-title">{% trans 'Time zone' %}</h5>
+                  <h5 class="card-title d-flex align-items-center gap-2"><i class="mdi mdi-clock-outline text-primary"></i>{% trans 'Time zone' %}</h5>
                   <p class="text-muted small mb-3">{% trans 'Select the canonical time zone used to display dates and times across admin and user views.' %}</p>
                   <div class="mb-2">
                     <label class="form-label" for="{{ system_form.app_time_zone.id_for_label }}">{{ system_form.app_time_zone.label }}</label>
@@ -232,13 +280,13 @@
       {% elif selected_tab == 'backups' %}
         <div class="card card-rounded border">
           <div class="card-body">
-            <h5 class="card-title mb-1">{% trans 'Backups and exports' %}</h5>
+            <h5 class="card-title mb-1 d-flex align-items-center gap-2"><i class="mdi mdi-database-export-outline text-primary"></i>{% trans 'Backups and exports' %}</h5>
             <p class="text-muted mb-3">{% trans 'Download complete backups or operational snapshots.' %}</p>
 
             <div class="row g-3">
               <div class="col-lg-6">
                 <div class="backup-option-card h-100">
-                  <h6 class="mb-2">{% trans 'Full database backup' %}</h6>
+                  <h6 class="mb-2 d-flex align-items-center gap-2"><i class="mdi mdi-database"></i>{% trans 'Full database backup' %}</h6>
                   <p class="text-muted small mb-3">{% trans 'Generates a complete backup file of the current database.' %}</p>
                   <a class="btn btn-primary text-white btn-sm" href="{% url 'admin_system' %}?tab=backups&download=db">{% trans 'Download backup' %}</a>
                 </div>
@@ -246,7 +294,7 @@
 
               <div class="col-lg-6">
                 <div class="backup-option-card h-100">
-                  <h6 class="mb-2">{% trans 'Users and balances' %}</h6>
+                  <h6 class="mb-2 d-flex align-items-center gap-2"><i class="mdi mdi-account-cash-outline"></i>{% trans 'Users and balances' %}</h6>
                   <p class="text-muted small mb-3">{% trans 'Exports current users and their current balances in CSV format.' %}</p>
                   <a class="btn btn-outline-primary btn-sm" href="{% url 'admin_system' %}?tab=backups&download=users_balances">{% trans 'Download CSV' %}</a>
                 </div>
@@ -254,7 +302,7 @@
 
               <div class="col-lg-6">
                 <div class="backup-option-card h-100">
-                  <h6 class="mb-2">{% trans 'Current products' %}</h6>
+                  <h6 class="mb-2 d-flex align-items-center gap-2"><i class="mdi mdi-package-variant-closed"></i>{% trans 'Current products' %}</h6>
                   <p class="text-muted small mb-3">{% trans 'Exports products with category, supplier, prices, stock and status.' %}</p>
                   <a class="btn btn-outline-primary btn-sm" href="{% url 'admin_system' %}?tab=backups&download=products">{% trans 'Download CSV' %}</a>
                 </div>
@@ -262,7 +310,7 @@
 
               <div class="col-lg-6">
                 <div class="backup-option-card h-100">
-                  <h6 class="mb-2">{% trans 'Low stock products' %}</h6>
+                  <h6 class="mb-2 d-flex align-items-center gap-2"><i class="mdi mdi-alert-outline"></i>{% trans 'Low stock products' %}</h6>
                   <p class="text-muted small mb-3">{% trans 'Useful for operations: exports only active products below minimum stock.' %}</p>
                   <a class="btn btn-outline-primary btn-sm" href="{% url 'admin_system' %}?tab=backups&download=low_stock_products">{% trans 'Download CSV' %}</a>
                 </div>
@@ -270,7 +318,7 @@
 
               <div class="col-lg-6">
                 <div class="backup-option-card h-100">
-                  <h6 class="mb-2">{% trans 'Balance logs (last N days)' %}</h6>
+                  <h6 class="mb-2 d-flex align-items-center gap-2"><i class="mdi mdi-chart-line"></i>{% trans 'Balance logs (last N days)' %}</h6>
                   <p class="text-muted small mb-3">{% trans 'Exports balance movements from the last N days for auditing. The range is defined by admin input.' %}</p>
                   <form method="get" class="row g-2 align-items-end">
                     <input type="hidden" name="tab" value="backups">
@@ -297,7 +345,7 @@
 
               <div class="col-lg-6">
                 <div class="backup-option-card h-100">
-                  <h6 class="mb-2">{% trans 'Orders (last N days)' %}</h6>
+                  <h6 class="mb-2 d-flex align-items-center gap-2"><i class="mdi mdi-cart-outline"></i>{% trans 'Orders (last N days)' %}</h6>
                   <p class="text-muted small mb-3">{% trans 'Exports orders from the last N days. The range is defined by admin input.' %}</p>
                   <form method="get" class="row g-2 align-items-end">
                     <input type="hidden" name="tab" value="backups">
@@ -327,7 +375,7 @@
       {% else %}
         <div class="card card-rounded border">
           <div class="card-body">
-            <h5 class="card-title mb-1">{% trans 'BackendLog' %}</h5>
+            <h5 class="card-title mb-1 d-flex align-items-center gap-2"><i class="mdi mdi-text-box-search-outline text-primary"></i>{% trans 'BackendLog' %}</h5>
             <p class="text-muted small mb-3">{% trans 'Log file path' %}: {{ backendlog.path }}</p>
 
             <form id="backendlog-controls" method="get" class="row g-2 align-items-end mb-3">
@@ -451,6 +499,14 @@
       font-weight: 700;
       letter-spacing: 0.05em;
       text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.38rem;
+    }
+
+    .system-title-icon {
+      font-size: 0.95rem;
+      color: #1d4ed8;
     }
 
     .summary-card-value {
@@ -476,6 +532,71 @@
     .summary-card-muted {
       color: #6b7280;
       font-weight: 600;
+    }
+
+    .summary-server-card {
+      border-color: rgb(2 132 199 / 0.25) !important;
+    }
+
+    .summary-server-label {
+      color: #0f4c81;
+      font-weight: 700;
+      font-size: .78rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .summary-server-value {
+      color: #0f172a;
+      font-size: .98rem;
+      font-weight: 600;
+    }
+
+    .summary-ip-chip {
+      border: 1px solid rgb(2 132 199 / 0.3);
+      background: rgb(239 246 255);
+      color: #0c4a6e;
+      border-radius: 999px;
+      padding: .22rem .62rem;
+      font-size: .78rem;
+      font-weight: 600;
+      line-height: 1.25;
+    }
+
+    .summary-performance-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: .65rem;
+    }
+
+    .summary-performance-item {
+      border: 1px solid rgb(15 23 42 / 0.08);
+      background: linear-gradient(180deg, #ffffff, #f8fafc);
+      border-radius: 12px;
+      padding: .65rem .75rem;
+      display: flex;
+      flex-direction: column;
+      gap: .22rem;
+    }
+
+    .summary-performance-name {
+      color: #64748b;
+      font-size: .75rem;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      font-weight: 700;
+    }
+
+    .summary-performance-value {
+      color: #111827;
+      font-size: .98rem;
+      font-weight: 700;
+    }
+
+    @media (max-width: 767.98px) {
+      .summary-performance-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     .backendlog-viewer {

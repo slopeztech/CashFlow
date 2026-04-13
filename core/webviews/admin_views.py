@@ -1,7 +1,10 @@
 import json
 import os
 import csv
+import socket
 import subprocess
+import time
+import shutil
 from urllib.parse import urlparse
 from decimal import Decimal
 from datetime import timedelta
@@ -12,7 +15,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.core.exceptions import ValidationError
-from django.db import transaction
+from django.db import connection, transaction
 from django.db.models import Avg, Case, Count, Exists, F, IntegerField, Max, OuterRef, Prefetch, Q, Sum, Value, When
 from django.db.models.functions import TruncDate, TruncMonth
 from django.http import FileResponse, HttpResponse
@@ -1806,6 +1809,83 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
     UPDATES_HISTORY_MAX_COMMITS = 50
     UPDATE_LOG_MAX_LINES = 4000
 
+    @staticmethod
+    def _format_gigabytes(value_bytes):
+        return f'{(value_bytes / (1024 ** 3)):.2f} GB'
+
+    @staticmethod
+    def _safe_machine_ips():
+        host_name = socket.gethostname()
+        endpoints = {}
+
+        # Try to resolve IP-interface mapping via psutil when available.
+        try:
+            import psutil  # type: ignore
+
+            for interface_name, addresses in psutil.net_if_addrs().items():
+                for address in addresses:
+                    if address.family != socket.AF_INET:
+                        continue
+                    ip = (address.address or '').strip()
+                    if not ip:
+                        continue
+                    endpoints[ip] = interface_name
+        except Exception:
+            pass
+
+        if endpoints:
+            ordered_ips = sorted(endpoints.keys(), key=lambda ip: (ip.startswith('127.'), ip))
+            return [{'ip': ip, 'interface': endpoints.get(ip) or ''} for ip in ordered_ips]
+
+        addresses = set()
+        try:
+            addresses.update(socket.gethostbyname_ex(host_name)[2])
+        except OSError:
+            pass
+
+        try:
+            for item in socket.getaddrinfo(host_name, None):
+                ip = item[4][0]
+                if ':' in ip:
+                    continue
+                addresses.add(ip)
+        except OSError:
+            pass
+
+        ordered = sorted(addresses, key=lambda ip: (ip.startswith('127.'), ip))
+        if not ordered:
+            return [{'ip': 'N/A', 'interface': ''}]
+        return [{'ip': ip, 'interface': ''} for ip in ordered]
+
+    def _server_runtime_info(self):
+        app_domain_url = (os.getenv('APP_PUBLIC_URL') or '').strip()
+        if not app_domain_url:
+            app_domain_url = self.request.build_absolute_uri('/').rstrip('/')
+
+        cpu_count = os.cpu_count() or 1
+        disk_stats = shutil.disk_usage(settings.BASE_DIR)
+        db_ping_ms = 'N/A'
+        try:
+            start = time.perf_counter()
+            with connection.cursor() as cursor:
+                cursor.execute('SELECT 1')
+                cursor.fetchone()
+            elapsed_ms = (time.perf_counter() - start) * 1000
+            db_ping_ms = f'{elapsed_ms:.1f} ms'
+        except Exception:
+            db_ping_ms = 'N/A'
+
+        return {
+            'app_domain_url': app_domain_url,
+            'machine_ips': self._safe_machine_ips(),
+            'performance': {
+                'cpu_count': cpu_count,
+                'db_ping_ms': db_ping_ms,
+                'disk_free': self._format_gigabytes(disk_stats.free),
+                'disk_total': self._format_gigabytes(disk_stats.total),
+            },
+        }
+
     def _selected_tab(self):
         requested_tab = (self.request.GET.get('tab') or self.TAB_SUMMARY).strip().lower()
         if requested_tab not in self.ALLOWED_TABS:
@@ -1851,6 +1931,7 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
         orders_export_days = self._parse_export_days_value(self.request.GET.get('orders_days'))
 
         backendlog = self._read_backendlog_content() if selected_tab == self.TAB_BACKENDLOG else None
+        server_runtime_info = self._server_runtime_info() if selected_tab == self.TAB_SUMMARY else None
 
         return {
             'selected_tab': selected_tab,
@@ -1880,6 +1961,7 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
             'orders_export_days': orders_export_days,
             'orders_export_days_min': self.EXPORT_DAYS_MIN,
             'orders_export_days_max': self.EXPORT_DAYS_MAX,
+            'server_runtime_info': server_runtime_info,
         }
 
     def _resolve_git_info(self):

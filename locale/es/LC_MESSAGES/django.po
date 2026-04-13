@@ -2674,6 +2674,33 @@ msgstr "Selecciona la zona horaria canónica usada para mostrar fechas y horas e
 msgid "Data is stored in UTC in database; this setting only affects what users see."
 msgstr "Los datos se guardan en UTC en la base de datos; esta configuración solo afecta a lo que ven los usuarios."
 
+msgid "Server"
+msgstr "Servidor"
+
+msgid "Server runtime information"
+msgstr "Información de ejecución del servidor"
+
+msgid "App domain URL"
+msgstr "URL de dominio de la app"
+
+msgid "Machine IP addresses"
+msgstr "IPs de la máquina"
+
+msgid "Performance"
+msgstr "Rendimiento"
+
+msgid "CPU cores"
+msgstr "Núcleos de CPU"
+
+msgid "DB ping"
+msgstr "Ping de BD"
+
+msgid "Free disk"
+msgstr "Disco libre"
+
+msgid "Total disk"
+msgstr "Disco total"
+
 msgid "This event does not require registration."
 msgstr "Este evento no requiere registro."
 

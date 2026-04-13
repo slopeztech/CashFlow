@@ -423,6 +423,56 @@
     .cart-modal-title i {
       color: #1D4ED8;
     }
+
+    .catalog-filters-card {
+      background: transparent;
+      border: 1px solid rgba(147, 197, 253, 0.45);
+      border-radius: 16px;
+      box-shadow: none;
+      overflow: hidden;
+    }
+
+    .catalog-filters-card .card-body {
+      background: transparent;
+      padding: .8rem;
+    }
+
+    .catalog-filters-toggle {
+      border: 1px solid #bfdbfe;
+      background: linear-gradient(135deg, rgba(239, 246, 255, 0.95) 0%, rgba(219, 234, 254, 0.82) 100%);
+      color: #1e3a8a;
+      font-weight: 700;
+      border-radius: 12px;
+      padding: .62rem .8rem;
+      transition: all .16s ease;
+    }
+
+    .catalog-filters-toggle:hover {
+      border-color: #93c5fd;
+      color: #1d4ed8;
+      background: linear-gradient(135deg, rgba(219, 234, 254, 0.95) 0%, rgba(191, 219, 254, 0.88) 100%);
+    }
+
+    .catalog-filters-panel {
+      border: 1px solid #dbeafe;
+      border-radius: 12px;
+      background: linear-gradient(160deg, #ffffff 0%, #f8fbff 100%);
+      box-shadow: 0 16px 28px -24px rgba(30, 64, 175, 0.45);
+      padding: .75rem;
+    }
+
+    .catalog-filters-panel .form-control,
+    .catalog-filters-panel .form-select {
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .catalog-filters-panel .form-control:focus,
+    .catalog-filters-panel .form-select:focus {
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 .18rem rgba(59, 130, 246, 0.18);
+    }
   </style>
 {% endblock %}
 
@@ -441,34 +491,6 @@
       </div>
     </a>
   {% endif %}
-
-  <div class="card card-rounded mb-3">
-    <div class="card-body">
-      <button class="btn btn-light w-100 d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#catalogFilters" aria-expanded="false" aria-controls="catalogFilters">
-        <span>{% trans 'Filters' %}</span>
-        <i class="mdi mdi-chevron-down"></i>
-      </button>
-
-      <div class="collapse mt-3" id="catalogFilters">
-        <form method="get" class="row g-2">
-          <div class="col-md-6">
-            <input type="text" name="q" class="form-control" value="{{ query }}" placeholder="{% trans 'Search products' %}">
-          </div>
-          <div class="col-md-4">
-            <select name="category" class="form-select">
-              <option value="">{% trans 'All categories' %}</option>
-              {% for category in categories %}
-                <option value="{{ category.id }}" {% if filter_category == category.id|stringformat:'s' %}selected{% endif %}>{{ category.name }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="col-md-2 d-flex gap-2">
-            <button class="btn btn-primary text-white w-100" type="submit">{% trans 'Filter' %}</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
 
   {% if grouped_products %}
     <div class="accordion catalog-accordion mb-3" id="catalogCategoryAccordion">
@@ -568,6 +590,34 @@
       <div class="card-body text-center text-muted py-4">{% trans 'No public products available.' %}</div>
     </div>
   {% endif %}
+
+  <div class="card card-rounded mt-3 mb-3 catalog-filters-card">
+    <div class="card-body">
+      <button class="btn w-100 d-flex justify-content-between align-items-center catalog-filters-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#catalogFilters" aria-expanded="false" aria-controls="catalogFilters">
+        <span>{% trans 'Filters' %}</span>
+        <i class="mdi mdi-chevron-down"></i>
+      </button>
+
+      <div class="collapse mt-3" id="catalogFilters">
+        <form method="get" class="row g-2 catalog-filters-panel">
+          <div class="col-md-6">
+            <input type="text" name="q" class="form-control" value="{{ query }}" placeholder="{% trans 'Search products' %}">
+          </div>
+          <div class="col-md-4">
+            <select name="category" class="form-select">
+              <option value="">{% trans 'All categories' %}</option>
+              {% for category in categories %}
+                <option value="{{ category.id }}" {% if filter_category == category.id|stringformat:'s' %}selected{% endif %}>{{ category.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-2 d-flex gap-2">
+            <button class="btn btn-primary text-white w-100" type="submit">{% trans 'Filter' %}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
   <div class="modal fade" id="addToCartModal" tabindex="-1" aria-labelledby="addToCartModalLabel" aria-hidden="true">
     <div class="modal-dialog">

@@ -1831,6 +1831,46 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
         return ''
 
     def _resolved_app_domain_url(self):
+        def _normalize_port(raw_value):
+            if raw_value is None:
+                return ''
+            value = str(raw_value).strip()
+            if not value:
+                return ''
+            if ',' in value:
+                value = value.split(',', 1)[0].strip()
+            if not value.isdigit():
+                return ''
+            port = int(value)
+            if port < 1 or port > 65535:
+                return ''
+            return str(port)
+
+        def _host_with_optional_port(hostname, port_value):
+            host = (hostname or '').strip()
+            if not host:
+                return ''
+            if ':' in host and not host.startswith('['):
+                host = f'[{host}]'
+            if port_value:
+                return f'{host}:{port_value}'
+            return host
+
+        def _preferred_port():
+            env_port = _normalize_port(os.getenv('APP_PUBLIC_PORT'))
+            if env_port:
+                return env_port
+
+            forwarded_port = _normalize_port(self.request.META.get('HTTP_X_FORWARDED_PORT'))
+            if forwarded_port:
+                return forwarded_port
+
+            request_port = _normalize_port(self.request.get_port())
+            if request_port:
+                return request_port
+
+            return _normalize_port(self.request.META.get('SERVER_PORT'))
+
         app_public_url = (os.getenv('APP_PUBLIC_URL') or '').strip()
         if app_public_url:
             parsed = urlparse(app_public_url)
@@ -1839,17 +1879,26 @@ class AdminSystemView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequired
                 if parsed.port:
                     return app_public_url.rstrip('/')
 
-                request_port = (self.request.get_port() or '').strip()
+                request_port = _preferred_port()
                 default_port = '443' if parsed.scheme == 'https' else '80'
-                host_with_port = parsed.hostname
+                host_with_port = _host_with_optional_port(parsed.hostname, '')
                 if request_port and request_port != default_port:
-                    host_with_port = f'{parsed.hostname}:{request_port}'
+                    host_with_port = _host_with_optional_port(parsed.hostname, request_port)
                 rebuilt = parsed._replace(netloc=host_with_port).geturl()
                 return rebuilt.rstrip('/')
 
             return app_public_url.rstrip('/')
 
-        return self.request.build_absolute_uri('/').rstrip('/')
+        fallback_url = self.request.build_absolute_uri('/').rstrip('/')
+        fallback_parsed = urlparse(fallback_url)
+        if fallback_parsed.scheme and fallback_parsed.hostname and not fallback_parsed.port:
+            request_port = _preferred_port()
+            default_port = '443' if fallback_parsed.scheme == 'https' else '80'
+            if request_port and request_port != default_port:
+                host_with_port = _host_with_optional_port(fallback_parsed.hostname, request_port)
+                return fallback_parsed._replace(netloc=host_with_port).geturl().rstrip('/')
+
+        return fallback_url
 
     @staticmethod
     def _build_qr_data_uri(value):

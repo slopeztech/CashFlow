@@ -248,6 +248,9 @@ msgstr "Visible"
 msgid "Hidden"
 msgstr "No visible"
 
+msgid "Hold Ctrl/Cmd to select multiple options."
+msgstr "Mantén Ctrl/Cmd para seleccionar varias opciones."
+
 msgid "Active"
 msgstr "Activo"
 

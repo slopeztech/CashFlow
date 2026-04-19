@@ -1142,6 +1142,76 @@ class UserEventFlowTests(TestCase):
 		self.assertEqual(registration.answers[str(text_field.id)]['value'], 'Sin gluten')
 		self.assertEqual(registration.answers[str(radio_field.id)]['value'], 'Medio')
 
+	def test_registration_with_select_field_accepts_multiple_options(self):
+		event = Event.objects.create(
+			name='Diet options event',
+			description='Multiple select test',
+			start_at=timezone.localtime() + timedelta(hours=2),
+			end_at=timezone.localtime() + timedelta(days=1),
+			requires_registration=True,
+			created_by=self.admin,
+		)
+		select_field = EventRegistrationField.objects.create(
+			event=event,
+			label='Preferencias',
+			field_type=EventRegistrationField.FieldType.SELECT,
+			options_text='Vegano\nSin gluten\nSin lactosa',
+			is_required=True,
+			sort_order=1,
+		)
+
+		self.client.force_login(self.user)
+		response = self.client.post(
+			reverse('user_event_register', kwargs={'pk': event.pk}),
+			{
+				f'event_field_{select_field.id}': ['Vegano', 'Sin gluten'],
+			},
+			follow=True,
+		)
+
+		self.assertEqual(response.status_code, 200)
+		registration = EventRegistration.objects.get(event=event, user=self.user)
+		self.assertEqual(registration.answers[str(select_field.id)]['value'], ['Vegano', 'Sin gluten'])
+
+	def test_registration_with_companion_select_field_accepts_multiple_options(self):
+		event = Event.objects.create(
+			name='Companion options event',
+			description='Companion multiple select test',
+			start_at=timezone.localtime() + timedelta(hours=2),
+			end_at=timezone.localtime() + timedelta(days=1),
+			requires_registration=True,
+			allow_companions=True,
+			max_companions=2,
+			created_by=self.admin,
+		)
+		select_field = EventRegistrationField.objects.create(
+			event=event,
+			label='Comida favorita',
+			field_type=EventRegistrationField.FieldType.SELECT,
+			options_text='Pasta\nSopa\nEnsalada',
+			is_required=True,
+			sort_order=1,
+		)
+
+		self.client.force_login(self.user)
+		response = self.client.post(
+			reverse('user_event_register', kwargs={'pk': event.pk}),
+			{
+				f'event_field_{select_field.id}': ['Pasta', 'Sopa'],
+				'companion_names': ['Ana'],
+				f'companion_0_field_{select_field.id}': ['Sopa', 'Ensalada'],
+			},
+			follow=True,
+		)
+
+		self.assertEqual(response.status_code, 200)
+		registration = EventRegistration.objects.get(event=event, user=self.user)
+		self.assertEqual(registration.answers[str(select_field.id)]['value'], ['Pasta', 'Sopa'])
+		self.assertIn('_companion_answers', registration.answers)
+		companion_answers = registration.answers['_companion_answers']['value']
+		self.assertEqual(len(companion_answers), 1)
+		self.assertEqual(companion_answers[0]['answers'][0]['value'], ['Sopa', 'Ensalada'])
+
 	def test_registration_with_missing_required_dynamic_field_is_rejected(self):
 		event = Event.objects.create(
 			name='Form required event',

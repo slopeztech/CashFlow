@@ -254,10 +254,10 @@ def _build_event_registration_form(event, data=None):
             )
         elif field.field_type == field.FieldType.SELECT:
             choices = [(option, option) for option in field.options_list]
-            EventRegistrationDynamicForm.base_fields[field_name] = forms.ChoiceField(
+            EventRegistrationDynamicForm.base_fields[field_name] = forms.MultipleChoiceField(
                 **common_kwargs,
                 choices=choices,
-                widget=forms.Select(attrs={'class': 'form-select'}),
+                widget=forms.SelectMultiple(attrs={'class': 'form-select'}),
             )
 
         input_fields.append(field)
@@ -277,9 +277,15 @@ def _read_companion_names(post_data):
     return companion_names
 
 
-def _parse_companion_field_value(field, raw_value):
+def _parse_companion_field_value(field, raw_value=None, raw_values=None):
     if field.field_type == field.FieldType.CHECKBOX:
         return str(raw_value).lower() in {'1', 'true', 'on', 'yes'}
+
+    if field.field_type == field.FieldType.SELECT:
+        values = [str(value).strip() for value in (raw_values or []) if str(value).strip()]
+        if any(value not in field.options_list for value in values):
+            return None
+        return values
 
     value = (raw_value or '').strip()
     if field.field_type in {field.FieldType.RADIO, field.FieldType.SELECT} and value:
@@ -895,7 +901,8 @@ class UserEventRegisterView(LoginRequiredMixin, NonStaffRequiredMixin, View):
                 for field in registration_form.input_fields:
                     field_key = f'companion_{companion_index}_field_{field.id}'
                     raw_value = request.POST.get(field_key)
-                    value = _parse_companion_field_value(field, raw_value)
+                    raw_values = request.POST.getlist(field_key)
+                    value = _parse_companion_field_value(field, raw_value=raw_value, raw_values=raw_values)
 
                     if value is None:
                         has_companion_errors = True

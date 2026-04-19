@@ -239,6 +239,15 @@ msgstr "Acción"
 msgid "Actions"
 msgstr "Acciones"
 
+msgid "Visible to users"
+msgstr "Visible para usuarios"
+
+msgid "Visible"
+msgstr "Visible"
+
+msgid "Hidden"
+msgstr "No visible"
+
 msgid "Active"
 msgstr "Activo"
 

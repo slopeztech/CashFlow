@@ -842,6 +842,7 @@ class EventForm(forms.ModelForm):
             'name',
             'start_at',
             'end_at',
+            'is_visible',
             'description',
             'links',
             'requires_registration',
@@ -862,6 +863,7 @@ class EventForm(forms.ModelForm):
                 attrs={'class': 'form-control', 'type': 'datetime-local'},
                 format='%Y-%m-%dT%H:%M',
             ),
+            'is_visible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
             'links': forms.Textarea(
                 attrs={

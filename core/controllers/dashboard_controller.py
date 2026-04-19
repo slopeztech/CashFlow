@@ -370,7 +370,7 @@ def build_user_dashboard_context(user):
                 }
             )
 
-    visible_events = Event.objects.filter(end_at__gte=now).prefetch_related('registrations', 'images')
+    visible_events = Event.objects.filter(is_visible=True, end_at__gte=now).prefetch_related('registrations', 'images')
     for event in visible_events:
         registrations_count = event.total_registered_attendees
         is_full = bool(event.capacity and registrations_count >= event.capacity)

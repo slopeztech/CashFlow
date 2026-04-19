@@ -789,6 +789,9 @@ class UserEventDetailView(ResponsiveTemplateMixin, LoginRequiredMixin, NonStaffR
     model = Event
     context_object_name = 'event'
 
+    def get_queryset(self):
+        return Event.objects.filter(is_visible=True)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         event = self.object
@@ -830,7 +833,7 @@ class UserEventDetailView(ResponsiveTemplateMixin, LoginRequiredMixin, NonStaffR
 
 class UserEventCommentCreateView(LoginRequiredMixin, NonStaffRequiredMixin, View):
     def post(self, request, pk):
-        event = get_object_or_404(Event, pk=pk)
+        event = get_object_or_404(Event, pk=pk, is_visible=True)
         form = EventCommentForm(request.POST)
         if form.is_valid():
             EventComment.objects.create(
@@ -847,7 +850,7 @@ class UserEventCommentCreateView(LoginRequiredMixin, NonStaffRequiredMixin, View
 class UserEventRegisterView(LoginRequiredMixin, NonStaffRequiredMixin, View):
     @transaction.atomic
     def post(self, request, pk):
-        event = get_object_or_404(Event.objects.select_for_update(), pk=pk)
+        event = get_object_or_404(Event.objects.select_for_update().filter(is_visible=True), pk=pk)
 
         if not event.requires_registration:
             messages.error(request, _('This event does not require registration.'))
@@ -978,7 +981,7 @@ class UserEventRegisterView(LoginRequiredMixin, NonStaffRequiredMixin, View):
 class UserEventUnregisterView(LoginRequiredMixin, NonStaffRequiredMixin, View):
     @transaction.atomic
     def post(self, request, pk):
-        event = get_object_or_404(Event.objects.select_for_update(), pk=pk)
+        event = get_object_or_404(Event.objects.select_for_update().filter(is_visible=True), pk=pk)
 
         registration = EventRegistration.objects.filter(event=event, user=request.user).first()
         if not registration:

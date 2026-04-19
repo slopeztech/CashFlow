@@ -140,6 +140,13 @@
       flex-wrap: wrap;
     }
 
+    .event-status-badges {
+      display: inline-flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
     .event-actions {
       margin-top: auto;
       display: flex;
@@ -235,13 +242,20 @@
 
             <div class="event-head">
               <h6 class="event-title">{{ event.name }}</h6>
-              {% if event.start_at <= now and event.end_at >= now %}
-                <span class="badge badge-opacity-success">{% trans 'In progress' %}</span>
-              {% elif event.end_at < now %}
-                <span class="badge badge-opacity-secondary">{% trans 'Finished' %}</span>
-              {% else %}
-                <span class="badge badge-opacity-warning">{% trans 'Scheduled' %}</span>
-              {% endif %}
+              <div class="event-status-badges">
+                {% if event.is_visible %}
+                  <span class="badge badge-opacity-success"><i class="mdi mdi-eye me-1"></i>{% trans 'Visible' %}</span>
+                {% else %}
+                  <span class="badge badge-opacity-secondary"><i class="mdi mdi-eye me-1"></i>{% trans 'Hidden' %}</span>
+                {% endif %}
+                {% if event.start_at <= now and event.end_at >= now %}
+                  <span class="badge badge-opacity-success">{% trans 'In progress' %}</span>
+                {% elif event.end_at < now %}
+                  <span class="badge badge-opacity-secondary">{% trans 'Finished' %}</span>
+                {% else %}
+                  <span class="badge badge-opacity-warning">{% trans 'Scheduled' %}</span>
+                {% endif %}
+              </div>
             </div>
 
             <p class="event-description">{% if event.description %}{{ event.description|truncatechars:130 }}{% else %}-{% endif %}</p>

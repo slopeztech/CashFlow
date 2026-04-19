@@ -49,6 +49,7 @@ class Event(models.Model):
 	links = models.TextField(blank=True)
 	start_at = models.DateTimeField()
 	end_at = models.DateTimeField()
+	is_visible = models.BooleanField(default=True)
 	requires_registration = models.BooleanField(default=False)
 	capacity = models.PositiveIntegerField(null=True, blank=True)
 	is_paid_event = models.BooleanField(default=False)

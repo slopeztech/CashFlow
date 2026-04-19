@@ -1051,6 +1051,36 @@ class UserEventFlowTests(TestCase):
 		self.assertContains(response, 'Product tasting')
 		self.assertContains(response, reverse('user_event_detail', kwargs={'pk': event.pk}))
 
+	def test_hidden_event_is_not_visible_on_user_dashboard_timeline(self):
+		event = Event.objects.create(
+			name='Hidden tasting',
+			description='Hidden for users.',
+			start_at=timezone.localtime() - timedelta(hours=1),
+			end_at=timezone.localtime() + timedelta(days=1),
+			is_visible=False,
+			requires_registration=False,
+			created_by=self.admin,
+		)
+		self.client.force_login(self.user)
+		response = self.client.get(reverse('user_dashboard'))
+		self.assertEqual(response.status_code, 200)
+		self.assertNotContains(response, 'Hidden tasting')
+		self.assertNotContains(response, reverse('user_event_detail', kwargs={'pk': event.pk}))
+
+	def test_hidden_event_detail_is_not_accessible_for_user(self):
+		event = Event.objects.create(
+			name='Private event',
+			description='Should not be accessible.',
+			start_at=timezone.localtime() + timedelta(hours=1),
+			end_at=timezone.localtime() + timedelta(days=1),
+			is_visible=False,
+			requires_registration=True,
+			created_by=self.admin,
+		)
+		self.client.force_login(self.user)
+		response = self.client.get(reverse('user_event_detail', kwargs={'pk': event.pk}))
+		self.assertEqual(response.status_code, 404)
+
 	def test_event_registration_respects_capacity(self):
 		event = Event.objects.create(
 			name='Limited workshop',

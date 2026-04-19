@@ -51,6 +51,13 @@
 
           <div class="col-md-6 d-flex align-items-end">
             <div class="form-check">
+              {{ form.is_visible }}
+              <label class="form-check-label" for="id_is_visible">{% trans 'Visible to users' %}</label>
+            </div>
+          </div>
+
+          <div class="col-md-6 d-flex align-items-end">
+            <div class="form-check">
               {{ form.requires_registration }}
               <label class="form-check-label" for="id_requires_registration">{% trans 'Requires prior registration' %}</label>
             </div>

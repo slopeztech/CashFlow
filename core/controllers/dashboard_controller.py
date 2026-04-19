@@ -420,6 +420,7 @@ def build_user_dashboard_context(user):
     highlighted_products = (
         Product.objects.filter(is_active=True, is_public_listing=True)
         .filter(Q(is_featured=True) | Q(is_new=True))
+        .prefetch_related('images')
         .annotate(approved_avg_rating=Avg('reviews__rating', filter=Q(reviews__is_approved=True)))
         .order_by('-is_featured', '-is_new', '-created_at', 'name')[:8]
     )
@@ -440,6 +441,9 @@ def build_user_dashboard_context(user):
                 'rating': product.approved_avg_rating,
             }
 
+        first_product_image = product.images.first()
+        product_image_url = first_product_image.image.url if first_product_image and first_product_image.image else None
+
         timeline_events.append(
             {
                 'kind': 'product',
@@ -447,6 +451,7 @@ def build_user_dashboard_context(user):
                 'description': description,
                 'event_date': product.updated_at,
                 'event_url': reverse('user_product_detail', kwargs={'product_id': product.pk}),
+                'product_image_url': product_image_url,
                 'is_featured': product.is_featured,
                 'is_new': product.is_new,
             }

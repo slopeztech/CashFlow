@@ -2590,6 +2590,33 @@ msgstr "Configura los detalles del evento para el timeline de usuarios"
 msgid "Back to events"
 msgstr "Volver a eventos"
 
+msgid "Main info"
+msgstr "Información principal"
+
+msgid "Dates"
+msgstr "Fechas"
+
+msgid "Options"
+msgstr "Opciones"
+
+msgid "Visibility & registration"
+msgstr "Visibilidad y registro"
+
+msgid "Companions"
+msgstr "Acompañantes"
+
+msgid "Payment"
+msgstr "Pago"
+
+msgid "Add photos"
+msgstr "Añadir fotos"
+
+msgid "Cover"
+msgstr "Portada"
+
+msgid "Make cover"
+msgstr "Hacer portada"
+
 msgid "Event name"
 msgstr "Nombre del evento"
 

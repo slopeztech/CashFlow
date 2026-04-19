@@ -120,6 +120,7 @@ class Event(models.Model):
 class EventImage(models.Model):
 	event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='images')
 	image = models.ImageField(upload_to='events/')
+	is_cover = models.BooleanField(default=False)
 	created_at = models.DateTimeField(auto_now_add=True)
 
 	class Meta:

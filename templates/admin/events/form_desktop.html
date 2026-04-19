@@ -8,128 +8,420 @@
   <a class="btn btn-light" href="{% url 'admin_events' %}"><i class="icon-arrow-left"></i> {% trans 'Back to events' %}</a>
 {% endblock %}
 
+{% block extra_head %}
+  {{ block.super }}
+  <style>
+    .event-toggle-field {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.55rem 0.75rem;
+      border: 1px solid #dfe3ec;
+      border-radius: 0.45rem;
+      background: #f8f9fc;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.95rem;
+      width: 100%;
+      margin: 0;
+      min-height: 44px;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .event-toggle-field:hover {
+      background: #eef1ff;
+      border-color: #b8c0e0;
+    }
+    .event-toggle-field input[type="checkbox"] {
+      flex-shrink: 0;
+      width: 1.1em;
+      height: 1.1em;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .event-photo-card {
+      border: 1px solid #dfe3ec;
+      border-radius: 0.6rem;
+      padding: 0.6rem;
+      background: #fff;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      min-height: 100%;
+    }
+
+    .event-photo-card.is-cover {
+      border-color: #8ea0de;
+      box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.12);
+      background: #f7f9ff;
+    }
+
+    .event-photo-cover-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      background: #3f51b5;
+      color: #fff;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.2rem 0.55rem;
+      align-self: flex-start;
+    }
+
+    .event-photo-preview-wrap {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 0.45rem;
+      overflow: hidden;
+      background: #eef2f7;
+    }
+
+    .event-photo-preview {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .event-photo-remove-check {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .event-photo-cover-check {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .event-photo-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.35rem;
+      margin-top: 0.1rem;
+    }
+
+    .event-photo-remove-btn {
+      width: 100%;
+    }
+
+    .event-photo-cover-btn {
+      width: 100%;
+    }
+
+    .event-photo-remove-check:checked + .event-photo-remove-btn {
+      background-color: #dc3545;
+      border-color: #dc3545;
+      color: #fff;
+    }
+
+    .event-photo-cover-check:checked + .event-photo-cover-btn {
+      background-color: #3f51b5;
+      border-color: #3f51b5;
+      color: #fff;
+    }
+
+    .event-admin-carousel {
+      border: 1px solid #dfe3ec;
+      border-radius: 0.7rem;
+      background: #f8f9fc;
+      padding: 0.75rem;
+    }
+
+    .event-admin-carousel .carousel-inner {
+      border-radius: 0.6rem;
+    }
+
+    .event-admin-carousel .carousel-control-prev,
+    .event-admin-carousel .carousel-control-next {
+      width: 2.1rem;
+      opacity: 1;
+    }
+
+    .event-admin-carousel .carousel-control-prev-icon,
+    .event-admin-carousel .carousel-control-next-icon {
+      width: 1.6rem;
+      height: 1.6rem;
+      border-radius: 999px;
+      background-color: rgba(33, 37, 41, 0.65);
+      background-size: 55% 55%;
+    }
+
+    .event-admin-carousel .carousel-indicators {
+      margin-bottom: 0.7rem;
+      position: static;
+      margin-top: 0;
+      gap: 0.3rem;
+    }
+
+    .event-admin-carousel .carousel-indicators [data-bs-target] {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 999px;
+      border: 0;
+      background-color: #b8c0d4;
+      opacity: 1;
+    }
+
+    .event-admin-carousel .carousel-indicators .active {
+      background-color: #3f51b5;
+    }
+
+    .event-reg-field-card {
+      border: 1px solid #dfe3ec;
+      border-radius: 0.6rem;
+      background: #fff;
+      padding: 0.85rem;
+    }
+
+    .event-reg-field-card .event-reg-field-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+      color: #49506a;
+      margin-bottom: 0.35rem;
+      text-transform: uppercase;
+    }
+
+    .event-reg-field-card .event-reg-field-row {
+      margin-bottom: 0.65rem;
+    }
+
+    .event-reg-field-card .event-reg-field-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .event-reg-field-card .form-check {
+      padding-left: 0;
+      margin-bottom: 0;
+      display: flex;
+      align-items: center;
+      min-height: 1.6rem;
+    }
+
+    .event-reg-field-card .form-check .form-check-input {
+      margin: 0;
+      margin-left: 0 !important;
+      position: static;
+      float: none;
+      flex-shrink: 0;
+    }
+  </style>
+{% endblock %}
+
 {% block content %}
-  <div class="card card-rounded">
-    <div class="card-body">
-      <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
 
-        {% if form.non_field_errors %}
-          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-        {% endif %}
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger mb-3">{{ form.non_field_errors }}</div>
+    {% endif %}
 
-        <div class="row g-3">
-          <div class="col-md-8">
-            <label class="form-label" for="id_name">{% trans 'Event name' %}</label>
-            {{ form.name }}
-            {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors }}</div>{% endif %}
-          </div>
+    <div class="row g-3">
 
-          <div class="col-md-6">
-            <label class="form-label" for="id_start_at">{% trans 'Start date' %}</label>
-            {{ form.start_at }}
-            {% if form.start_at.errors %}<div class="text-danger small mt-1">{{ form.start_at.errors }}</div>{% endif %}
-          </div>
-
-          <div class="col-md-6">
-            <label class="form-label" for="id_end_at">{% trans 'End date' %}</label>
-            {{ form.end_at }}
-            {% if form.end_at.errors %}<div class="text-danger small mt-1">{{ form.end_at.errors }}</div>{% endif %}
-          </div>
-
-          <div class="col-12">
-            <label class="form-label" for="id_description">{% trans 'Description' %}</label>
-            {{ form.description }}
-            {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors }}</div>{% endif %}
-          </div>
-
-          <div class="col-12">
-            <label class="form-label" for="id_links">{% trans 'Links' %}</label>
-            {{ form.links }}
-            {% if form.links.errors %}<div class="text-danger small mt-1">{{ form.links.errors }}</div>{% endif %}
-          </div>
-
-          <div class="col-md-6 d-flex align-items-end">
-            <div class="form-check">
-              {{ form.is_visible }}
-              <label class="form-check-label" for="id_is_visible">{% trans 'Visible to users' %}</label>
-            </div>
-          </div>
-
-          <div class="col-md-6 d-flex align-items-end">
-            <div class="form-check">
-              {{ form.requires_registration }}
-              <label class="form-check-label" for="id_requires_registration">{% trans 'Requires prior registration' %}</label>
-            </div>
-          </div>
-
-          <div class="col-md-6">
-            <label class="form-label" for="id_capacity">{% trans 'Capacity (optional)' %}</label>
-            {{ form.capacity }}
-            {% if form.capacity.errors %}<div class="text-danger small mt-1">{{ form.capacity.errors }}</div>{% endif %}
-          </div>
-
-          <div class="col-md-6 d-flex align-items-end">
-            <div class="form-check">
-              {{ form.allow_companions }}
-              <label class="form-check-label" for="id_allow_companions">{% trans 'Allow companions' %}</label>
-            </div>
-          </div>
-
-          <div class="col-md-6">
-            <label class="form-label" for="id_max_companions">{% trans 'Max companions' %}</label>
-            {{ form.max_companions }}
-            {% if form.max_companions.errors %}<div class="text-danger small mt-1">{{ form.max_companions.errors }}</div>{% endif %}
-          </div>
-
-          <div class="col-md-6 d-flex align-items-end">
-            <div class="form-check">
-              {{ form.is_paid_event }}
-              <label class="form-check-label" for="id_is_paid_event">{% trans 'Paid event' %}</label>
-            </div>
-          </div>
-
-          <div class="col-md-6">
-            <label class="form-label" for="id_registration_fee">{% trans 'Registration fee' %}</label>
-            {{ form.registration_fee }}
-            {% if form.registration_fee.errors %}<div class="text-danger small mt-1">{{ form.registration_fee.errors }}</div>{% endif %}
-          </div>
-
-          <div class="col-md-6 d-flex align-items-end">
-            <div class="form-check">
-              {{ form.allow_negative_balance }}
-              <label class="form-check-label" for="id_allow_negative_balance">{% trans 'Allow registration with negative balance' %}</label>
-            </div>
-          </div>
-
-          <div class="col-12">
-            <label class="form-label" for="id_new_images">{% trans 'Photos' %}</label>
-            {{ form.new_images }}
-            {% if form.new_images.errors %}<div class="text-danger small mt-1">{{ form.new_images.errors }}</div>{% endif %}
-          </div>
-
-          {% if mode == 'edit' and event_images %}
-            <div class="col-12">
-              <label class="form-label">{% trans 'Existing photos' %}</label>
-              <div class="row g-2">
-                {% for image in event_images %}
-                  <div class="col-6 col-md-3">
-                    <div class="border rounded p-2">
-                      <img src="{{ image.image.url }}" class="img-fluid rounded mb-2" alt="{{ event.name }}">
-                      <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="remove_images" value="{{ image.id }}" id="remove_event_image_{{ image.id }}">
-                        <label class="form-check-label small" for="remove_event_image_{{ image.id }}">{% trans 'Remove' %}</label>
-                      </div>
-                    </div>
-                  </div>
-                {% endfor %}
+      {# ── Datos principales ── #}
+      <div class="col-12">
+        <div class="card card-rounded">
+          <div class="card-body">
+            <h5 class="card-title card-title-dash mb-3 d-flex align-items-center gap-2">
+              <i class="mdi mdi-calendar-text text-primary"></i> {% trans 'Main info' %}
+            </h5>
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label" for="id_name">{% trans 'Event name' %}</label>
+                {{ form.name }}
+                {% if form.name.errors %}<div class="text-danger small mt-1">{{ form.name.errors }}</div>{% endif %}
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="id_description">{% trans 'Description' %}</label>
+                {{ form.description }}
+                {% if form.description.errors %}<div class="text-danger small mt-1">{{ form.description.errors }}</div>{% endif %}
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="id_links">{% trans 'Links' %}</label>
+                {{ form.links }}
+                {% if form.links.errors %}<div class="text-danger small mt-1">{{ form.links.errors }}</div>{% endif %}
               </div>
             </div>
-          {% endif %}
+          </div>
+        </div>
+      </div>
 
-          <div class="col-12">
-            <hr>
-            <h5 class="mb-3">{% trans 'Registration form fields' %}</h5>
+      {# ── Fechas ── #}
+      <div class="col-12">
+        <div class="card card-rounded">
+          <div class="card-body">
+            <h5 class="card-title card-title-dash mb-3 d-flex align-items-center gap-2">
+              <i class="mdi mdi-calendar-clock text-primary"></i> {% trans 'Dates' %}
+            </h5>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label" for="id_start_at">{% trans 'Start date' %}</label>
+                {{ form.start_at }}
+                {% if form.start_at.errors %}<div class="text-danger small mt-1">{{ form.start_at.errors }}</div>{% endif %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="id_end_at">{% trans 'End date' %}</label>
+                {{ form.end_at }}
+                {% if form.end_at.errors %}<div class="text-danger small mt-1">{{ form.end_at.errors }}</div>{% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# ── Opciones ── #}
+      <div class="col-12">
+        <div class="card card-rounded">
+          <div class="card-body">
+            <h5 class="card-title card-title-dash mb-3 d-flex align-items-center gap-2">
+              <i class="mdi mdi-tune text-primary"></i> {% trans 'Options' %}
+            </h5>
+            <div class="row g-3">
+
+              <div class="col-12">
+                <p class="fw-semibold text-muted small mb-2 text-uppercase" style="letter-spacing:.05em;">{% trans 'Visibility & registration' %}</p>
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <label class="event-toggle-field" for="id_is_visible">
+                      {{ form.is_visible }}
+                      <span>{% trans 'Visible to users' %}</span>
+                    </label>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="event-toggle-field" for="id_requires_registration">
+                      {{ form.requires_registration }}
+                      <span>{% trans 'Requires prior registration' %}</span>
+                    </label>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label" for="id_capacity">{% trans 'Capacity (optional)' %}</label>
+                    {{ form.capacity }}
+                    {% if form.capacity.errors %}<div class="text-danger small mt-1">{{ form.capacity.errors }}</div>{% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 border-top pt-3">
+                <p class="fw-semibold text-muted small mb-2 text-uppercase" style="letter-spacing:.05em;">{% trans 'Companions' %}</p>
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <label class="event-toggle-field" for="id_allow_companions">
+                      {{ form.allow_companions }}
+                      <span>{% trans 'Allow companions' %}</span>
+                    </label>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label" for="id_max_companions">{% trans 'Max companions' %}</label>
+                    {{ form.max_companions }}
+                    {% if form.max_companions.errors %}<div class="text-danger small mt-1">{{ form.max_companions.errors }}</div>{% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 border-top pt-3">
+                <p class="fw-semibold text-muted small mb-2 text-uppercase" style="letter-spacing:.05em;">{% trans 'Payment' %}</p>
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <label class="event-toggle-field" for="id_is_paid_event">
+                      {{ form.is_paid_event }}
+                      <span>{% trans 'Paid event' %}</span>
+                    </label>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label" for="id_registration_fee">{% trans 'Registration fee' %}</label>
+                    {{ form.registration_fee }}
+                    {% if form.registration_fee.errors %}<div class="text-danger small mt-1">{{ form.registration_fee.errors }}</div>{% endif %}
+                  </div>
+                  <div class="col-12">
+                    <label class="event-toggle-field" for="id_allow_negative_balance">
+                      {{ form.allow_negative_balance }}
+                      <span>{% trans 'Allow registration with negative balance' %}</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# ── Fotos ── #}
+      <div class="col-12">
+        <div class="card card-rounded">
+          <div class="card-body">
+            <h5 class="card-title card-title-dash mb-3 d-flex align-items-center gap-2">
+              <i class="mdi mdi-image-multiple text-primary"></i> {% trans 'Photos' %}
+            </h5>
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label" for="id_new_images">{% trans 'Add photos' %}</label>
+                {{ form.new_images }}
+                {% if form.new_images.errors %}<div class="text-danger small mt-1">{{ form.new_images.errors }}</div>{% endif %}
+              </div>
+              {% if mode == 'edit' and event_images %}
+                <div class="col-12">
+                  <label class="form-label">{% trans 'Existing photos' %}</label>
+                  <div id="eventPhotosCarousel" class="carousel slide event-admin-carousel" data-bs-touch="true" data-bs-interval="false" data-bs-wrap="false">
+                    <div class="carousel-indicators">
+                      {% for image in event_images %}
+                        <button type="button" data-bs-target="#eventPhotosCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" {% if forloop.first %}aria-current="true"{% endif %} aria-label="{% blocktrans with number=forloop.counter %}Slide {{ number }}{% endblocktrans %}"></button>
+                      {% endfor %}
+                    </div>
+                    <div class="carousel-inner">
+                      {% for image in event_images %}
+                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                          <div class="event-photo-card{% if image.is_cover or not has_cover_image and forloop.first %} is-cover{% endif %}">
+                            {% if image.is_cover or not has_cover_image and forloop.first %}
+                              <span class="event-photo-cover-badge"><i class="mdi mdi-star"></i>{% trans 'Cover' %}</span>
+                            {% endif %}
+                            <div class="event-photo-preview-wrap">
+                              <img src="{{ image.image.url }}" class="event-photo-preview" alt="{{ event.name }}">
+                            </div>
+                            <div class="event-photo-actions">
+                              <input class="event-photo-cover-check" type="radio" name="cover_image_id" value="{{ image.id }}" id="cover_event_image_{{ image.id }}" {% if image.is_cover or not has_cover_image and forloop.first %}checked{% endif %}>
+                              <label class="btn btn-outline-primary btn-sm event-photo-cover-btn" for="cover_event_image_{{ image.id }}">
+                                <i class="mdi mdi-star-outline me-1"></i>{% trans 'Make cover' %}
+                              </label>
+
+                              <input class="event-photo-remove-check" type="checkbox" name="remove_images" value="{{ image.id }}" id="remove_event_image_{{ image.id }}">
+                              <label class="btn btn-outline-danger btn-sm event-photo-remove-btn" for="remove_event_image_{{ image.id }}">
+                                <i class="mdi mdi-trash-can-outline me-1"></i>{% trans 'Remove' %}
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                      {% endfor %}
+                    </div>
+                    {% if event_images|length > 1 %}
+                      <button class="carousel-control-prev" type="button" data-bs-target="#eventPhotosCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">{% trans 'Previous' %}</span>
+                      </button>
+                      <button class="carousel-control-next" type="button" data-bs-target="#eventPhotosCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">{% trans 'Next' %}</span>
+                      </button>
+                    {% endif %}
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# ── Campos de formulario de registro ── #}
+      <div class="col-12">
+        <div class="card card-rounded">
+          <div class="card-body">
+            <h5 class="card-title card-title-dash mb-1 d-flex align-items-center gap-2">
+              <i class="mdi mdi-form-select text-primary"></i> {% trans 'Registration form fields' %}
+            </h5>
             <p class="text-muted small mb-3">{% trans 'Configure which fields users must complete when registering for this event.' %}</p>
             {% if registration_fields_locked %}
               <div class="alert alert-warning py-2">
@@ -142,81 +434,127 @@
               <div class="alert alert-danger">{{ formset.non_form_errors }}</div>
             {% endif %}
 
-            <div class="table-responsive">
-              <table class="table table-sm align-middle" id="registration-fields-table">
-                <thead>
-                  <tr>
-                    <th>{% trans 'Label' %}</th>
-                    <th>{% trans 'Type' %}</th>
-                    <th>{% trans 'Help text' %}</th>
-                    <th>{% trans 'Options' %}</th>
-                    <th>{% trans 'Required' %}</th>
-                    <th>{% trans 'Order' %}</th>
-                    <th>{% trans 'Active' %}</th>
-                    <th>{% trans 'Delete' %}</th>
-                  </tr>
-                </thead>
-                <tbody id="registration-fields-body">
-                  {% for reg_form in formset.forms %}
-                    <tr>
-                      <td>
-                        {{ reg_form.id }}
+            <div id="registrationFieldsCarousel" class="carousel slide event-admin-carousel" data-bs-touch="true" data-bs-interval="false" data-bs-wrap="false">
+              <div class="carousel-indicators" id="registration-fields-indicators">
+                {% for reg_form in registration_forms_display %}
+                  <button type="button" data-bs-target="#registrationFieldsCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" {% if forloop.first %}aria-current="true"{% endif %} aria-label="{% blocktrans with number=forloop.counter %}Slide {{ number }}{% endblocktrans %}"></button>
+                {% endfor %}
+              </div>
+              <div class="carousel-inner" id="registration-fields-body">
+                {% for reg_form in registration_forms_display %}
+                  <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                    <div class="event-reg-field-card">
+                      {{ reg_form.id }}
+                      <div class="event-reg-field-row">
+                        <div class="event-reg-field-title">{% trans 'Label' %}</div>
                         {{ reg_form.label }}
                         {% if reg_form.label.errors %}<div class="text-danger small">{{ reg_form.label.errors }}</div>{% endif %}
-                      </td>
-                      <td>
+                      </div>
+                      <div class="event-reg-field-row">
+                        <div class="event-reg-field-title">{% trans 'Type' %}</div>
                         {{ reg_form.field_type }}
                         {% if reg_form.field_type.errors %}<div class="text-danger small">{{ reg_form.field_type.errors }}</div>{% endif %}
-                      </td>
-                      <td>
+                      </div>
+                      <div class="event-reg-field-row">
+                        <div class="event-reg-field-title">{% trans 'Help text' %}</div>
                         {{ reg_form.help_text }}
                         {% if reg_form.help_text.errors %}<div class="text-danger small">{{ reg_form.help_text.errors }}</div>{% endif %}
-                      </td>
-                      <td>
+                      </div>
+                      <div class="event-reg-field-row">
+                        <div class="event-reg-field-title">{% trans 'Options' %}</div>
                         {{ reg_form.options_text }}
                         <small class="text-muted d-block">{% trans 'Use one option per line for radio/select.' %}</small>
                         {% if reg_form.options_text.errors %}<div class="text-danger small">{{ reg_form.options_text.errors }}</div>{% endif %}
-                      </td>
-                      <td class="text-center">{{ reg_form.is_required }}</td>
-                      <td>{{ reg_form.sort_order }}</td>
-                      <td class="text-center">{{ reg_form.is_active }}</td>
-                      <td class="text-center">{{ reg_form.DELETE }}</td>
-                    </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
+                      </div>
+                      <div class="row g-2">
+                        <div class="col-6">
+                          <div class="event-reg-field-title">{% trans 'Required' %}</div>
+                          <div class="form-check">{{ reg_form.is_required }}</div>
+                        </div>
+                        <div class="col-6">
+                          <div class="event-reg-field-title">{% trans 'Order' %}</div>
+                          {{ reg_form.sort_order }}
+                        </div>
+                        <div class="col-6">
+                          <div class="event-reg-field-title">{% trans 'Active' %}</div>
+                          <div class="form-check">{{ reg_form.is_active }}</div>
+                        </div>
+                        <div class="col-6">
+                          <div class="event-reg-field-title">{% trans 'Delete' %}</div>
+                          <div class="form-check">{{ reg_form.DELETE }}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+              {% if registration_forms_display|length > 1 %}
+                <button class="carousel-control-prev" type="button" data-bs-target="#registrationFieldsCarousel" data-bs-slide="prev">
+                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">{% trans 'Previous' %}</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#registrationFieldsCarousel" data-bs-slide="next">
+                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span class="visually-hidden">{% trans 'Next' %}</span>
+                </button>
+              {% endif %}
             </div>
 
-            <button type="button" class="btn btn-sm btn-outline-primary" id="add-registration-field-btn" {% if registration_fields_locked %}disabled{% endif %}>{% trans 'Add field' %}</button>
+            <button type="button" class="btn btn-sm btn-outline-primary mt-3" id="add-registration-field-btn" {% if registration_fields_locked %}disabled{% endif %}>{% trans 'Add field' %}</button>
 
             <template id="registration-field-empty-row">
-              <tr>
-                <td>
+              <div class="carousel-item">
+                <div class="event-reg-field-card">
                   __ID_FIELD__
-                  __LABEL_FIELD__
-                </td>
-                <td>__TYPE_FIELD__</td>
-                <td>__HELP_FIELD__</td>
-                <td>
-                  __OPTIONS_FIELD__
-                  <small class="text-muted d-block">{% trans 'Use one option per line for radio/select.' %}</small>
-                </td>
-                <td class="text-center">__REQUIRED_FIELD__</td>
-                <td>__ORDER_FIELD__</td>
-                <td class="text-center">__ACTIVE_FIELD__</td>
-                <td class="text-center">__DELETE_FIELD__</td>
-              </tr>
+                  <div class="event-reg-field-row">
+                    <div class="event-reg-field-title">{% trans 'Label' %}</div>
+                    __LABEL_FIELD__
+                  </div>
+                  <div class="event-reg-field-row">
+                    <div class="event-reg-field-title">{% trans 'Type' %}</div>
+                    __TYPE_FIELD__
+                  </div>
+                  <div class="event-reg-field-row">
+                    <div class="event-reg-field-title">{% trans 'Help text' %}</div>
+                    __HELP_FIELD__
+                  </div>
+                  <div class="event-reg-field-row">
+                    <div class="event-reg-field-title">{% trans 'Options' %}</div>
+                    __OPTIONS_FIELD__
+                    <small class="text-muted d-block">{% trans 'Use one option per line for radio/select.' %}</small>
+                  </div>
+                  <div class="row g-2">
+                    <div class="col-6">
+                      <div class="event-reg-field-title">{% trans 'Required' %}</div>
+                      <div class="form-check">__REQUIRED_FIELD__</div>
+                    </div>
+                    <div class="col-6">
+                      <div class="event-reg-field-title">{% trans 'Order' %}</div>
+                      __ORDER_FIELD__
+                    </div>
+                    <div class="col-6">
+                      <div class="event-reg-field-title">{% trans 'Active' %}</div>
+                      <div class="form-check">__ACTIVE_FIELD__</div>
+                    </div>
+                    <div class="col-6">
+                      <div class="event-reg-field-title">{% trans 'Delete' %}</div>
+                      <div class="form-check">__DELETE_FIELD__</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </template>
           </div>
         </div>
+      </div>
 
-        <div class="mt-4 d-flex gap-2">
-          <button class="btn btn-primary text-white" type="submit">{% if mode == 'edit' %}{% trans 'Save changes' %}{% else %}{% trans 'Create event' %}{% endif %}</button>
-          <a class="btn btn-light" href="{% url 'admin_events' %}">{% trans 'Cancel' %}</a>
-        </div>
-      </form>
+    </div>{# end row #}
+
+    <div class="mt-4 d-grid gap-2">
+      <button class="btn btn-primary text-white btn-lg w-100" type="submit">{% if mode == 'edit' %}{% trans 'Save changes' %}{% else %}{% trans 'Create event' %}{% endif %}</button>
+      <a class="btn btn-light btn-lg w-100" href="{% url 'admin_events' %}">{% trans 'Cancel' %}</a>
     </div>
-  </div>
+  </form>
 {% endblock %}
 
 {% block extra_js %}
@@ -226,8 +564,10 @@
       const addButton = document.getElementById('add-registration-field-btn');
       const totalForms = document.getElementById('id_reg_fields-TOTAL_FORMS');
       const container = document.getElementById('registration-fields-body');
+      const indicators = document.getElementById('registration-fields-indicators');
+      const fieldsCarousel = document.getElementById('registrationFieldsCarousel');
       const template = document.getElementById('registration-field-empty-row');
-      if (!addButton || !totalForms || !container || !template) {
+      if (!addButton || !totalForms || !container || !template || !indicators || !fieldsCarousel) {
         return;
       }
 
@@ -259,6 +599,26 @@
           .replace('__DELETE_FIELD__', byName['reg_fields-' + formIndex + '-DELETE'] || '');
 
         container.insertAdjacentHTML('beforeend', rowHtml);
+        const carouselItems = container.querySelectorAll('.carousel-item');
+        const itemIndex = carouselItems.length - 1;
+        indicators.insertAdjacentHTML('beforeend', '<button type="button" data-bs-target="#registrationFieldsCarousel" data-bs-slide-to="' + itemIndex + '" aria-label="Slide ' + (itemIndex + 1) + '"></button>');
+
+        const indicatorButtons = indicators.querySelectorAll('button');
+        carouselItems.forEach(function (item) { item.classList.remove('active'); });
+        indicatorButtons.forEach(function (item) { item.classList.remove('active'); item.removeAttribute('aria-current'); });
+        if (carouselItems[itemIndex]) {
+          carouselItems[itemIndex].classList.add('active');
+        }
+        if (indicatorButtons[itemIndex]) {
+          indicatorButtons[itemIndex].classList.add('active');
+          indicatorButtons[itemIndex].setAttribute('aria-current', 'true');
+        }
+
+        if (window.bootstrap && window.bootstrap.Carousel) {
+          const instance = window.bootstrap.Carousel.getOrCreateInstance(fieldsCarousel, { interval: false, wrap: false });
+          instance.to(itemIndex);
+        }
+
         totalForms.value = String(formIndex + 1);
       });
     })();

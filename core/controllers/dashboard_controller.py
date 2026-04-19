@@ -375,7 +375,7 @@ def build_user_dashboard_context(user):
         registrations_count = event.total_registered_attendees
         is_full = bool(event.capacity and registrations_count >= event.capacity)
         is_registered = any(registration.user_id == user.id for registration in event.registrations.all())
-        first_image = event.images.first()
+        first_image = event.images.filter(is_cover=True).first() or event.images.first()
         if event.requires_registration:
             if is_full:
                 registration_text = _('Capacity full')

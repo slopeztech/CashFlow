@@ -669,7 +669,7 @@
                           {% for choice in field.field.choices %}
                             <label class="event-multiselect-item">
                               <input type="checkbox" name="{{ field.html_name }}" value="{{ choice.0 }}" class="event-multiselect-checkbox">
-                              <span class="event-multiselect-icon mdi mdi-checkbox-blank-circle-outline"></span>
+                              <span class="event-multiselect-icon mdi mdi-checkbox-blank-outline"></span>
                               <span class="event-multiselect-label">{{ choice.1 }}</span>
                             </label>
                           {% endfor %}
@@ -740,7 +740,7 @@
                                 {% for option in dynamic_field.options_list %}
                                   <label class="event-multiselect-item">
                                     <input type="checkbox" name="companion___INDEX___field_{{ dynamic_field.id }}" value="{{ option }}" class="event-multiselect-checkbox">
-                                    <span class="event-multiselect-icon mdi mdi-checkbox-blank-circle-outline"></span>
+                                    <span class="event-multiselect-icon mdi mdi-checkbox-blank-outline"></span>
                                     <span class="event-multiselect-label">{{ option }}</span>
                                   </label>
                                 {% endfor %}
@@ -922,10 +922,10 @@
         const icon = item.querySelector('.event-multiselect-icon');
         if (checkbox.checked) {
           item.classList.add('is-selected');
-          icon.classList.replace('mdi-checkbox-blank-circle-outline', 'mdi-check-circle');
+          icon.classList.replace('mdi-checkbox-blank-outline', 'mdi-checkbox-marked');
         } else {
           item.classList.remove('is-selected');
-          icon.classList.replace('mdi-check-circle', 'mdi-checkbox-blank-circle-outline');
+          icon.classList.replace('mdi-checkbox-marked', 'mdi-checkbox-blank-outline');
         }
       });
 

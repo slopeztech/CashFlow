@@ -286,6 +286,10 @@ class AdminEventListView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequi
 class AdminEventCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMixin, View):
     template_name = 'admin/events/form.html'
 
+    @staticmethod
+    def _display_registration_forms(formset):
+        return [item for item in formset.forms if item.instance.pk or item.has_changed()]
+
     def get(self, request):
         form = EventForm()
         formset = EventRegistrationFieldFormSet(prefix='reg_fields')
@@ -295,6 +299,7 @@ class AdminEventCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffReq
             {
                 'form': form,
                 'formset': formset,
+                'registration_forms_display': self._display_registration_forms(formset),
                 'mode': 'create',
                 'registration_fields_locked': False,
             },
@@ -310,6 +315,7 @@ class AdminEventCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffReq
             formset.instance = event
             formset.save()
             self._save_new_images(event)
+            self._ensure_cover_image(event)
             messages.success(request, _('Event created successfully.'))
             return redirect('admin_events')
         return render(
@@ -318,6 +324,7 @@ class AdminEventCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffReq
             {
                 'form': form,
                 'formset': formset,
+                'registration_forms_display': self._display_registration_forms(formset),
                 'mode': 'create',
                 'registration_fields_locked': False,
             },
@@ -331,6 +338,10 @@ class AdminEventCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffReq
 
 class AdminEventUpdateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMixin, View):
     template_name = 'admin/events/form.html'
+
+    @staticmethod
+    def _display_registration_forms(formset):
+        return [item for item in formset.forms if item.instance.pk or item.has_changed()]
 
     @staticmethod
     def _registration_fields_locked(event):
@@ -348,6 +359,8 @@ class AdminEventUpdateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffReq
         form = EventForm(instance=event)
         formset = EventRegistrationFieldFormSet(instance=event, prefix='reg_fields')
         registration_fields_locked = self._registration_fields_locked(event)
+        event_images = event.images.order_by('-is_cover', 'id')
+        has_cover_image = event_images.filter(is_cover=True).exists()
         if registration_fields_locked:
             self._lock_registration_formset(formset)
         return render(
@@ -356,9 +369,11 @@ class AdminEventUpdateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffReq
             {
                 'form': form,
                 'formset': formset,
+                'registration_forms_display': self._display_registration_forms(formset),
                 'mode': 'edit',
                 'event': event,
-                'event_images': event.images.all(),
+                'event_images': event_images,
+                'has_cover_image': has_cover_image,
                 'registration_fields_locked': registration_fields_locked,
             },
         )
@@ -374,6 +389,8 @@ class AdminEventUpdateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffReq
                 updated = form.save()
                 self._remove_selected_images(updated)
                 self._save_new_images(updated)
+                self._set_cover_image(updated)
+                self._ensure_cover_image(updated)
                 messages.success(request, _('Event updated successfully.'))
                 messages.info(request, _('Registration form fields are locked because this event already has user responses.'))
                 return redirect('admin_events')
@@ -386,9 +403,11 @@ class AdminEventUpdateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffReq
                 {
                     'form': form,
                     'formset': locked_formset,
+                    'registration_forms_display': self._display_registration_forms(locked_formset),
                     'mode': 'edit',
                     'event': event,
-                    'event_images': event.images.all(),
+                    'event_images': event.images.order_by('-is_cover', 'id'),
+                    'has_cover_image': event.images.filter(is_cover=True).exists(),
                     'registration_fields_locked': True,
                 },
             )
@@ -398,6 +417,8 @@ class AdminEventUpdateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffReq
             formset.save()
             self._remove_selected_images(updated)
             self._save_new_images(updated)
+            self._set_cover_image(updated)
+            self._ensure_cover_image(updated)
             messages.success(request, _('Event updated successfully.'))
             return redirect('admin_events')
         return render(
@@ -406,9 +427,11 @@ class AdminEventUpdateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffReq
             {
                 'form': form,
                 'formset': formset,
+                'registration_forms_display': self._display_registration_forms(formset),
                 'mode': 'edit',
                 'event': event,
-                'event_images': event.images.all(),
+                'event_images': event.images.order_by('-is_cover', 'id'),
+                'has_cover_image': event.images.filter(is_cover=True).exists(),
                 'registration_fields_locked': False,
             },
         )
@@ -417,6 +440,28 @@ class AdminEventUpdateView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffReq
         for uploaded_file in self.request.FILES.getlist('new_images'):
             optimized_file = optimize_uploaded_image(uploaded_file, crop_size=(1200, 1200), max_bytes=512 * 1024)
             EventImage.objects.create(event=event, image=optimized_file)
+
+    def _set_cover_image(self, event):
+        cover_image_id = (self.request.POST.get('cover_image_id') or '').strip()
+        if not cover_image_id.isdigit():
+            return
+
+        cover_image = EventImage.objects.filter(event=event, id=int(cover_image_id)).first()
+        if not cover_image:
+            return
+
+        EventImage.objects.filter(event=event, is_cover=True).exclude(id=cover_image.id).update(is_cover=False)
+        if not cover_image.is_cover:
+            cover_image.is_cover = True
+            cover_image.save(update_fields=['is_cover'])
+
+    def _ensure_cover_image(self, event):
+        if EventImage.objects.filter(event=event, is_cover=True).exists():
+            return
+        first_image = EventImage.objects.filter(event=event).order_by('id').first()
+        if first_image:
+            first_image.is_cover = True
+            first_image.save(update_fields=['is_cover'])
 
     def _remove_selected_images(self, event):
         image_ids = [image_id for image_id in self.request.POST.getlist('remove_images') if image_id.isdigit()]

@@ -83,7 +83,13 @@
           {% if pending_reviews %}
             <div class="action-card-scroller{% if pending_reviews|length == 1 %} action-card-scroller--single{% endif %}">
               {% for review in pending_reviews %}
-                <div class="action-card action-card-scroll-item p-3">
+                <div
+                  class="action-card action-card-scroll-item action-card-clickable js-review-modal-trigger p-3"
+                  data-review-product="{{ review.product.name }}"
+                  data-review-user="{{ review.user.username }}"
+                  data-review-rating="{{ review.rating }}"
+                  data-review-message="{{ review.message }}"
+                >
                   <h6 class="mb-1">{{ review.product.name }} · {{ review.user.username }}</h6>
                   <p class="mb-2 text-muted">{{ review.rating }}/5 · {{ review.message|truncatechars:90 }}</p>
                   <div class="d-flex gap-2">
@@ -316,6 +322,23 @@
 
   </div>
 
+  <div class="modal fade" id="actionReviewMessageModal" tabindex="-1" aria-labelledby="actionReviewMessageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title" id="actionReviewMessageModalLabel">{% trans 'Message' %}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-2"><strong>{% trans 'Product' %}:</strong> <span id="actionReviewModalProduct"></span></div>
+          <div class="mb-2"><strong>{% trans 'User' %}:</strong> <span id="actionReviewModalUser"></span></div>
+          <div class="mb-3"><strong>{% trans 'Rating' %}:</strong> <span id="actionReviewModalRating"></span></div>
+          <p id="actionReviewModalMessage" class="mb-0" style="white-space: pre-wrap; word-break: break-word;"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
 {% endblock %}
 
 {% block extra_head %}
@@ -542,6 +565,31 @@
           if (href) {
             window.location.href = href;
           }
+        });
+      });
+
+      const reviewModalEl = document.getElementById('actionReviewMessageModal');
+      if (!reviewModalEl || !window.bootstrap || !window.bootstrap.Modal) {
+        return;
+      }
+
+      const reviewModal = new window.bootstrap.Modal(reviewModalEl);
+      const modalProduct = document.getElementById('actionReviewModalProduct');
+      const modalUser = document.getElementById('actionReviewModalUser');
+      const modalRating = document.getElementById('actionReviewModalRating');
+      const modalMessage = document.getElementById('actionReviewModalMessage');
+
+      document.querySelectorAll('.js-review-modal-trigger').forEach(function (card) {
+        card.addEventListener('click', function (event) {
+          if (event.target.closest('a, button, form, input, textarea, select, label, summary, details')) {
+            return;
+          }
+
+          modalProduct.textContent = card.getAttribute('data-review-product') || '';
+          modalUser.textContent = card.getAttribute('data-review-user') || '';
+          modalRating.textContent = (card.getAttribute('data-review-rating') || '') + '/5';
+          modalMessage.textContent = card.getAttribute('data-review-message') || '';
+          reviewModal.show();
         });
       });
     })();

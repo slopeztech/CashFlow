@@ -94,7 +94,11 @@
                 <td>{{ review.product.name }}</td>
                 <td>{{ review.user.username }}</td>
                 <td>{{ review.rating }} / 5</td>
-                <td>{{ review.message }}</td>
+                <td>
+                  <button class="btn btn-link p-0 text-start text-decoration-none view-review-message" type="button" data-review-id="{{ review.id }}" data-message="{{ review.message }}" data-product="{{ review.product.name }}" data-user="{{ review.user.username }}" data-rating="{{ review.rating }}" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block;">
+                    {{ review.message }}
+                  </button>
+                </td>
                 <td>{% if review.is_approved %}<span class="badge badge-opacity-success">{% trans 'Approved' %}</span>{% else %}<span class="badge badge-opacity-warning">{% trans 'Pending' %}</span>{% endif %}</td>
                 <td class="text-end d-flex justify-content-end gap-2">
                   <form method="post" action="{% url 'admin_review_approve' review.id %}">
@@ -115,4 +119,46 @@
       </div>
     </div>
   </div>
+
+  <!-- Review Message Modal -->
+  <div class="modal fade" id="reviewMessageModal" tabindex="-1" aria-labelledby="reviewMessageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title" id="reviewMessageModalLabel">{% trans 'Review Details' %}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label text-muted small">{% trans 'Product' %}</label>
+            <p class="mb-2" id="modalProduct"></p>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted small">{% trans 'User' %}</label>
+            <p class="mb-2" id="modalUser"></p>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted small">{% trans 'Rating' %}</label>
+            <p class="mb-2" id="modalRating"></p>
+          </div>
+          <div>
+            <label class="form-label text-muted small">{% trans 'Full Review' %}</label>
+            <p id="modalMessage" class="mb-0" style="word-break: break-word; white-space: pre-wrap;"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.querySelectorAll('.view-review-message').forEach(button => {
+      button.addEventListener('click', function() {
+        document.getElementById('modalProduct').textContent = this.getAttribute('data-product');
+        document.getElementById('modalUser').textContent = this.getAttribute('data-user');
+        document.getElementById('modalRating').textContent = this.getAttribute('data-rating') + ' / 5';
+        document.getElementById('modalMessage').textContent = this.getAttribute('data-message');
+        new window.bootstrap.Modal(document.getElementById('reviewMessageModal')).show();
+      });
+    });
+  </script>
 {% endblock %}

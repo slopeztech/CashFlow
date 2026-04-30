@@ -3117,3 +3117,6 @@ msgstr "Paid registration for event: %(event)s (%(people)s attendees)"
 
 msgid "Refund for event cancellation: %(event)s (%(people)s attendees)"
 msgstr "Refund for event cancellation: %(event)s (%(people)s attendees)"
+
+msgid "Do not show this notice again"
+msgstr "Do not show this notice again"

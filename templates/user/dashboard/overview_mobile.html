@@ -41,9 +41,43 @@
 
     <div class="col-lg-8">
       {% if active_notices %}
+        <div class="modal fade" id="noticeModal" tabindex="-1" aria-labelledby="noticeModalTitleText" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content overflow-hidden">
+              <div class="modal-header notice-card-header border-0 pb-2" id="noticeModalHeader">
+                <h5 class="modal-title notice-title d-flex align-items-center gap-2 me-2">
+                  <span class="timeline-event-icon timeline-icon-notice flex-shrink-0"><i class="mdi mdi-bell-outline"></i></span>
+                  <span id="noticeModalTitleText"></span>
+                </h5>
+                <div class="d-flex align-items-center gap-2 ms-auto flex-shrink-0">
+                  <small class="notice-date" id="noticeModalDate"></small>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+                </div>
+              </div>
+              <div class="modal-body pt-2 pb-3 notice-description" id="noticeModalBody"></div>
+              <div class="notice-modal-dismiss-bar">
+                <label class="notice-modal-dismiss-label" for="noticeModalDismiss">
+                  <input class="notice-modal-dismiss-check" type="checkbox" id="noticeModalDismiss">
+                  <span>{% trans 'Do not show this notice again' %}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% for notice in active_notices %}
+          <div id="notice-content-{{ notice.id }}" class="d-none">{{ notice.description|linebreaksbr }}</div>
+        {% endfor %}
+
         <div class="d-flex flex-column gap-3 mb-4">
           {% for notice in active_notices %}
-            <div class="card card-rounded notice-card">
+            <div class="card card-rounded notice-card notice-card-clickable"
+                 role="button"
+                 tabindex="0"
+                 data-notice-card
+                 data-notice-id="{{ notice.id }}"
+                 data-notice-title="{{ notice.title }}"
+                 data-notice-type="{{ notice.notice_type }}"
+                 data-notice-date="{{ notice.start_at|date:'d/m/Y' }}">
               <div class="card-header notice-card-header {% if notice.notice_type == 'warning' %}notice-card-header-warning{% elif notice.notice_type == 'danger' %}notice-card-header-danger{% elif notice.notice_type == 'success' %}notice-card-header-success{% else %}notice-card-header-info{% endif %}">
                 <div class="d-flex justify-content-between align-items-start gap-2">
                   <h6 class="notice-title mb-0 d-flex align-items-center gap-2"><span class="timeline-event-icon timeline-icon-notice"><i class="mdi mdi-bell-outline"></i></span>{{ notice.title }}</h6>
@@ -332,6 +366,61 @@
       padding: 1rem 1.1rem;
     }
 
+    .notice-card-clickable {
+      cursor: pointer;
+      transition: transform .16s ease, box-shadow .16s ease;
+    }
+
+    .notice-card-clickable:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px -12px rgba(15, 23, 42, 0.22) !important;
+    }
+
+    .notice-card-clickable:focus-visible {
+      outline: 2px solid #4B49AC;
+      outline-offset: 2px;
+    }
+
+    #noticeModal ~ .modal-backdrop,
+    body:has(#noticeModal.show) .modal-backdrop {
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      background-color: rgba(15, 23, 42, 0.45);
+    }
+
+    .notice-modal-dismiss-bar {
+      border-top: 1px solid rgba(0,0,0,.07);
+      background: #f8fafc;
+      padding: .65rem 1.1rem;
+      border-radius: 0 0 .5rem .5rem;
+    }
+
+    .notice-modal-dismiss-label {
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+      cursor: pointer;
+      margin: 0;
+      font-size: .82rem;
+      color: #6b7280;
+      font-weight: 500;
+      user-select: none;
+    }
+
+    .notice-modal-dismiss-label:hover {
+      color: #374151;
+    }
+
+    .notice-modal-dismiss-check {
+      width: 1rem;
+      height: 1rem;
+      border: 1.5px solid #d1d5db;
+      border-radius: .25rem;
+      cursor: pointer;
+      accent-color: #4B49AC;
+      flex-shrink: 0;
+    }
+
     .timeline-event-icon {
       width: 28px;
       height: 28px;
@@ -474,6 +563,82 @@
         }
         const modal = new bootstrap.Modal(modalEl);
         modal.show();
+      })();
+    </script>
+  {% endif %}
+  {% if active_notices %}
+    <script>
+      (function () {
+        var noticeCards = Array.from(document.querySelectorAll('[data-notice-card]'));
+        if (!noticeCards.length) return;
+
+        var modalEl = document.getElementById('noticeModal');
+        if (!modalEl || typeof bootstrap === 'undefined' || !bootstrap.Modal) return;
+
+        var bsModal = new bootstrap.Modal(modalEl);
+        var titleText = document.getElementById('noticeModalTitleText');
+        var modalDate = document.getElementById('noticeModalDate');
+        var modalBody = document.getElementById('noticeModalBody');
+        var modalHeader = document.getElementById('noticeModalHeader');
+        var dismissCheck = document.getElementById('noticeModalDismiss');
+        var headerClasses = ['notice-card-header-info', 'notice-card-header-warning', 'notice-card-header-danger', 'notice-card-header-success'];
+        var SEEN_KEY = 'cf_notices_dismissed';
+        var currentCard = null;
+
+        function getDismissed() {
+          try { return new Set(JSON.parse(localStorage.getItem(SEEN_KEY) || '[]')); }
+          catch (e) { return new Set(); }
+        }
+
+        function saveDismissed(set) {
+          try { localStorage.setItem(SEEN_KEY, JSON.stringify(Array.from(set))); }
+          catch (e) {}
+        }
+
+        function showNoticeCard(card) {
+          currentCard = card;
+          headerClasses.forEach(function (c) { modalHeader.classList.remove(c); });
+          modalHeader.classList.add('notice-card-header-' + card.dataset.noticeType);
+          titleText.textContent = card.dataset.noticeTitle;
+          modalDate.textContent = card.dataset.noticeDate;
+          var contentEl = document.getElementById('notice-content-' + card.dataset.noticeId);
+          modalBody.innerHTML = contentEl ? contentEl.innerHTML : '';
+          if (dismissCheck) dismissCheck.checked = false;
+          bsModal.show();
+        }
+
+        noticeCards.forEach(function (card) {
+          card.addEventListener('click', function () { showNoticeCard(card); });
+          card.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showNoticeCard(card); }
+          });
+        });
+
+        var dismissed = getDismissed();
+        var autoQueue = noticeCards.filter(function (card) {
+          return !dismissed.has(card.dataset.noticeId);
+        });
+        var autoIndex = 0;
+
+        modalEl.addEventListener('hide.bs.modal', function () {
+          if (dismissCheck && dismissCheck.checked && currentCard) {
+            var d = getDismissed();
+            d.add(currentCard.dataset.noticeId);
+            saveDismissed(d);
+          }
+        });
+
+        modalEl.addEventListener('hidden.bs.modal', function () {
+          var next = autoQueue[autoIndex];
+          if (next) {
+            autoIndex++;
+            setTimeout(function () { showNoticeCard(next); }, 200);
+          }
+        });
+
+        if (autoQueue.length) {
+          showNoticeCard(autoQueue[autoIndex++]);
+        }
       })();
     </script>
   {% endif %}

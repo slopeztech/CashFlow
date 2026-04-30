@@ -3487,3 +3487,6 @@ msgstr "Productos nuevos y destacados"
 
 msgid "Latest purchases and actions"
 msgstr "Ultimas compras y acciones"
+
+msgid "Do not show this notice again"
+msgstr "No volver a mostrar este aviso"

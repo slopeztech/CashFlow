@@ -18,12 +18,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.core.exceptions import ValidationError
+from django import forms
 from django.db import connection, transaction
 from django.db.models import Avg, Case, Count, Exists, F, IntegerField, Max, OuterRef, Prefetch, Q, Sum, Value, When
 from django.db.models.functions import TruncDate, TruncMonth
 from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.crypto import get_random_string
 from django.utils import timezone
 from django.utils.dateparse import parse_date
 from django.utils.translation import gettext_lazy as _
@@ -60,6 +62,7 @@ from core.models import (
     EventComment,
     EventImage,
     EventRegistration,
+    EventRegistrationField,
     Gamification,
     GamificationRewardCompletion,
     Notice,
@@ -489,6 +492,15 @@ class AdminEventDeleteView(LoginRequiredMixin, StaffRequiredMixin, View):
 
     def post(self, request, pk):
         event = get_object_or_404(Event, pk=pk)
+        # Delete guest accounts created for this event before checking registrations
+        guest_registrations = (
+            EventRegistration.objects.filter(event=event, user__username__startswith='guest_event_')
+            .select_related('user')
+        )
+        guest_users = list(guest_registrations.values_list('user', flat=True))
+        guest_registrations.delete()
+        User.objects.filter(pk__in=guest_users, username__startswith='guest_event_').delete()
+
         has_registrations = EventRegistration.objects.filter(event=event).exists()
         has_balance_movements = self._event_has_balance_movements(event)
         if has_registrations or has_balance_movements:
@@ -912,6 +924,91 @@ class AdminSurveyInfoView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequ
         return context
 
 
+def _build_admin_event_registration_form(event, data=None):
+    active_fields = list(event.registration_fields.filter(is_active=True).order_by('sort_order', 'id'))
+
+    class AdminEventRegistrationDynamicForm(forms.Form):
+        pass
+
+    notice_fields = []
+    input_fields = []
+
+    for field in active_fields:
+        field_name = f'event_field_{field.id}'
+        if field.field_type == field.FieldType.NOTICE:
+            notice_fields.append(field)
+            continue
+
+        common_kwargs = {
+            'label': field.label,
+            'required': field.is_required,
+            'help_text': field.help_text,
+        }
+        if field.field_type == field.FieldType.SHORT_TEXT:
+            AdminEventRegistrationDynamicForm.base_fields[field_name] = forms.CharField(
+                **common_kwargs,
+                widget=forms.TextInput(attrs={'class': 'form-control'}),
+            )
+        elif field.field_type == field.FieldType.LONG_TEXT:
+            AdminEventRegistrationDynamicForm.base_fields[field_name] = forms.CharField(
+                **common_kwargs,
+                widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            )
+        elif field.field_type == field.FieldType.CHECKBOX:
+            AdminEventRegistrationDynamicForm.base_fields[field_name] = forms.BooleanField(
+                **common_kwargs,
+                required=False,
+                widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            )
+        elif field.field_type == field.FieldType.RADIO:
+            choices = [(option, option) for option in field.options_list]
+            AdminEventRegistrationDynamicForm.base_fields[field_name] = forms.ChoiceField(
+                **common_kwargs,
+                choices=choices,
+                widget=forms.RadioSelect(),
+            )
+        elif field.field_type == field.FieldType.SELECT:
+            choices = [(option, option) for option in field.options_list]
+            AdminEventRegistrationDynamicForm.base_fields[field_name] = forms.MultipleChoiceField(
+                **common_kwargs,
+                choices=choices,
+                widget=forms.SelectMultiple(attrs={'class': 'form-select'}),
+            )
+
+        input_fields.append(field)
+
+    form = AdminEventRegistrationDynamicForm(data=data)
+    form.notice_fields = notice_fields
+    form.input_fields = input_fields
+    return form
+
+
+def _read_admin_companion_names(post_data):
+    companion_names = []
+    for index, raw_name in enumerate(post_data.getlist('companion_names')):
+        name = (raw_name or '').strip()
+        if name:
+            companion_names.append((index, name))
+    return companion_names
+
+
+def _parse_admin_companion_field_value(field, raw_value=None, raw_values=None):
+    if field.field_type == field.FieldType.CHECKBOX:
+        return str(raw_value).lower() in {'1', 'true', 'on', 'yes'}
+
+    if field.field_type == field.FieldType.SELECT:
+        values = [str(value).strip() for value in (raw_values or []) if str(value).strip()]
+        if any(value not in field.options_list for value in values):
+            return None
+        return values
+
+    value = (raw_value or '').strip()
+    if field.field_type in {field.FieldType.RADIO, field.FieldType.SELECT} and value:
+        if value not in field.options_list:
+            return None
+    return value
+
+
 class AdminEventInfoView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequiredMixin, TemplateView):
     template_name = 'admin/events/info.html'
 
@@ -954,6 +1051,9 @@ class AdminEventInfoView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequi
                                 field_counts[label][value] += 1
                     continue
 
+                if answer_type == 'meta':
+                    continue
+
                 label = str(answer.get('label') or '').strip()
                 value = self._format_answer_value(answer_type, answer.get('value'))
                 if label and value:
@@ -981,6 +1081,10 @@ class AdminEventInfoView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequi
         context = super().get_context_data(**kwargs)
         event = get_object_or_404(Event.objects.select_related('created_by'), pk=self.kwargs['pk'])
         registrations = EventRegistration.objects.filter(event=event).select_related('user').order_by('-created_at')
+        registered_user_ids = registrations.values_list('user_id', flat=True)
+        available_users = User.objects.filter(is_staff=False, is_active=True).exclude(id__in=registered_user_ids).order_by(
+            'username'
+        )
         registrations_count = sum(registration.total_attendees for registration in registrations)
         total_collected = (event.registration_fee * registrations_count) if event.is_paid_event else Decimal('0.00')
         registration_option_summary = self._build_registration_option_summary(registrations)
@@ -1003,6 +1107,8 @@ class AdminEventInfoView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequi
                 'registration_fields': registration_fields,
                 'event_comments': comments,
                 'comment_reply_form': AdminEventCommentReplyForm(),
+                'admin_registration_form': _build_admin_event_registration_form(event),
+                'admin_available_users': available_users,
             }
         )
         return context
@@ -1046,6 +1152,181 @@ class AdminEventCommentIgnoreView(LoginRequiredMixin, StaffRequiredMixin, View):
         else:
             messages.info(request, _('This event comment was already ignored.'))
         return redirect('admin_actions')
+
+
+class AdminEventRegistrationAddView(LoginRequiredMixin, StaffRequiredMixin, View):
+    @staticmethod
+    def _create_guest_user(guest_name, guest_email=''):
+        username = f"guest_event_{get_random_string(10).lower()}"
+        guest_user = User.objects.create_user(
+            username=username,
+            email=guest_email,
+            first_name=guest_name,
+            last_name='',
+            is_active=True,
+        )
+        guest_user.set_unusable_password()
+        guest_user.save(update_fields=['password'])
+        return guest_user
+
+    @transaction.atomic
+    def post(self, request, pk):
+        event = get_object_or_404(Event.objects.select_for_update(), pk=pk)
+
+        if not event.requires_registration:
+            messages.error(request, _('This event does not require registration.'))
+            return redirect('admin_event_info', pk=event.pk)
+
+        registration_source = (request.POST.get('registration_source') or '').strip()
+        selected_user = None
+        guest_name = ''
+        guest_email = ''
+        guest_phone = ''
+
+        if registration_source == 'system':
+            user_id = request.POST.get('system_user_id')
+            selected_user = get_object_or_404(User.objects.filter(is_staff=False, is_active=True), pk=user_id)
+            if EventRegistration.objects.filter(event=event, user=selected_user).exists():
+                messages.info(request, _('This user is already registered for this event.'))
+                return redirect('admin_event_info', pk=event.pk)
+        elif registration_source == 'guest':
+            guest_name = (request.POST.get('guest_name') or '').strip()
+            guest_email = (request.POST.get('guest_email') or '').strip()
+            guest_phone = (request.POST.get('guest_phone') or '').strip()
+            if not guest_name:
+                messages.error(request, _('Please enter the guest full name.'))
+                return redirect('admin_event_info', pk=event.pk)
+        else:
+            messages.error(request, _('Please select whether this registration is for a system user or a guest.'))
+            return redirect('admin_event_info', pk=event.pk)
+
+        companions = _read_admin_companion_names(request.POST)
+        companion_names = [name for _, name in companions]
+        if not event.allow_companions:
+            companions = []
+            companion_names = []
+        elif event.max_companions and len(companion_names) > event.max_companions:
+            messages.error(
+                request,
+                _('This event allows up to %(max)s companions.') % {'max': event.max_companions},
+            )
+            return redirect('admin_event_info', pk=event.pk)
+        requested_attendees = 1 + len(companion_names)
+
+        current_registrations = event.total_registered_attendees
+        if event.capacity and (current_registrations + requested_attendees) > event.capacity:
+            messages.error(request, _('This event is full.'))
+            return redirect('admin_event_info', pk=event.pk)
+
+        registration_form = _build_admin_event_registration_form(event, data=request.POST)
+        if not registration_form.is_valid():
+            messages.error(request, _('Please complete the registration form fields.'))
+            return redirect('admin_event_info', pk=event.pk)
+
+        companion_answers = []
+        if companions and registration_form.input_fields:
+            has_companion_errors = False
+            for companion_index, companion_name in companions:
+                companion_field_answers = []
+                for field in registration_form.input_fields:
+                    field_key = f'companion_{companion_index}_field_{field.id}'
+                    raw_value = request.POST.get(field_key)
+                    raw_values = request.POST.getlist(field_key)
+                    value = _parse_admin_companion_field_value(field, raw_value=raw_value, raw_values=raw_values)
+
+                    if value is None:
+                        has_companion_errors = True
+                        break
+
+                    if field.is_required:
+                        if field.field_type == field.FieldType.CHECKBOX and not value:
+                            has_companion_errors = True
+                            break
+                        if field.field_type != field.FieldType.CHECKBOX and not value:
+                            has_companion_errors = True
+                            break
+
+                    companion_field_answers.append(
+                        {
+                            'label': str(field.label),
+                            'type': str(field.field_type),
+                            'value': value,
+                        }
+                    )
+
+                if has_companion_errors:
+                    break
+
+                companion_answers.append(
+                    {
+                        'name': companion_name,
+                        'answers': companion_field_answers,
+                    }
+                )
+
+            if has_companion_errors:
+                messages.error(request, _('Please complete the registration form fields.'))
+                return redirect('admin_event_info', pk=event.pk)
+
+        if registration_source == 'system' and event.is_paid_event:
+            profile, created = StoreUserProfile.objects.select_for_update().get_or_create(user=selected_user)
+            total_event_fee = event.registration_fee * Decimal(str(requested_attendees))
+            projected_balance = profile.current_balance - total_event_fee
+            if projected_balance < 0 and not event.allow_negative_balance:
+                messages.error(request, _('Insufficient balance for this paid event.'))
+                return redirect('admin_event_info', pk=event.pk)
+
+            if total_event_fee > 0:
+                balance_before = profile.current_balance
+                balance_after = balance_before - total_event_fee
+                profile.current_balance = balance_after
+                profile.save(update_fields=['current_balance', 'updated_at'])
+                BalanceLog.objects.create(
+                    user=selected_user,
+                    changed_by=request.user,
+                    source=BalanceLog.Source.EVENT_REGISTRATION_CHARGE,
+                    amount_delta=-total_event_fee,
+                    balance_before=balance_before,
+                    balance_after=balance_after,
+                    note=(
+                        _('Admin registration for event: %(event)s (%(people)s attendees)')
+                        % {'event': event.name, 'people': requested_attendees}
+                    ),
+                )
+
+        if registration_source == 'guest':
+            selected_user = self._create_guest_user(guest_name=guest_name, guest_email=guest_email)
+
+        answers = {}
+        for field in registration_form.input_fields:
+            field_key = f'event_field_{field.id}'
+            value = registration_form.cleaned_data.get(field_key)
+            answers[str(field.id)] = {
+                'label': str(field.label),
+                'type': str(field.field_type),
+                'value': value,
+            }
+        answers['_companions'] = companion_names
+        if companion_answers:
+            answers['_companion_answers'] = {
+                'label': str(_('Companion form answers')),
+                'type': 'companions',
+                'value': companion_answers,
+            }
+        if registration_source == 'guest':
+            answers['_admin_guest'] = {
+                'label': str(_('Guest added by admin')),
+                'type': 'meta',
+                'value': {
+                    'name': guest_name,
+                    'email': guest_email,
+                    'phone': guest_phone,
+                },
+            }
+
+        EventRegistration.objects.create(event=event, user=selected_user, answers=answers)
+        messages.success(request, _('Registration added successfully.'))
+        return redirect('admin_event_info', pk=event.pk)
 
 
 class AdminEventRegistrationRemoveView(LoginRequiredMixin, StaffRequiredMixin, View):
@@ -1702,6 +1983,7 @@ class AdminUserListCreateView(ResponsiveTemplateMixin, LoginRequiredMixin, Staff
             User.objects.select_related('store_profile')
             .annotate(strikes_count=Count('strikes'))
             .filter(is_active=True)
+            .exclude(username__startswith='guest_event_')
             .order_by('username')
         )
         active_since = timezone.now() - timedelta(hours=2)

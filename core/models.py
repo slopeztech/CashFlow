@@ -315,6 +315,13 @@ class EventRegistration(models.Model):
 	def total_attendees(self):
 		return 1 + self.companion_count
 
+	@property
+	def admin_guest_info(self):
+		entry = (self.answers or {}).get('_admin_guest')
+		if not entry:
+			return None
+		return entry.get('value') or None
+
 
 class EventComment(models.Model):
 	event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='comments')

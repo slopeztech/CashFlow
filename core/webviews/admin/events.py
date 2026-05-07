@@ -5,6 +5,7 @@ from core.webviews.admin_views import (
     AdminEventDeleteView,
     AdminEventInfoView,
     AdminEventListView,
+    AdminEventRegistrationAddView,
     AdminEventRegistrationRemoveView,
     AdminEventUpdateView,
 )
@@ -16,6 +17,7 @@ __all__ = [
     'AdminEventDeleteView',
     'AdminEventInfoView',
     'AdminEventListView',
+    'AdminEventRegistrationAddView',
     'AdminEventRegistrationRemoveView',
     'AdminEventUpdateView',
 ]

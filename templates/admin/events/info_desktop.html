@@ -8,7 +8,7 @@
   <a class="btn btn-light admin-action-btn" href="{% url 'admin_events' %}"><i class="icon-arrow-left"></i> {% trans 'Back to events' %}</a>
 {% endblock %}
 
-{% block extra_css %}
+{% block extra_head %}
   {{ block.super }}
   <style>
     .admin-event-summary-item {
@@ -93,13 +93,50 @@
       gap: 0.6rem;
     }
 
-    .admin-registrations-grid {
-      display: grid;
-      gap: 0.85rem;
-      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    .admin-registrations-viewport {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      contain: content;
+      scroll-behavior: smooth;
+      scrollbar-width: thin;
+      scrollbar-color: #cbd5e1 #f1f5f9;
+    }
+
+    .admin-registrations-viewport::-webkit-scrollbar {
+      height: 7px;
+    }
+
+    .admin-registrations-viewport::-webkit-scrollbar-thumb {
+      background: rgb(148 163 184 / 0.55);
+      border-radius: 999px;
+    }
+
+    .admin-registrations-viewport::-webkit-scrollbar-track {
+      background: rgb(226 232 240 / 0.45);
+      border-radius: 999px;
+    }
+
+    .admin-registrations-track {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      width: max-content;
+      min-width: 100%;
+      box-sizing: border-box;
+      padding-bottom: 0.6rem;
+      scroll-snap-type: x proximity;
+      overscroll-behavior-x: contain;
     }
 
     .admin-registration-card {
+      width: 22rem;
+      max-width: 85vw;
+      flex: 0 0 22rem;
+      box-sizing: border-box;
+      scroll-snap-align: start;
       border: 1px solid #cfd8e6;
       border-radius: 0.8rem;
       background: #fff;
@@ -249,6 +286,60 @@
       background: #f7f8ff;
     }
 
+    .admin-registration-modal .modal-body {
+      background: #f8fafc;
+    }
+
+    .admin-registration-panel {
+      border: 1px solid #dce4f0;
+      border-radius: 0.9rem;
+      background: #ffffff;
+      padding: 1rem;
+    }
+
+    .admin-registration-field-title {
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 0.35rem;
+    }
+
+    .admin-multiselect-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .admin-multiselect-item {
+      border: 1px solid #d6dfec;
+      border-radius: 0.65rem;
+      padding: 0.5rem 0.65rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .admin-multiselect-item:hover {
+      border-color: #becbe0;
+      background: #f8faff;
+    }
+
+    .admin-multiselect-item.is-selected {
+      border-color: #4b49ac;
+      background: #eef1ff;
+    }
+
+    .admin-multiselect-checkbox {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .admin-registration-hidden {
+      display: none !important;
+    }
+
     @media (max-width: 767.98px) {
       .admin-event-summary-item {
         padding: 0.65rem;
@@ -262,8 +353,10 @@
         font-size: 1.05rem;
       }
 
-      .admin-registrations-grid {
-        grid-template-columns: 1fr;
+      .admin-registration-card {
+        width: 18rem;
+        max-width: 85vw;
+        flex: 0 0 18rem;
       }
     }
   </style>
@@ -305,15 +398,36 @@
 
   <div class="card card-rounded mb-3">
     <div class="card-body">
-      <h5 class="card-title mb-3 d-flex align-items-center gap-2"><span class="d-inline-flex align-items-center justify-content-center" style="width:1.4rem;height:1.4rem;border-radius:.4rem;background:#eef2f7;color:#334155;"><i class="mdi mdi-account-multiple-check-outline"></i></span><span>{% trans 'Usuarios registrados' %}</span></h5>
+      <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+        <h5 class="card-title mb-0 d-flex align-items-center gap-2"><span class="d-inline-flex align-items-center justify-content-center" style="width:1.4rem;height:1.4rem;border-radius:.4rem;background:#eef2f7;color:#334155;"><i class="mdi mdi-account-multiple-check-outline"></i></span><span>{% trans 'Usuarios registrados' %}</span></h5>
+        <button type="button" class="btn btn-sm btn-outline-primary admin-action-btn" data-bs-toggle="modal" data-bs-target="#adminAddRegistrationModal" aria-label="{% trans 'Añadir registro' %}"><i class="mdi mdi-plus"></i></button>
+      </div>
       {% if registrations %}
-        <div class="admin-registrations-grid">
+        <div class="admin-registrations-viewport">
+          <div class="admin-registrations-track">
           {% for registration in registrations %}
-            <article class="admin-registration-card" style="border:1px solid #e3e8ef;border-radius:16px;background:linear-gradient(180deg,#ffffff 0%,#fcfdff 100%);box-shadow:0 10px 24px -18px rgba(15,23,42,0.28);padding:.95rem;">
+            <article class="admin-registration-card">
               <div class="admin-registration-header">
-                <div class="admin-registration-user"><i class="mdi mdi-account-circle-outline"></i>{{ registration.user.username }}</div>
+                <div class="admin-registration-user">
+                  <i class="mdi mdi-account-circle-outline"></i>
+                  {% if registration.admin_guest_info %}
+                    {{ registration.admin_guest_info.name }}
+                    <span class="badge badge-opacity-warning ms-1" style="font-size:0.7rem;">{% trans 'Invitado' %}</span>
+                  {% else %}
+                    {{ registration.user.get_full_name|default:registration.user.username }}
+                  {% endif %}
+                </div>
                 <span class="admin-registration-date">{{ registration.created_at|date:'Y/m/d H:i' }}</span>
               </div>
+              {% if registration.admin_guest_info %}
+                <div class="text-muted" style="font-size:0.78rem;margin-top:-0.25rem;margin-bottom:0.4rem;padding-left:1.4rem;">
+                  {% with g=registration.admin_guest_info %}
+                    {% if g.email %}{{ g.email }}{% endif %}
+                    {% if g.email and g.phone %} &middot; {% endif %}
+                    {% if g.phone %}{{ g.phone }}{% endif %}
+                  {% endwith %}
+                </div>
+              {% endif %}
 
               <div class="admin-registration-meta">
                 <span class="badge badge-opacity-primary"><i class="mdi mdi-account-group-outline"></i> {% trans 'Asistentes' %}: {{ registration.total_attendees }}</span>
@@ -324,46 +438,48 @@
                 {% if registration.answers %}
                   <ul>
                     {% for answer in registration.answers.values %}
-                      {% if answer.type == 'companions' or answer.label or answer.value %}
-                        <li>
-                          {% if answer.type == 'companions' %}
-                            <strong>{% trans 'Respuestas de acompañantes' %}:</strong>
-                            {% if answer.value %}
-                              <ul class="mb-0 ps-3 mt-1">
-                                {% for companion in answer.value %}
-                                  <li>
-                                    <strong>{{ companion.name|default:'Acompañante' }}</strong>
-                                    {% if companion.answers %}
-                                      <ul class="mb-0 ps-3">
-                                        {% for companion_answer in companion.answers %}
-                                          {% if companion_answer.label or companion_answer.value %}
-                                            <li>
-                                              <strong>{{ companion_answer.label }}:</strong>
-                                              {% if companion_answer.type == 'checkbox' %}
-                                                {% if companion_answer.value %}{% trans 'Sí' %}{% else %}{% trans 'No' %}{% endif %}
-                                              {% else %}
-                                                {{ companion_answer.value }}
-                                              {% endif %}
-                                            </li>
-                                          {% endif %}
-                                        {% endfor %}
-                                      </ul>
-                                    {% endif %}
-                                  </li>
-                                {% endfor %}
-                              </ul>
+                      {% if answer.type != 'meta' %}
+                        {% if answer.type == 'companions' or answer.label or answer.value %}
+                          <li>
+                            {% if answer.type == 'companions' %}
+                              <strong>{% trans 'Respuestas de acompañantes' %}:</strong>
+                              {% if answer.value %}
+                                <ul class="mb-0 ps-3 mt-1">
+                                  {% for companion in answer.value %}
+                                    <li>
+                                      <strong>{{ companion.name|default:'Acompañante' }}</strong>
+                                      {% if companion.answers %}
+                                        <ul class="mb-0 ps-3">
+                                          {% for companion_answer in companion.answers %}
+                                            {% if companion_answer.label or companion_answer.value %}
+                                              <li>
+                                                <strong>{{ companion_answer.label }}:</strong>
+                                                {% if companion_answer.type == 'checkbox' %}
+                                                  {% if companion_answer.value %}{% trans 'Sí' %}{% else %}{% trans 'No' %}{% endif %}
+                                                {% else %}
+                                                  {{ companion_answer.value }}
+                                                {% endif %}
+                                              </li>
+                                            {% endif %}
+                                          {% endfor %}
+                                        </ul>
+                                      {% endif %}
+                                    </li>
+                                  {% endfor %}
+                                </ul>
+                              {% else %}
+                                <span class="text-muted">-</span>
+                              {% endif %}
                             {% else %}
-                              <span class="text-muted">-</span>
+                              {% if answer.label %}<strong>{{ answer.label }}:</strong>{% endif %}
+                              {% if answer.type == 'checkbox' %}
+                                {% if answer.value %}{% trans 'Sí' %}{% else %}{% trans 'No' %}{% endif %}
+                              {% else %}
+                                {{ answer.value }}
+                              {% endif %}
                             {% endif %}
-                          {% else %}
-                            {% if answer.label %}<strong>{{ answer.label }}:</strong>{% endif %}
-                            {% if answer.type == 'checkbox' %}
-                              {% if answer.value %}{% trans 'Sí' %}{% else %}{% trans 'No' %}{% endif %}
-                            {% else %}
-                              {{ answer.value }}
-                            {% endif %}
-                          {% endif %}
-                        </li>
+                          </li>
+                        {% endif %}
                       {% endif %}
                     {% endfor %}
                   </ul>
@@ -380,10 +496,127 @@
               </div>
             </article>
           {% endfor %}
+          </div>
         </div>
       {% else %}
         <p class="text-muted mb-0">{% trans 'Todavía no hay usuarios registrados.' %}</p>
       {% endif %}
+    </div>
+  </div>
+
+  <div class="modal fade admin-registration-modal" id="adminAddRegistrationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title d-flex align-items-center gap-2 mb-0"><i class="mdi mdi-account-plus-outline"></i> {% trans 'Añadir usuario al evento' %}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% trans 'Close' %}"></button>
+        </div>
+        <form method="post" action="{% url 'admin_event_registration_add' event.pk %}" class="js-admin-event-register-form">
+          <div class="modal-body">
+            {% csrf_token %}
+            <div class="admin-registration-panel mb-3">
+              <label class="form-label fw-semibold" for="id_registration_source">{% trans 'Tipo de registro' %} *</label>
+              <select class="form-select js-admin-registration-source" id="id_registration_source" name="registration_source" required>
+                <option value="">{% trans 'Selecciona una opción' %}</option>
+                <option value="system">{% trans 'Usuario del sistema' %}</option>
+                <option value="guest">{% trans 'Invitado' %}</option>
+              </select>
+            </div>
+
+            <div class="admin-registration-panel mb-3 js-admin-system-user-panel admin-registration-hidden">
+              <label class="form-label fw-semibold" for="id_system_user_id">{% trans 'Usuario del sistema' %} *</label>
+              <select class="form-select js-admin-system-user-input" id="id_system_user_id" name="system_user_id">
+                <option value="">{% trans 'Selecciona un usuario' %}</option>
+                {% for available_user in admin_available_users %}
+                  <option value="{{ available_user.id }}">{{ available_user.username }}{% if available_user.first_name %} ({{ available_user.first_name }} {{ available_user.last_name }}){% endif %}</option>
+                {% endfor %}
+              </select>
+              <small class="text-muted d-block mt-2">{% trans 'Solo se muestran usuarios no registrados en este evento.' %}</small>
+            </div>
+
+            <div class="admin-registration-panel mb-3 js-admin-guest-panel admin-registration-hidden">
+              <div class="row g-3">
+                <div class="col-12 col-md-4">
+                  <label class="form-label fw-semibold" for="id_guest_name">{% trans 'Nombre completo del invitado' %} *</label>
+                  <input type="text" class="form-control js-admin-guest-name" id="id_guest_name" name="guest_name" maxlength="150">
+                </div>
+                <div class="col-12 col-md-4">
+                  <label class="form-label fw-semibold" for="id_guest_email">{% trans 'Email del invitado' %}</label>
+                  <input type="email" class="form-control" id="id_guest_email" name="guest_email" maxlength="254">
+                </div>
+                <div class="col-12 col-md-4">
+                  <label class="form-label fw-semibold" for="id_guest_phone">{% trans 'Teléfono del invitado' %}</label>
+                  <input type="text" class="form-control" id="id_guest_phone" name="guest_phone" maxlength="40">
+                </div>
+              </div>
+            </div>
+
+            {% if admin_registration_form.notice_fields %}
+              <div class="admin-registration-panel mb-3">
+                {% for notice in admin_registration_form.notice_fields %}
+                  <div class="alert alert-info mb-2">
+                    <strong>{{ notice.label }}</strong>
+                    {% if notice.help_text %}
+                      <div class="small mt-1">{{ notice.help_text|linebreaksbr }}</div>
+                    {% endif %}
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            {% if admin_registration_form.input_fields %}
+              <div class="admin-registration-panel mb-3">
+                <div class="row g-3">
+                  {% for field in admin_registration_form %}
+                    <div class="col-12">
+                      {% if field.field.widget.input_type == 'radio' %}
+                        <div class="admin-registration-field-title">{{ field.label }}{% if field.field.required %} *{% endif %}</div>
+                        {% if field.help_text %}<small class="text-muted d-block mb-2">{{ field.help_text }}</small>{% endif %}
+                        <div class="d-flex flex-column gap-2">
+                          {% for option in field %}
+                            <label class="d-flex align-items-center gap-2">
+                              {{ option.tag }}
+                              <span>{{ option.choice_label }}</span>
+                            </label>
+                          {% endfor %}
+                        </div>
+                      {% elif field.field.widget.input_type == 'checkbox' %}
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+                        <div class="form-check">
+                          {{ field }}
+                          {% if field.help_text %}<small class="text-muted d-block">{{ field.help_text }}</small>{% endif %}
+                        </div>
+                      {% elif field.field.widget.allow_multiple_selected %}
+                        <div class="admin-registration-field-title">{{ field.label }}{% if field.field.required %} *{% endif %}</div>
+                        {% if field.help_text %}<small class="text-muted d-block mb-2">{{ field.help_text }}</small>{% endif %}
+                        <div class="admin-multiselect-list">
+                          {% for choice in field.field.choices %}
+                            <label class="admin-multiselect-item">
+                              <input type="checkbox" name="{{ field.html_name }}" value="{{ choice.0 }}" class="admin-multiselect-checkbox">
+                              <span class="mdi mdi-checkbox-blank-outline js-admin-multiselect-icon"></span>
+                              <span>{{ choice.1 }}</span>
+                            </label>
+                          {% endfor %}
+                        </div>
+                      {% else %}
+                        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+                        {{ field }}
+                        {% if field.help_text %}<small class="text-muted d-block">{{ field.help_text }}</small>{% endif %}
+                      {% endif %}
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endif %}
+
+
+          </div>
+          <div class="modal-footer d-flex justify-content-between">
+            <button type="button" class="btn btn-light admin-action-btn" data-bs-dismiss="modal">{% trans 'Cancelar' %}</button>
+            <button type="submit" class="btn btn-primary admin-action-btn text-white"><i class="mdi mdi-content-save-outline"></i> {% trans 'Añadir registro' %}</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -461,4 +694,64 @@
       {% endif %}
     </div>
   </div>
+{% endblock %}
+
+{% block extra_js %}
+  {{ block.super }}
+  <script>
+    (function () {
+      document.querySelectorAll('.js-admin-event-register-form').forEach((form) => {
+        const sourceSelect = form.querySelector('.js-admin-registration-source');
+        const systemPanel = form.querySelector('.js-admin-system-user-panel');
+        const guestPanel = form.querySelector('.js-admin-guest-panel');
+        const systemInput = form.querySelector('.js-admin-system-user-input');
+        const guestNameInput = form.querySelector('.js-admin-guest-name');
+
+        const showEl = (el) => { if (el) el.style.display = ''; };
+        const hideEl = (el) => { if (el) el.style.display = 'none'; };
+
+        const updateSourceState = () => {
+          const source = sourceSelect?.value || '';
+          if (source === 'system') {
+            showEl(systemPanel);
+            hideEl(guestPanel);
+            if (systemInput) systemInput.required = true;
+            if (guestNameInput) guestNameInput.required = false;
+          } else if (source === 'guest') {
+            hideEl(systemPanel);
+            showEl(guestPanel);
+            if (systemInput) systemInput.required = false;
+            if (guestNameInput) guestNameInput.required = true;
+          } else {
+            hideEl(systemPanel);
+            hideEl(guestPanel);
+            if (systemInput) systemInput.required = false;
+            if (guestNameInput) guestNameInput.required = false;
+          }
+        };
+
+        sourceSelect?.addEventListener('change', updateSourceState);
+        updateSourceState();
+      });
+
+      document.addEventListener('change', (event) => {
+        const checkbox = event.target.closest('.admin-multiselect-checkbox');
+        if (!checkbox) {
+          return;
+        }
+        const item = checkbox.closest('.admin-multiselect-item');
+        if (!item) {
+          return;
+        }
+        const icon = item.querySelector('.js-admin-multiselect-icon');
+        if (checkbox.checked) {
+          item.classList.add('is-selected');
+          icon?.classList.replace('mdi-checkbox-blank-outline', 'mdi-checkbox-marked');
+        } else {
+          item.classList.remove('is-selected');
+          icon?.classList.replace('mdi-checkbox-marked', 'mdi-checkbox-blank-outline');
+        }
+      });
+    })();
+  </script>
 {% endblock %}

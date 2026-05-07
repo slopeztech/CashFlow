@@ -29,6 +29,7 @@ from core.webviews.admin.events import (
     AdminEventDeleteView,
     AdminEventInfoView,
     AdminEventListView,
+    AdminEventRegistrationAddView,
     AdminEventRegistrationRemoveView,
     AdminEventUpdateView,
 )
@@ -225,6 +226,11 @@ urlpatterns = [
         'admin-panel/gamifications/completions/<int:user_id>/<int:gamification_id>/reward/',
         AdminGamificationRewardCompleteView.as_view(),
         name='admin_gamification_complete_reward',
+    ),
+    path(
+        'admin-panel/events/<int:pk>/registrations/add/',
+        AdminEventRegistrationAddView.as_view(),
+        name='admin_event_registration_add',
     ),
     path(
         'admin-panel/events/<int:pk>/registrations/<int:registration_id>/remove/',

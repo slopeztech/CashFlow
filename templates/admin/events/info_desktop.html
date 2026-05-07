@@ -286,7 +286,19 @@
       background: #f7f8ff;
     }
 
+    .admin-registration-modal .modal-content {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
     .admin-registration-modal .modal-body {
+      flex: 1 1 0;
+      min-height: 0;
+      overflow-y: scroll !important;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
       background: #f8fafc;
     }
 
@@ -700,6 +712,37 @@
   {{ block.super }}
   <script>
     (function () {
+      // Teleport modal to <body> to escape overflow:hidden ancestors (iOS Safari fix)
+      const modal = document.getElementById('adminAddRegistrationModal');
+      if (modal && modal.parentElement !== document.body) {
+        document.body.appendChild(modal);
+      }
+
+      // Fix mobile scroll: once shown, measure real height and apply it
+      modal.addEventListener('shown.bs.modal', function () {
+        const modalBody = modal.querySelector('.modal-body');
+        const modalHeader = modal.querySelector('.modal-header');
+        const modalFooter = modal.querySelector('.modal-footer');
+        if (modalBody) {
+          const headerH = modalHeader ? modalHeader.getBoundingClientRect().height : 0;
+          const footerH = modalFooter ? modalFooter.getBoundingClientRect().height : 0;
+          const availH = window.innerHeight - headerH - footerH;
+          modalBody.style.maxHeight = availH + 'px';
+          modalBody.style.height = availH + 'px';
+          modalBody.style.overflowY = 'scroll';
+          // Force repaint so Android Chrome registers the scroll container
+          modalBody.scrollTop = 0;
+        }
+      });
+
+      modal.addEventListener('hidden.bs.modal', function () {
+        const modalBody = modal.querySelector('.modal-body');
+        if (modalBody) {
+          modalBody.style.maxHeight = '';
+          modalBody.style.height = '';
+        }
+      });
+
       document.querySelectorAll('.js-admin-event-register-form').forEach((form) => {
         const sourceSelect = form.querySelector('.js-admin-registration-source');
         const systemPanel = form.querySelector('.js-admin-system-user-panel');

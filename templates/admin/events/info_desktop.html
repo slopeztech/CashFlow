@@ -707,8 +707,8 @@
         const systemInput = form.querySelector('.js-admin-system-user-input');
         const guestNameInput = form.querySelector('.js-admin-guest-name');
 
-        const showEl = (el) => { if (el) el.style.display = ''; };
-        const hideEl = (el) => { if (el) el.style.display = 'none'; };
+        const showEl = (el) => { if (el) el.classList.remove('admin-registration-hidden'); };
+        const hideEl = (el) => { if (el) el.classList.add('admin-registration-hidden'); };
 
         const updateSourceState = () => {
           const source = sourceSelect?.value || '';

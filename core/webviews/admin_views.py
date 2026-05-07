@@ -1085,6 +1085,7 @@ class AdminEventInfoView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequi
         available_users = User.objects.filter(is_staff=False, is_active=True).exclude(id__in=registered_user_ids).order_by(
             'username'
         )
+        all_system_users = User.objects.filter(is_staff=False, is_active=True).exclude(username__startswith='guest_event_').order_by('username')
         registrations_count = sum(registration.total_attendees for registration in registrations)
         total_collected = (event.registration_fee * registrations_count) if event.is_paid_event else Decimal('0.00')
         registration_option_summary = self._build_registration_option_summary(registrations)
@@ -1109,6 +1110,7 @@ class AdminEventInfoView(ResponsiveTemplateMixin, LoginRequiredMixin, StaffRequi
                 'comment_reply_form': AdminEventCommentReplyForm(),
                 'admin_registration_form': _build_admin_event_registration_form(event),
                 'admin_available_users': available_users,
+                'admin_all_system_users': all_system_users,
             }
         )
         return context
@@ -1182,6 +1184,8 @@ class AdminEventRegistrationAddView(LoginRequiredMixin, StaffRequiredMixin, View
         guest_name = ''
         guest_email = ''
         guest_phone = ''
+        guest_host_type = 'none'
+        guest_host_user = None
 
         if registration_source == 'system':
             user_id = request.POST.get('system_user_id')
@@ -1193,9 +1197,18 @@ class AdminEventRegistrationAddView(LoginRequiredMixin, StaffRequiredMixin, View
             guest_name = (request.POST.get('guest_name') or '').strip()
             guest_email = (request.POST.get('guest_email') or '').strip()
             guest_phone = (request.POST.get('guest_phone') or '').strip()
+            guest_host_type = (request.POST.get('guest_host_type') or 'none').strip()
             if not guest_name:
                 messages.error(request, _('Please enter the guest full name.'))
                 return redirect('admin_event_info', pk=event.pk)
+            if guest_host_type == 'system_user':
+                guest_host_user_id = request.POST.get('guest_host_user_id')
+                guest_host_user = get_object_or_404(
+                    User.objects.filter(is_staff=False, is_active=True), pk=guest_host_user_id
+                )
+            else:
+                guest_host_type = 'none'
+                guest_host_user = None
         else:
             messages.error(request, _('Please select whether this registration is for a system user or a guest.'))
             return redirect('admin_event_info', pk=event.pk)
@@ -1294,6 +1307,32 @@ class AdminEventRegistrationAddView(LoginRequiredMixin, StaffRequiredMixin, View
                     ),
                 )
 
+        elif registration_source == 'guest' and guest_host_type == 'system_user' and guest_host_user and event.is_paid_event:
+            profile, created = StoreUserProfile.objects.select_for_update().get_or_create(user=guest_host_user)
+            total_event_fee = event.registration_fee * Decimal(str(requested_attendees))
+            projected_balance = profile.current_balance - total_event_fee
+            if projected_balance < 0 and not event.allow_negative_balance:
+                messages.error(request, _('Insufficient balance for this paid event.'))
+                return redirect('admin_event_info', pk=event.pk)
+
+            if total_event_fee > 0:
+                balance_before = profile.current_balance
+                balance_after = balance_before - total_event_fee
+                profile.current_balance = balance_after
+                profile.save(update_fields=['current_balance', 'updated_at'])
+                BalanceLog.objects.create(
+                    user=guest_host_user,
+                    changed_by=request.user,
+                    source=BalanceLog.Source.EVENT_REGISTRATION_CHARGE,
+                    amount_delta=-total_event_fee,
+                    balance_before=balance_before,
+                    balance_after=balance_after,
+                    note=(
+                        _('Admin registration (guest of %(host)s) for event: %(event)s (%(people)s attendees)')
+                        % {'host': guest_host_user.username, 'event': event.name, 'people': requested_attendees}
+                    ),
+                )
+
         if registration_source == 'guest':
             selected_user = self._create_guest_user(guest_name=guest_name, guest_email=guest_email)
 
@@ -1321,6 +1360,8 @@ class AdminEventRegistrationAddView(LoginRequiredMixin, StaffRequiredMixin, View
                     'name': guest_name,
                     'email': guest_email,
                     'phone': guest_phone,
+                    'host_user_id': guest_host_user.pk if guest_host_user else None,
+                    'host_username': guest_host_user.username if guest_host_user else None,
                 },
             }
 

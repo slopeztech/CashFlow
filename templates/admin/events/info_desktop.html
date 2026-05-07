@@ -561,6 +561,27 @@
                   <input type="text" class="form-control" id="id_guest_phone" name="guest_phone" maxlength="40">
                 </div>
               </div>
+
+              <div class="mt-3">
+                <label class="form-label fw-semibold" for="id_guest_host_type">{% trans '¿Es invitado de un socio del sistema?' %}</label>
+                <select class="form-select js-admin-guest-host-type" id="id_guest_host_type" name="guest_host_type">
+                  <option value="none">{% trans 'No, es un invitado independiente' %}</option>
+                  <option value="system_user">{% trans 'Sí, es invitado de un socio' %}</option>
+                </select>
+              </div>
+
+              <div class="mt-3 js-admin-guest-host-panel admin-registration-hidden">
+                <label class="form-label fw-semibold" for="id_guest_host_user_id">{% trans 'Socio anfitrión' %} *</label>
+                <select class="form-select js-admin-guest-host-user-input" id="id_guest_host_user_id" name="guest_host_user_id">
+                  <option value="">{% trans 'Selecciona un socio' %}</option>
+                  {% for u in admin_all_system_users %}
+                    <option value="{{ u.id }}">{{ u.username }}{% if u.first_name %} ({{ u.first_name }} {{ u.last_name }}){% endif %}</option>
+                  {% endfor %}
+                </select>
+                {% if event.is_paid_event %}
+                  <small class="text-muted d-block mt-1">{% trans 'El coste del evento se cargará a la cartera de este socio.' %}</small>
+                {% endif %}
+              </div>
             </div>
 
             {% if admin_registration_form.notice_fields %}
@@ -749,9 +770,23 @@
         const guestPanel = form.querySelector('.js-admin-guest-panel');
         const systemInput = form.querySelector('.js-admin-system-user-input');
         const guestNameInput = form.querySelector('.js-admin-guest-name');
+        const guestHostTypeSelect = form.querySelector('.js-admin-guest-host-type');
+        const guestHostPanel = form.querySelector('.js-admin-guest-host-panel');
+        const guestHostUserInput = form.querySelector('.js-admin-guest-host-user-input');
 
         const showEl = (el) => { if (el) el.classList.remove('admin-registration-hidden'); };
         const hideEl = (el) => { if (el) el.classList.add('admin-registration-hidden'); };
+
+        const updateGuestHostState = () => {
+          const hostType = guestHostTypeSelect?.value || 'none';
+          if (hostType === 'system_user') {
+            showEl(guestHostPanel);
+            if (guestHostUserInput) guestHostUserInput.required = true;
+          } else {
+            hideEl(guestHostPanel);
+            if (guestHostUserInput) guestHostUserInput.required = false;
+          }
+        };
 
         const updateSourceState = () => {
           const source = sourceSelect?.value || '';
@@ -765,6 +800,7 @@
             showEl(guestPanel);
             if (systemInput) systemInput.required = false;
             if (guestNameInput) guestNameInput.required = true;
+            updateGuestHostState();
           } else {
             hideEl(systemPanel);
             hideEl(guestPanel);
@@ -773,6 +809,7 @@
           }
         };
 
+        guestHostTypeSelect?.addEventListener('change', updateGuestHostState);
         sourceSelect?.addEventListener('change', updateSourceState);
         updateSourceState();
       });
